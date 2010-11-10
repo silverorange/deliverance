@@ -5,7 +5,7 @@ require_once 'Site/Site.php';
 require_once 'Site/SiteCommandLineApplication.php';
 require_once 'Site/SiteDatabaseModule.php';
 require_once 'Site/SiteCommandLineConfigModule.php';
-require_once 'Deliverance/DeliveranceMailingList.php';
+require_once 'Deliverance/DeliveranceList.php';
 
 /**
  * Cron job application to update mailing list with new and queued subscriber
@@ -15,7 +15,7 @@ require_once 'Deliverance/DeliveranceMailingList.php';
  * @copyright 2009-2010 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
+abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 {
 	// {{{ protected properties
 
@@ -76,7 +76,7 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 	// }}}
 	// {{{ protected function subscribe()
 
-	protected function subscribe(DeliveranceMailingList $list)
+	protected function subscribe(DeliveranceList $list)
 	{
 		if ($list->isAvailable()) {
 			// broken into two methods since we sometimes have to use different
@@ -95,7 +95,7 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 	// }}}
 	// {{{ protected function unsubscribe()
 
-	protected function unsubscribe(DeliveranceMailingList $list)
+	protected function unsubscribe(DeliveranceList $list)
 	{
 		if ($list->isAvailable()) {
 			$this->unsubscribeQueued($list);
@@ -112,7 +112,7 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 	// }}}
 	// {{{ protected function subscribeQueuedWithWelcome()
 
-	protected function subscribeQueuedWithWelcome(DeliveranceMailingList $list)
+	protected function subscribeQueuedWithWelcome(DeliveranceList $list)
 	{
 		$with_welcome = true;
 		$addresses = $this->getQueuedSubscribes($with_welcome);
@@ -162,7 +162,7 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 	// }}}
 	// {{{ protected function subscribeQueued()
 
-	protected function subscribeQueued(DeliveranceMailingList $list)
+	protected function subscribeQueued(DeliveranceList $list)
 	{
 		$with_welcome = false;
 		$addresses = $this->getQueuedSubscribes($with_welcome);
@@ -208,7 +208,7 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 	// }}}
 	// {{{ protected function unsubscribeQueued()
 
-	protected function unsubscribeQueued(DeliveranceMailingList $list)
+	protected function unsubscribeQueued(DeliveranceList $list)
 	{
 		$addresses = $this->getQueuedUnsubscribes();
 
@@ -260,9 +260,9 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 	{
 		$clear_queued = false;
 
-		if ($result === DeliveranceMailingList::QUEUED) {
+		if ($result === DeliveranceList::QUEUED) {
 			$this->debug(Deliverance::_('All requests queued.')."\n");
-		} elseif ($result === DeliveranceMailingList::SUCCESS) {
+		} elseif ($result === DeliveranceList::SUCCESS) {
 			$this->debug(Deliverance::_('All requests successful.')."\n");
 			$clear_queued = true;
 		} elseif (is_int($result) && $result > 0) {

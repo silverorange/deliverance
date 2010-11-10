@@ -2,7 +2,7 @@
 
 require_once 'XML/RPC2/Client.php';
 require_once 'Swat/SwatDate.php';
-require_once 'Deliverance/DeliveranceMailingList.php';
+require_once 'Deliverance/DeliveranceList.php';
 require_once 'Deliverance/DeliveranceMailChimpCampaign.php';
 
 /**
@@ -14,7 +14,7 @@ require_once 'Deliverance/DeliveranceMailChimpCampaign.php';
  *            filling with placeholder data in the other address columns (as
  *            suggested by mailchimp).
  */
-class DeliveranceMailChimpList extends DeliveranceMailingList
+class DeliveranceMailChimpList extends DeliveranceList
 {
 	// {{{ class constants
 
@@ -284,7 +284,7 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
 				if ($e->getFaultCode() == self::INVALID_ADDRESS_ERROR_CODE) {
-					$result = DeliveranceMailingList::INVALID;
+					$result = DeliveranceList::INVALID;
 				} else {
 					$e = new SiteException($e);
 					$e->process();
@@ -430,10 +430,10 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
 				if ($e->getFaultCode() == self::NOT_FOUND_ERROR_CODE) {
-					$result = DeliveranceMailingList::NOT_FOUND;
+					$result = DeliveranceList::NOT_FOUND;
 				} elseif ($e->getFaultCode() ==
 					self::NOT_SUBSCRIBED_ERROR_CODE) {
-					$result = DeliveranceMailingList::NOT_SUBSCRIBED;
+					$result = DeliveranceList::NOT_SUBSCRIBED;
 				} else {
 					$e = new SiteException($e);
 					$e->process();
@@ -723,7 +723,7 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 	// campaign methods
 	// {{{ public function saveCampaign()
 
-	public function saveCampaign(DeliveranceMailingCampaign $campaign)
+	public function saveCampaign(DeliveranceCampaign $campaign)
 	{
 		$campaign->id = $this->getCampaignId($campaign);
 
@@ -739,7 +739,7 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 	// }}}
 	// {{{ public function scheduleCampaign()
 
-	public function scheduleCampaign(DeliveranceMailingCampaign $campaign)
+	public function scheduleCampaign(DeliveranceCampaign $campaign)
 	{
 		$send_date = $campaign->getSendDate();
 		if ($send_date instanceof SwatDate) {
@@ -768,7 +768,7 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 	// }}}
 	// {{{ public function unscheduleCampaign()
 
-	public function unscheduleCampaign(DeliveranceMailingCampaign $campaign)
+	public function unscheduleCampaign(DeliveranceCampaign $campaign)
 	{
 		try {
 			$this->client->campaignUnschedule(
@@ -790,7 +790,7 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 	// }}}
 	// {{{ public function getCampaignId()
 
-	public function getCampaignId(DeliveranceMailingCampaign $campaign)
+	public function getCampaignId(DeliveranceCampaign $campaign)
 	{
 		$campaign_id = null;
 		$filters     = array(
@@ -923,7 +923,7 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 	// }}}
 	// {{{ protected function createCampaign()
 
-	protected function createCampaign(DeliveranceMailingCampaign $campaign)
+	protected function createCampaign(DeliveranceCampaign $campaign)
 	{
 		$options = $this->getCampaignOptions($campaign);
 		$content = $this->getCampaignContent($campaign);
@@ -947,7 +947,7 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 	// }}}
 	// {{{ protected function updateCampaign()
 
-	protected function updateCampaign(DeliveranceMailingCampaign $campaign)
+	protected function updateCampaign(DeliveranceCampaign $campaign)
 	{
 		$options = $this->getCampaignOptions($campaign);
 		$content = $this->getCampaignContent($campaign);
@@ -975,7 +975,7 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 	// {{{ protected function updateCampaignSegmentOptions()
 
 	protected function updateCampaignSegmentOptions(
-		DeliveranceMailingCampaign $campaign)
+		DeliveranceCampaign $campaign)
 	{
 		$segment_options = $this->getCampaignSegmentOptions($campaign);
 		if ($segment_options !== null) {
@@ -1065,9 +1065,9 @@ class DeliveranceMailChimpList extends DeliveranceMailingList
 	{
 		$content = array(
 			'html' => $campaign->getContent(
-				DeliveranceMailingCampaign::FORMAT_XHTML),
+				DeliveranceCampaign::FORMAT_XHTML),
 			'text' => $campaign->getContent(
-				DeliveranceMailingCampaign::FORMAT_TEXT),
+				DeliveranceCampaign::FORMAT_TEXT),
 		);
 
 		return $content;

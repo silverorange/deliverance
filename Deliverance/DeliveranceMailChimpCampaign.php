@@ -1,13 +1,13 @@
 <?php
 
-require_once 'Deliverance/DeliveranceMailingCampaign.php';
+require_once 'Deliverance/DeliveranceCampaign.php';
 
 /**
  * @package   Deliverance
  * @copyright 2009-2010 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class DeliveranceMailChimpCampaign extends DeliveranceMailingCampaign
+class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 {
 	// {{{ class constants
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once 'Deliverance/DeliveranceMailingListUpdater.php';
+require_once 'Deliverance/DeliveranceListUpdater.php';
 require_once 'Deliverance/DeliveranceMailChimpList.php';
 
 /**
@@ -11,7 +11,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  * @copyright 2009-2010 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class DeliveranceMailChimpListUpdater extends DeliveranceMailingListUpdater
+class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 {
 	// {{{ protected function getList()
 
@@ -62,7 +62,7 @@ class DeliveranceMailChimpListUpdater extends DeliveranceMailingListUpdater
 						$invalid_count++;
 						break;
 
-					case DeliveranceMailingList::QUEUED:
+					case DeliveranceList::QUEUED:
 						$queued_count++;
 						break;
 

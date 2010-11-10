@@ -8,7 +8,7 @@ require_once 'SwatDB/SwatDB.php';
  * @copyright 2009-2010 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-abstract class DeliveranceMailingList
+abstract class DeliveranceList
 {
 	// {{{ class constants
 
@@ -97,7 +97,7 @@ abstract class DeliveranceMailingList
 	public function handleSubscribeResponse($response)
 	{
 		switch ($response) {
-		case DeliveranceMailingList::INVALID:
+		case DeliveranceList::INVALID:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Sorry, the email address you entered is not a valid '.
@@ -107,7 +107,7 @@ abstract class DeliveranceMailingList
 			);
 			break;
 
-		case DeliveranceMailingList::FAILURE:
+		case DeliveranceList::FAILURE:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Sorry, there was an issue subscribing you to the list.'
@@ -150,7 +150,7 @@ abstract class DeliveranceMailingList
 	public function handleUnsubscribeResponse($response)
 	{
 		switch ($response) {
-		case DeliveranceMailingList::NOT_FOUND:
+		case DeliveranceList::NOT_FOUND:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Thank you. Your email address was never subscribed to '.
@@ -165,7 +165,7 @@ abstract class DeliveranceMailingList
 
 			break;
 
-		case DeliveranceMailingList::NOT_SUBSCRIBED:
+		case DeliveranceList::NOT_SUBSCRIBED:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Thank you. Your email address has already been '.
@@ -180,7 +180,7 @@ abstract class DeliveranceMailingList
 
 			break;
 
-		case DeliveranceMailingList::FAILURE:
+		case DeliveranceList::FAILURE:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Sorry, there was an issue unsubscribing from the list.'
@@ -232,7 +232,7 @@ abstract class DeliveranceMailingList
 	// campaign methods
 	// {{{ abstract public function saveCampaign()
 
-	abstract public function saveCampaign(DeliveranceMailingCampaign $campaign);
+	abstract public function saveCampaign(DeliveranceCampaign $campaign);
 
 	// }}}
 
@@ -258,7 +258,7 @@ abstract class DeliveranceMailingList
 
 		SwatDB::exec($this->app->db, $sql);
 
-		return DeliveranceMailingList::QUEUED;
+		return DeliveranceList::QUEUED;
 	}
 
 	// }}}
@@ -284,7 +284,7 @@ abstract class DeliveranceMailingList
 
 		SwatDB::exec($this->app->db, $sql);
 
-		return DeliveranceMailingList::QUEUED;
+		return DeliveranceList::QUEUED;
 	}
 
 	// }}}
@@ -298,7 +298,7 @@ abstract class DeliveranceMailingList
 
 		SwatDB::exec($this->app->db, $sql);
 
-		return DeliveranceMailingList::QUEUED;
+		return DeliveranceList::QUEUED;
 	}
 
 	// }}}
@@ -318,7 +318,7 @@ abstract class DeliveranceMailingList
 
 		SwatDB::exec($this->app->db, $sql);
 
-		return DeliveranceMailingList::QUEUED;
+		return DeliveranceList::QUEUED;
 	}
 
 	// }}}
