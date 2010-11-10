@@ -8,7 +8,7 @@ require_once 'Site/pages/SiteEditPage.php';
  * @copyright 2009-2010 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-abstract class SiteMailingUnsubscribePage extends SiteEditPage
+abstract class DeliveranceUnsubscribePage extends SiteEditPage
 {
 	// {{{ protected function getUiXml()
 
