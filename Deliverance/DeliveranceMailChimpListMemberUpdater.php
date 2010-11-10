@@ -3,6 +3,7 @@
 require_once 'Swat/SwatString.php';
 require_once 'SwatDB/SwatDB.php';
 require_once 'Site/SiteCommandLineApplication.php';
+require_once 'Deliverance/Deliverance.php';
 require_once 'Deliverance/DeliveranceMailChimpList.php';
 
 /**
@@ -483,6 +484,17 @@ abstract class DeliveranceMailChimpListMemberUpdater
 				SwatString::numberFormat($queued_updates)),
 				true);
 		}
+	}
+
+	// }}}
+
+	// boilerplate
+	// {{{ protected function addConfigDefinitions()
+
+	protected function addConfigDefinitions(SiteConfigModule $config)
+	{
+		parent::addConfigDefinitions($config);
+		$config->addDefinitions(Deliverance::getConfigDefinitions());
 	}
 
 	// }}}

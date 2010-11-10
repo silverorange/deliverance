@@ -1,10 +1,10 @@
 <?php
 
 require_once 'SwatDB/SwatDB.php';
-require_once 'Site/Site.php';
 require_once 'Site/SiteCommandLineApplication.php';
 require_once 'Site/SiteDatabaseModule.php';
 require_once 'Site/SiteCommandLineConfigModule.php';
+require_once 'Deliverance/Deliverance.php';
 require_once 'Deliverance/DeliveranceList.php';
 
 /**
@@ -383,6 +383,15 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 	// }}}
 
 	// boilerplate
+	// {{{ protected function addConfigDefinitions()
+
+	protected function addConfigDefinitions(SiteConfigModule $config)
+	{
+		parent::addConfigDefinitions($config);
+		$config->addDefinitions(Deliverance::getConfigDefinitions());
+	}
+
+	// }}}
 	// {{{ protected function getDefaultModuleList()
 
 	protected function getDefaultModuleList()
