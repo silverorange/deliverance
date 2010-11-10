@@ -1,14 +1,15 @@
 <?php
 
-require_once 'Site/SiteMailingList.php';
+require_once 'Swat/SwatString.php';
 require_once 'Site/SiteLayoutData.php';
+require_once 'Deliverance/DeliveranceMailingList.php';
 
 /**
- * @package   Site
+ * @package   Deliverance
  * @copyright 2009-2010 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class SiteMailingCampaign
+class DeliveranceMailingCampaign
 {
 	// {{{ class constants
 
@@ -300,11 +301,11 @@ class SiteMailingCampaign
 		$filename = $this->getSourceDirectory().'/';
 
 		switch($format) {
-		case SiteMailingCampaign::FORMAT_XHTML:
+		case DeliveranceMailingCampaign::FORMAT_XHTML:
 			$filename.= $this->xhtml_template_filename;
 			break;
 
-		case SiteMailingCampaign::FORMAT_TEXT:
+		case DeliveranceMailingCampaign::FORMAT_TEXT:
 			$filename.= $this->text_template_filename;
 			break;
 		}

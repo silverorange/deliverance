@@ -1,5 +1,7 @@
 <?php
 
+require_once 'Swat/SwatString.php';
+require_once 'SwatDB/SwatDB.php';
 require_once 'Site/SiteCommandLineApplication.php';
 require_once 'Deliverance/DeliveranceMailChimpList.php';
 
@@ -136,35 +138,36 @@ abstract class DeliveranceMailChimpListMemberUpdater
 		$incremental = new SiteCommandLineArgument(
 			array('-i', '--incremental'),
 			'setIncremental',
-			'Sets whether to only use resources from s3.');
+			Deliverance::_('Sets whether to only use resources from s3.'));
 
 		$this->addCommandLineArgument($incremental);
 
 		$update_member_cache = new SiteCommandLineArgument(
 			array('-u', '--update-member-cache'),
 			'setUpdateMemberCache',
-			'Sets whether to only use resources from s3.');
+			Deliverance::_('Sets whether to only use resources from s3.'));
 
 		$this->addCommandLineArgument($update_member_cache);
 
 		$field = new SiteCommandLineArgument(
 			array('-f', '--field'),
 			'setField',
-			'Sets the field that we’re updating. Will also set the '.
-			'merge as the uppercase version of the field.');
+			Deliverance::_(
+				'Sets the field that we\'re updating. Will also set the '.
+				'merge as the uppercase version of the field.'));
 
 		$field->addParameter('string',
-			'--field expects a single paramater.');
+			Deliverance::_('--field expects a single paramater.'));
 
 		$this->addCommandLineArgument($field);
 
 		$merge = new SiteCommandLineArgument(
 			array('-m', '--merge'),
 			'setMerge',
-			'Sets the merge for the field.');
+			Deliverance::_('Sets the merge for the field.'));
 
 		$merge->addParameter('string',
-			'--merge expects a single paramater.');
+			Deliverance::_('--merge expects a single paramater.'));
 
 		$this->addCommandLineArgument($merge);
 

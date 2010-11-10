@@ -1,8 +1,11 @@
 <?php
 
+require_once 'Swat/SwatMessage.php';
+require_once 'SwatDB/SwatDB.php';
+
 /**
  * @package   Deliverance
- * @copyright 2009 silverorange
+ * @copyright 2009-2010 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceMailingList
@@ -95,22 +98,31 @@ abstract class DeliveranceMailingList
 	{
 		switch ($response) {
 		case DeliveranceMailingList::INVALID:
-			$message = new SwatMessage(Site::_('Sorry, the email address '.
-				'you entered is not a valid email address.'),
-				'error');
-
+			$message = new SwatMessage(
+				Deliverance::_(
+					'Sorry, the email address you entered is not a valid '.
+					'email address.'
+				),
+				'error'
+			);
 			break;
 
 		case DeliveranceMailingList::FAILURE:
-			$message = new SwatMessage(Site::_('Sorry, there was an issue '.
-				'subscribing you to the list.'),
-				'error');
+			$message = new SwatMessage(
+				Deliverance::_(
+					'Sorry, there was an issue subscribing you to the list.'
+				),
+				'error'
+			);
 
 			$message->content_type = 'text/xml';
-			$message->secondary_content = sprintf(Site::_('This can usually '.
-				'be resolved by trying again later. If the issue persists '.
-				'please <a href="%s">contact us</a>.'),
-				$this->getContactUsLink());
+			$message->secondary_content = sprintf(
+				Deliverance::_(
+					'This can usually be resolved by trying again later. If '.
+					'the issue persists please <a href="%s">contact us</a>.'
+				),
+				$this->getContactUsLink()
+			);
 
 			$message->content_type = 'txt/xhtml';
 			break;
@@ -139,35 +151,52 @@ abstract class DeliveranceMailingList
 	{
 		switch ($response) {
 		case DeliveranceMailingList::NOT_FOUND:
-			$message = new SwatMessage(Site::_('Thank you. Your email address '.
-				'was never subscribed to our newsletter.'),
-				'notice');
+			$message = new SwatMessage(
+				Deliverance::_(
+					'Thank you. Your email address was never subscribed to '.
+					'our newsletter.'
+				),
+				'notice'
+			);
 
-			$message->secondary_content =
-				Site::_('You will not receive any mailings to this address.');
+			$message->secondary_content = Deliverance::_(
+				'You will not receive any mailings to this address.'
+			);
 
 			break;
 
 		case DeliveranceMailingList::NOT_SUBSCRIBED:
-			$message = new SwatMessage(Site::_('Thank you. Your email address '.
-				'has already been unsubscribed from our newsletter.'),
-				'notice');
+			$message = new SwatMessage(
+				Deliverance::_(
+					'Thank you. Your email address has already been '.
+					'unsubscribed from our newsletter.'
+				),
+				'notice'
+			);
 
-			$message->secondary_content =
-				Site::_('You will not receive any mailings to this address.');
+			$message->secondary_content = Deliverance::_(
+				'You will not receive any mailings to this address.'
+			);
 
 			break;
 
 		case DeliveranceMailingList::FAILURE:
-			$message = new SwatMessage(Site::_('Sorry, there was an issue '.
-				'unsubscribing from the list.'),
-				'error');
+			$message = new SwatMessage(
+				Deliverance::_(
+					'Sorry, there was an issue unsubscribing from the list.'
+				),
+				'error'
+			);
 
 			$message->content_type = 'text/xml';
-			$message->secondary_content = sprintf(Site::_('This can usually '.
-				'be resolved by trying again later. If the issue persists '.
-				'please <a href="%s">contact us</a>.'),
-				$this->getContactUsLink());
+			$message->secondary_content = sprintf(
+				Deliverance::_(
+					'This can usually be resolved by trying again later. '.
+					'If the issue persists, please '.
+					'<a href="%s">contact us</a>.'
+				),
+				$this->getContactUsLink()
+			);
 
 			$message->content_type = 'txt/xhtml';
 			break;

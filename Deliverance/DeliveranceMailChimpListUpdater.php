@@ -68,7 +68,7 @@ class DeliveranceMailChimpListUpdater extends DeliveranceMailingListUpdater
 
 					default:
 						$error_message = sprintf(
-							Site::_('code: %s - message: %s.'),
+							Deliverance::_('code: %s - message: %s.'),
 							$error['code'],
 							$error['message']);
 
@@ -80,38 +80,64 @@ class DeliveranceMailChimpListUpdater extends DeliveranceMailingListUpdater
 				}
 
 				if ($not_found_count > 0) {
-					$this->debug(sprintf(Site::_('%s addresses not found.').
-						"\n",
-						$not_found_count));
+					$this->debug(
+						sprintf(
+							Deliverance::_('%s addresses not found.')."\n",
+							$not_found_count
+						)
+					);
 				}
 
 				if ($previously_unsubscribed_count > 0) {
-					$this->debug(sprintf(Site::_('%s addresses have '.
-						'previously subscribed, and cannot be resubscribed.').
-						"\n",
-						$previously_unsubscribed_count));
+					$this->debug(
+						sprintf(
+							Deliverance::_(
+								'%s addresses have previously subscribed, '.
+								'and cannot be resubscribed.'
+							)."\n",
+							$previously_unsubscribed_count
+						)
+					);
 				}
 
 				if ($bounced_count > 0) {
-					$this->debug(sprintf(Site::_('%s addresses have bounced, '.
-						'and cannot be resubscribed.')."\n",
-						$bounced_count));
+					$this->debug(
+						sprintf(
+							Deliverance::_(
+								'%s addresses have bounced, and cannot be '.
+								'resubscribed.'
+							)."\n",
+							$bounced_count
+						)
+					);
 				}
 
 				if ($invalid_count > 0) {
-					$this->debug(sprintf(Site::_('%s invalid addresses.')."\n",
-						$invalid_count));
+					$this->debug(
+						sprintf(
+							Deliverance::_('%s invalid addresses.')."\n",
+							$invalid_count
+						)
+					);
 				}
 
 				if ($queued_count > 0) {
 					$clear_queued = false;
-					$this->debug(sprintf(Site::_('%s addresses queued.')."\n",
-						$queued_count));
+					$this->debug(
+						sprintf(
+							Deliverance::_('%s addresses queued.')."\n",
+							$queued_count
+						)
+					);
 				}
 
 				if (count($errors)) {
-					$this->debug(sprintf(Site::_('%s errors:')."\n",
-						count($errors)));
+					$this->debug(
+						sprintf(
+							Deliverance::_('%s errors:')."\n",
+							count($errors)
+						)
+					);
 
 					foreach ($errors as $error) {
 						$this->debug($error."\n");

@@ -28,8 +28,10 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 	{
 		parent::__construct($id, $filename, $title, $documentation);
 
-		$dry_run = new SiteCommandLineArgument(array('--dry-run'),
-			'setDryRun', 'No data is actually modified.');
+		$dry_run = new SiteCommandLineArgument(
+			array('--dry-run'),
+			'setDryRun',
+			Deliverance::_('No data is actually modified.'));
 
 		$this->addCommandLineArgument($dry_run);
 	}
@@ -51,17 +53,19 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 
 		$list = $this->getList();
 
-		$this->debug(Site::_('Updating Mailing List')."\n\n", true);
+		$this->debug(Deliverance::_('Updating Mailing List')."\n\n", true);
 
-		$this->debug(Site::_('Subscribing:')."\n--------------------\n");
+		$this->debug(Deliverance::_('Subscribing:')."\n--------------------\n");
 		$this->subscribe($list);
-		$this->debug(Site::_('Done subscribing.')."\n\n");
+		$this->debug(Deliverance::_('Done subscribing.')."\n\n");
 
-		$this->debug(Site::_('Unsubscribing:')."\n--------------------\n");
+		$this->debug(
+			Deliverance::_('Unsubscribing:')."\n--------------------\n");
+
 		$this->unsubscribe($list);
-		$this->debug(Site::_('Done unsubscribing.')."\n\n");
+		$this->debug(Deliverance::_('Done unsubscribing.')."\n\n");
 
-		$this->debug(Site::_('All Done.')."\n", true);
+		$this->debug(Deliverance::_('All Done.')."\n", true);
 	}
 
 	// }}}
@@ -80,8 +84,11 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 			$this->subscribeQueuedWithWelcome($list);
 			$this->subscribeQueued($list);
 		} else {
-			$this->debug(Site::_('Mailing list unavailable. No queued '.
-				'addresses subscribed.')."\n");
+			$this->debug(
+				Deliverance::_(
+					'Mailing list unavailable. No queued addresses subscribed.'
+				)."\n"
+			);
 		}
 	}
 
@@ -93,8 +100,12 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 		if ($list->isAvailable()) {
 			$this->unsubscribeQueued($list);
 		} else {
-			$this->debug(Site::_('Mailing list unavailable. No queued '.
-				'addresses unsubscribed.')."\n");
+			$this->debug(
+				Deliverance::_(
+					'Mailing list unavailable. No queued addresses '.
+					'unsubscribed.'
+				)."\n"
+			);
 		}
 	}
 
@@ -107,24 +118,33 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 		$addresses = $this->getQueuedSubscribes($with_welcome);
 
 		if (count($addresses) == 0) {
-			$this->debug(Site::_('No queued addresses with welcome message '.
-				'to subscribe.')."\n");
-
+			$this->debug(
+				Deliverance::_(
+					'No queued addresses with welcome message to subscribe.'
+				)."\n"
+			);
 			return;
 		}
 
-		$this->debug(sprintf(
-			Site::_('Subscribing %s queued addresses with welcome message.').
-			"\n",
-			count($addresses)));
+		$this->debug(
+			sprintf(
+				Deliverance::_(
+					'Subscribing %s queued addresses with welcome message.'
+				)."\n",
+				count($addresses)
+			)
+		);
 
 		if ($this->dry_run === false) {
 			$result = $list->batchSubscribe($addresses, true,
 				$this->getArrayMap());
 
-			$clear_queued = $this->handleResult($result,
-				Site::_('%s queued addresses with welcome message subscribed.').
-				"\n");
+			$clear_queued = $this->handleResult(
+				$result,
+				Deliverance::_(
+					'%s queued addresses with welcome message subscribed.'
+				)."\n"
+			);
 
 			// don't clean the queued subscribes if they have been re-queued.
 			if ($clear_queued === true) {
@@ -132,8 +152,11 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 			}
 		}
 
-		$this->debug(Site::_('done subscribing queued addresses with welcome '.
-			'message.')."\n\n");
+		$this->debug(
+			Deliverance::_(
+				'done subscribing queued addresses with welcome message.'
+			)."\n\n"
+		);
 	}
 
 	// }}}
@@ -145,19 +168,29 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 		$addresses = $this->getQueuedSubscribes($with_welcome);
 
 		if (count($addresses) == 0) {
-			$this->debug(Site::_('No queued addresses to subscribe.')."\n");
+			$this->debug(
+				Deliverance::_(
+					'No queued addresses to subscribe.'
+				)."\n"
+			);
 			return;
 		}
 
-		$this->debug(sprintf(Site::_('Subscribing %s queued addresses.')."\n",
-			count($addresses)));
+		$this->debug(
+			sprintf(
+				Deliverance::_('Subscribing %s queued addresses.')."\n",
+				count($addresses)
+			)
+		);
 
 		if ($this->dry_run === false) {
 			$result = $list->batchSubscribe($addresses, false,
 				$this->getArrayMap());
 
-			$clear_queued = $this->handleResult($result,
-				Site::_('%s queued addresses subscribed.')."\n");
+			$clear_queued = $this->handleResult(
+				$result,
+				Deliverance::_('%s queued addresses subscribed.')."\n"
+			);
 
 			// don't clean the queued subscribes if they have been re-queued.
 			if ($clear_queued === true) {
@@ -165,7 +198,11 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 			}
 		}
 
-		$this->debug(Site::_('done subscribing queued addresses.')."\n\n");
+		$this->debug(
+			Deliverance::_(
+				'done subscribing queued addresses.'
+			)."\n\n"
+		);
 	}
 
 	// }}}
@@ -176,18 +213,32 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 		$addresses = $this->getQueuedUnsubscribes();
 
 		if (count($addresses) == 0) {
-			$this->debug(Site::_('No queued addresses to unsubscribe.')."\n");
+			$this->debug(
+				Deliverance::_(
+					'No queued addresses to unsubscribe.'
+				)."\n"
+			);
 			return;
 		}
 
-		$this->debug(sprintf(Site::_('Unsubscribing %s queued addresses.')."\n",
-			count($addresses)));
+		$this->debug(
+			sprintf(
+				Deliverance::_(
+					'Unsubscribing %s queued addresses.'
+				)."\n",
+				count($addresses)
+			)
+		);
 
 		if ($this->dry_run === false) {
 			$result = $list->batchUnsubscribe($addresses);
 
-			$clear_queued = $this->handleResult($result,
-				Site::_('%s queued addresses unsubscribed.')."\n");
+			$clear_queued = $this->handleResult(
+				$result,
+				Deliverance::_(
+					'%s queued addresses unsubscribed.'
+				)."\n"
+			);
 
 			// don't clean the queued subscribes if they have been re-queued.
 			if ($clear_queued === true) {
@@ -195,7 +246,11 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 			}
 		}
 
-		$this->debug(Site::_('done unsubscribing queued addresses.')."\n\n");
+		$this->debug(
+			Deliverance::_(
+				'done unsubscribing queued addresses.'
+			)."\n\n"
+		);
 	}
 
 	// }}}
@@ -206,9 +261,9 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 		$clear_queued = false;
 
 		if ($result === DeliveranceMailingList::QUEUED) {
-			$this->debug(Site::_('All requests queued.')."\n");
+			$this->debug(Deliverance::_('All requests queued.')."\n");
 		} elseif ($result === DeliveranceMailingList::SUCCESS) {
-			$this->debug(Site::_('All requests successful.')."\n");
+			$this->debug(Deliverance::_('All requests successful.')."\n");
 			$clear_queued = true;
 		} elseif (is_int($result) && $result > 0) {
 			$this->debug(sprintf($success_message, $result));
@@ -286,9 +341,15 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 
 		$delete_count = SwatDB::exec($this->db, $sql);
 
-		$this->debug(sprintf(
-			Site::_('%s rows (%s addresses) cleared from the queue.')."\n",
-			$delete_count, count($addresses)));
+		$this->debug(
+			sprintf(
+				Deliverance::_(
+					'%s rows (%s addresses) cleared from the queue.'
+				)."\n",
+				$delete_count,
+				count($addresses)
+			)
+		);
 	}
 
 	// }}}
@@ -308,10 +369,15 @@ abstract class DeliveranceMailingListUpdater extends SiteCommandLineApplication
 
 		$delete_count = SwatDB::exec($this->db, $sql);
 
-		$this->debug(sprintf(
-			Site::_('%s rows (%s addresses) cleared from the queue.')."\n",
-			$delete_count, count($addresses)));
-
+		$this->debug(
+			sprintf(
+				Deliverance::_(
+					'%s rows (%s addresses) cleared from the queue.'
+				)."\n",
+				$delete_count,
+				count($addresses)
+			)
+		);
 	}
 
 	// }}}

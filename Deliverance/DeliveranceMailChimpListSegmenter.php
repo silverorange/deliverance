@@ -61,10 +61,11 @@ class DeliveranceMailChimpListSegmenter
 		$number_of_segements = new SiteCommandLineArgument(
 			array('-n', '--number-of-segments'),
 			'setNumberOfSegments',
-			'Sets the number of segments we want to split the list into.');
+			Deliverance::_('Sets the number of segments we want to split '.
+				'the list into.'));
 
 		$number_of_segements->addParameter('integer',
-			'--number-of-segments expects a single paramater.');
+			Deliverance::_('--number-of-segments expects a single paramater.'));
 
 		$this->addCommandLineArgument($number_of_segements);
 
