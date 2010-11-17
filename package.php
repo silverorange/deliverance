@@ -2,7 +2,7 @@
 
 require_once 'PEAR/PackageFileManager2.php';
 
-$version = '0.1.1';
+$version = '0.1.2';
 $notes = <<<EOT
 No release notes for you!
 EOT;
@@ -49,6 +49,13 @@ $package->addMaintainer(
 	'gauthierm',
 	'Mike Gauthier',
 	'mike@silverorange.com');
+
+$package->addMaintainer(
+	'lead',
+	'gauthierm',
+	'Nathan Fredrickson',
+	'nathan@silverorange.com');
+
 
 $package->addReplacement(
 	'Delverance/Deliverance.php',
