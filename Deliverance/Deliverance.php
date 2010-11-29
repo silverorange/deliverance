@@ -119,6 +119,10 @@ class Deliverance
 	public static function getConfigDefinitions()
 	{
 		return array(
+			// Base URI for resource files for the campaign builder. If null,
+			// the configuration value uri.absolute_base should be used.
+			'uri.absolute_resource_base' => null,
+
 			// mailchimp
 			'mail_chimp.api_url'        => 'https://us1.api.mailchimp.com/1.2/',
 			'mail_chimp.export_api_url' => 'https://us1.api.mailchimp.com/export/1.0/',
