@@ -209,20 +209,6 @@ class DeliveranceCampaign
 	}
 
 	// }}}
-	// {{{ protected function getResourceBaseHref()
-
-	protected function getResourceBaseHref()
-	{
-		$base_href = $this->app->config->uri->absolute_resource_base;
-
-		if ($base_href === null) {
-			$base_href = $this->getBaseHref();
-		}
-
-		return $base_href;
-	}
-
-	// }}}
 	// {{{ private function getDomDocument()
 
 	private function getDomDocument($xhtml)
