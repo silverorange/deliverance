@@ -1028,6 +1028,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			'analytics'    => $analytics,
 			'inline_css'   => true,
 			'timewarp'     => $campaign->timewarp,
+			'ecomm360'     => $campaign->track_orders,
 		);
 
 		if ($this->app->config->mail_chimp->default_folder != null) {

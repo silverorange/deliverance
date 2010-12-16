@@ -26,6 +26,7 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	public $id;
 	public $type;
 	public $timewarp = false;
+	public $order_tracking = false;
 
 	// }}}
 	// {{{ public function __construct()
@@ -58,6 +59,14 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	public function setTimewarp($timewarp = false)
 	{
 		$this->timewarp = (bool) $timewarp;
+	}
+
+	// }}}
+	// {{{ public function setOrderTracking()
+
+	public function setOrderTracking($order_tracking = false)
+	{
+		$this->order_tracking = (bool) $order_tracking;
 	}
 
 	// }}}
