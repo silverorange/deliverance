@@ -39,12 +39,12 @@ class DeliveranceMailChimpCampaignBuilder extends
 
 		$this->addCommandLineArgument($timewarp);
 
-		$order_tracking = new SiteCommandLineArgument(
+		$track_orders = new SiteCommandLineArgument(
 			array('--no-order-tracking'),
 			'setNoOrderTracking',
 			'Tells the builder to turn order tracking off for the campaign.');
 
-		$this->addCommandLineArgument($order_tracking);
+		$this->addCommandLineArgument($track_orders);
 	}
 
 	// }}}
