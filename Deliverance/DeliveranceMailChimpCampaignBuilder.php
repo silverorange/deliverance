@@ -20,6 +20,11 @@ class DeliveranceMailChimpCampaignBuilder extends
 	 */
 	protected $timewarp = true;
 
+	/**
+	 * @var boolean
+	 */
+	protected $track_orders = true;
+
 	// }}}
 	// {{{ public funtcion __construct()
 
@@ -27,10 +32,19 @@ class DeliveranceMailChimpCampaignBuilder extends
 	{
 		parent::__construct($id, $filename, $title, $documentation);
 
-		$timewarp = new SiteCommandLineArgument(array('--no-timewarp'),
-			'setNoTimewarp', 'Tells the builder to turn timewarp off.');
+		$timewarp = new SiteCommandLineArgument(
+			array('--no-timewarp'),
+			'setNoTimewarp',
+			'Tells the builder to turn timewarp off for the campaign.');
 
 		$this->addCommandLineArgument($timewarp);
+
+		$order_tracking = new SiteCommandLineArgument(
+			array('--no-order-tracking'),
+			'setNoOrderTracking',
+			'Tells the builder to turn order tracking off for the campaign.');
+
+		$this->addCommandLineArgument($order_tracking);
 	}
 
 	// }}}
@@ -39,6 +53,14 @@ class DeliveranceMailChimpCampaignBuilder extends
 	public function setNoTimewarp()
 	{
 		$this->timewarp = false;
+	}
+
+	// }}}
+	// {{{ public function setNoOrderTracking()
+
+	public function setNoOrderTracking()
+	{
+		$this->track_orders = false;
 	}
 
 	// }}}
