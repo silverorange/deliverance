@@ -230,8 +230,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 			if ($error_code !== self::CURL_TIMEOUT_ERROR_CODE &&
 				$error_code !== self::CURL_CONNECT_ERROR_CODE &&
 				$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
-				$e = new SiteException($e);
-				$e->log();
+				// No longer log these, as the queuing all works as expected.
+				// Logging left in but commented out in case we need it in the
+				// future.
+				//$e = new SiteException($e);
+				//$e->processAndContinue();
 			}
 		} catch (Exception $e) {
 			$e = new SiteException($e);
