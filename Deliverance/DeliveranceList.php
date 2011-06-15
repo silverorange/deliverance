@@ -226,14 +226,34 @@ abstract class DeliveranceList
 	public function handleUpdateResponse($response)
 	{
 		switch ($response) {
-		case DeliveranceList::INVALID:
+		case DeliveranceList::NOT_FOUND:
 			$message = new SwatMessage(
 				Deliverance::_(
-					'Sorry, the email address you entered is not a valid '.
-					'email address.'
+					'Thank you. Your email address was never subscribed to '.
+					'our newsletter.'
 				),
-				'error'
+				'notice'
 			);
+
+			$message->secondary_content = Deliverance::_(
+				'You will not receive any mailings to this address.'
+			);
+
+			break;
+
+		case DeliveranceList::NOT_SUBSCRIBED:
+			$message = new SwatMessage(
+				Deliverance::_(
+					'Thank you. Your email address has already been '.
+					'unsubscribed from our newsletter.'
+				),
+				'notice'
+			);
+
+			$message->secondary_content = Deliverance::_(
+				'You will not receive any mailings to this address.'
+			);
+
 			break;
 
 		case DeliveranceList::FAILURE:
@@ -248,7 +268,7 @@ abstract class DeliveranceList
 			$message->secondary_content = sprintf(
 				Deliverance::_(
 					'This can usually be resolved by trying again later. If '.
-					'the issue persists please <a href="%s">contact us</a>.'
+					'the issue persists, please <a href="%s">contact us</a>.'
 				),
 				$this->getContactUsLink()
 			);

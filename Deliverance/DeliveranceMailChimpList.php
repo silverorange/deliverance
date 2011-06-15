@@ -548,8 +548,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 			} catch (XML_RPC2_FaultException $e) {
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
-				if ($e->getFaultCode() == self::INVALID_ADDRESS_ERROR_CODE) {
-					$result = DeliveranceList::INVALID;
+				if ($e->getFaultCode() == self::NOT_FOUND_ERROR_CODE) {
+					$result = DeliveranceList::NOT_FOUND;
+				} elseif ($e->getFaultCode() ==
+					self::NOT_SUBSCRIBED_ERROR_CODE) {
+					$result = DeliveranceList::NOT_SUBSCRIBED;
 				} else {
 					$e = new SiteException($e);
 					$e->process();
