@@ -7,7 +7,7 @@ require_once 'Deliverance/DeliveranceMailChimpCampaign.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2010 silverorange
+ * @copyright 2009-2011 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Handle addresses somehow magically, perhaps add type checking on
  *            merge vars, and allow zip to be passed into an address field by
@@ -527,6 +527,81 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
+	// {{{ public function update()
+
+	public function update($address, array $info, array $array_map = array())
+	{
+		$result = false;
+		$queue_request = false;
+
+		if ($this->isAvailable()) {
+			$merges = $this->mergeInfo($info, $array_map);
+			try {
+				$result = $this->client->listUpdateMember(
+					$this->app->config->mail_chimp->api_key,
+					$this->shortname,
+					$address,
+					$merges,
+					'', // email_type, left blank to keep existing preference.
+					$this->replace_interests
+					);
+			} catch (XML_RPC2_FaultException $e) {
+				// gracefully handle exceptions that we can provide nice
+				// feedback about.
+				if ($e->getFaultCode() == self::INVALID_ADDRESS_ERROR_CODE) {
+					$result = DeliveranceList::INVALID;
+				} else {
+					$e = new SiteException($e);
+					$e->process();
+				}
+			} catch (XML_RPC2_CurlException $e) {
+				$error_code = $e->getCode();
+				// ignore timeout and connection exceptions.
+				if ($error_code !== self::CURL_TIMEOUT_ERROR_CODE &&
+					$error_code !== self::CURL_CONNECT_ERROR_CODE &&
+					$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
+					$e = new SiteException($e);
+					$e->log();
+				} else {
+					$queue_request = true;
+				}
+			} catch (XML_RPC2_Exception $e) {
+				$e = new SiteException($e);
+				$e->process();
+			}
+		} else {
+			$queue_request = true;
+		}
+
+		if ($queue_request === true &&
+			$this->app->hasModule('SiteDatabaseModule')) {
+			$result = $this->queueUpdate($address, $info);
+		}
+
+		if ($result === true) {
+			$result = self::SUCCESS;
+		} elseif ($result === false) {
+			$result = self::FAILURE;
+		}
+
+		return $result;
+	}
+
+	// }}}
+	// {{{ public function batchUpdate()
+
+	public function batchUpdate(array $addresses, array $array_map = array())
+	{
+		if ($this->isAvailable()) {
+			$result = $this->batchSubscribe($addresses, false, $array_map);
+		} elseif ($this->app->hasModule('SiteDatabaseModule')) {
+			$result = $this->queueBatchUpdate($addresses);
+		}
+
+		return $result;
+	}
+
+	// }}}
 	// {{{ public function isMember()
 
 	public function isMember($address)
@@ -651,39 +726,6 @@ class DeliveranceMailChimpList extends DeliveranceList
 		}
 
 		return $member_info;
-	}
-
-	// }}}
-	// {{{ public function updateMemberInfo()
-
-	public function updateMemberInfo($address, array $info,
-		array $array_map = array())
-	{
-		$result = false;
-
-		// TODO: queueing of some sort
-		$merges = $this->mergeInfo($info, $array_map);
-		try {
-			$result = $this->client->listUpdateMember(
-				$this->app->config->mail_chimp->api_key,
-				$this->shortname,
-				$address,
-				$merges,
-				'', // email_type, left blank to keep existing preference.
-				$this->replace_interests
-				);
-		} catch (XML_RPC2_Exception $e) {
-			// TODO: handle some edge cases more elegantly
-			throw new SiteException($e);
-		}
-
-		if ($result === true) {
-			$result = self::SUCCESS;
-		} elseif ($result === false) {
-			$result = self::FAILURE;
-		}
-
-		return $result;
 	}
 
 	// }}}
@@ -1154,7 +1196,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	// }}}
 
-	// list setup helper methods.
+	// list setup helper methods
 	// {{{ public function getAllLists()
 
 	public function getAllLists()

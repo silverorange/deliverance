@@ -209,15 +209,21 @@ abstract class DeliveranceList
 	}
 
 	// }}}
+	// {{{ abstract public function update()
+
+	abstract public function update($address, array $info,
+		array $array_map = array());
+
+	// }}}
+	// {{{ abstract public function batchUpdate()
+
+	abstract public function batchUpdate(array $addresses,
+		array $array_map = array());
+
+	// }}}
 	// {{{ abstract public function isMember()
 
 	abstract public function isMember($address);
-
-	// }}}
-	// {{{ abstract public function updateMemberInfo()
-
-	abstract public function updateMemberInfo($address, array $info,
-		array $array_map = array());
 
 	// }}}
 	// {{{ protected function getContactUsLink()
@@ -311,6 +317,47 @@ abstract class DeliveranceList
 		foreach ($addresses as $address) {
 			$values[] = sprintf('(%s)',
 				$this->app->db->quote($address, 'text'));
+		}
+
+		$sql = sprintf($sql,
+			implode(',', $values));
+
+		SwatDB::exec($this->app->db, $sql);
+
+		return DeliveranceList::QUEUED;
+	}
+
+	// }}}
+	// {{{ public function queueUpdate()
+
+	public function queueUpdate($address, array $info)
+	{
+		$sql = 'insert into MailingListUpdateQueue
+			(email, info) values (%s, %s)';
+
+		$sql = sprintf($sql,
+			$this->app->db->quote($address, 'text'),
+			$this->app->db->quote(serialize($info), 'text'));
+
+		SwatDB::exec($this->app->db, $sql);
+
+		return DeliveranceList::QUEUED;
+	}
+
+	// }}}
+	// {{{ public function queueBatchUpdate()
+
+	public function queueBatchUpdate(array $addresses)
+	{
+		$sql = 'insert into MailingListUpdateQueue
+			(email, info) values %s';
+
+		$values = array();
+
+		foreach ($addresses as $info) {
+			$values[] = sprintf('(%s, %s)',
+				$this->app->db->quote($info['email'], 'text'),
+				$this->app->db->quote(serialize($info), 'text'));
 		}
 
 		$sql = sprintf($sql,

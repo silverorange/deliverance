@@ -12,7 +12,15 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 {
 	// {{{ protected properties
 
+	/**
+	 * @var boolean
+	 */
 	protected $send_welcome = true;
+
+	/**
+	 * @var array
+	 */
+	protected $interests = null;
 
 	// }}}
 	// {{{ protected function getUiXml()
@@ -123,6 +131,30 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 		if ($this->ui->getWidget('message_display')->getMessageCount() == 0) {
 			$this->app->relocate($this->source.'/thankyou');
 		}
+	}
+
+	// }}}
+	// {{{ protected function getInterests()
+
+	protected function getInterests()
+	{
+		if ($this->interests === null) {
+			$this->interests = array();
+
+			if ($this->app->hasModule('SiteDatabaseModule')) {
+				$sql = 'select id, shortname from MailingListInterest
+					order by displayorder';
+
+				$rs = SwatDB::query($this->app->db, $sql, null,
+					array('integer', 'text'));
+
+				while ($row = $rs->fetchRow(MDB2_FETCHMODE_OBJECT)) {
+					$this->interests[] = $row->shortname;
+				}
+			}
+		}
+
+		return $this->interests;
 	}
 
 	// }}}
