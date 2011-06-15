@@ -221,6 +221,49 @@ abstract class DeliveranceList
 		array $array_map = array());
 
 	// }}}
+	// {{{ public function handleUpdateResponse()
+
+	public function handleUpdateResponse($response)
+	{
+		switch ($response) {
+		case DeliveranceList::INVALID:
+			$message = new SwatMessage(
+				Deliverance::_(
+					'Sorry, the email address you entered is not a valid '.
+					'email address.'
+				),
+				'error'
+			);
+			break;
+
+		case DeliveranceList::FAILURE:
+			$message = new SwatMessage(
+				Deliverance::_(
+					'Sorry, there was an issue with updating your information.'
+				),
+				'error'
+			);
+
+			$message->content_type = 'text/xml';
+			$message->secondary_content = sprintf(
+				Deliverance::_(
+					'This can usually be resolved by trying again later. If '.
+					'the issue persists please <a href="%s">contact us</a>.'
+				),
+				$this->getContactUsLink()
+			);
+
+			$message->content_type = 'txt/xhtml';
+			break;
+
+		default:
+			$message = null;
+		}
+
+		return $message;
+	}
+
+	// }}}
 	// {{{ abstract public function isMember()
 
 	abstract public function isMember($address);

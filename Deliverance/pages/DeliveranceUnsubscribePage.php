@@ -95,6 +95,7 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	{
 		$email = $this->getEmail();
 		$info  = $this->getInterestInfo($interests);
+
 		if (count($info) > 0) {
 			$array_map = $this->getInterestArrayMap($interests);
 			$response  = $list->update($email, $info, $array_map);
@@ -108,7 +109,7 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	// }}}
 	// {{{ abstract protected function getInterestInfo();
 
-	abstract protected function getInterestInfo(array $interests);
+	abstract protected function getInterestInfo(array $interests_to_remove);
 
 	// }}}
 	// {{{ protected function getInterestArrayMap()
