@@ -894,6 +894,27 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
+	// {{{ public function getCampaignReportUrl()
+
+	public function getCampaignReportUrl($campaign_id)
+	{
+		$url = null;
+
+		try {
+			$report = $this->client->campaignShareReport(
+				$this->app->config->mail_chimp->api_key,
+				$campaign_id);
+
+			$url = $report['secure_url'];
+		} catch (XML_RPC2_Exception $e) {
+			$e = new SiteException($e);
+			$e->process();
+		}
+
+		return $url;
+	}
+
+	// }}}
 	// {{{ public function getCampaignStats()
 
 	public function getCampaignStats($campaign_id)
