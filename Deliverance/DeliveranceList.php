@@ -304,6 +304,11 @@ abstract class DeliveranceList
 	abstract public function saveCampaign(DeliveranceCampaign $campaign);
 
 	// }}}
+	// {{{ abstract public function deleteCampaign()
+
+	abstract public function deleteCampaign(DeliveranceCampaign $campaign);
+
+	// }}}
 
 	/*
 	 * Subscriber queue methods

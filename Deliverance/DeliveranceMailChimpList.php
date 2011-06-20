@@ -774,10 +774,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// campaign methods
 	// {{{ public function saveCampaign()
 
-	public function saveCampaign(DeliveranceCampaign $campaign)
+	public function saveCampaign(DeliveranceCampaign $campaign,
+		$lookup_campaign_id = true)
 	{
 		// if the id is already set, don't bother looking it up.
-		if ($campaign->id == null) {
+		if ($campaign->id == null && $lookup_campaign_id) {
 			$campaign->id = $this->getCampaignId($campaign);
 		}
 
@@ -788,6 +789,38 @@ class DeliveranceMailChimpList extends DeliveranceList
 		}
 
 		return $campaign->id;
+	}
+
+	// }}}
+	// {{{ public function deleteCampaign()
+
+	public function deleteCampaign(DeliveranceCampaign $campaign)
+	{
+		$result = false;
+
+		// if the id is already set, don't bother looking it up.
+		if ($campaign->id == null) {
+			$campaign->id = $this->getCampaignId($campaign);
+		}
+
+		if ($campaign->id != null) {
+			try {
+				$result = $this->client->campaignDelete(
+					$this->app->config->mail_chimp->api_key,
+					$campaign->id);
+			} catch (XML_RPC2_Exception $e) {
+				// ignore errors caused by trying to delete a campaign that
+				// doesn't exist. Consider it safely deleted.
+				if ($e->getFaultCode() == 300) {
+					$result = true;
+				} else {
+					$e = new SiteException($e);
+					$e->process();
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	// }}}
