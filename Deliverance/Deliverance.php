@@ -4,7 +4,7 @@
  * Container for package wide static methods
  *
  * @package   Deliverance
- * @copyright 2010 silverorange
+ * @copyright 2010-2011 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class Deliverance
@@ -119,15 +119,20 @@ class Deliverance
 	public static function getConfigDefinitions()
 	{
 		return array(
+			// Deliverance Campaigns
+			'deliverance_campaign.from_name'    => null,
+			'deliverance_campaign.from_address' => null,
+
 			// mailchimp
-			'mail_chimp.api_url'        => 'https://us1.api.mailchimp.com/1.2/',
-			'mail_chimp.export_api_url' => 'https://us1.api.mailchimp.com/export/1.0/',
+			'mail_chimp.datacenter'     => 'us1',
+			'mail_chimp.api_url'        => 'https://%s.api.mailchimp.com/1.2/',
+			'mail_chimp.export_api_url' => 'https://%s.api.mailchimp.com/export/1.0/',
 			'mail_chimp.double_opt_in'  => false,
 			'mail_chimp.api_key'        => null,
 			'mail_chimp.user_id'        => null,
 			'mail_chimp.default_list'   => null,
 			'mail_chimp.default_folder' => null,
-			'mail_chimp.preview_url'    => 'http://us1.campaign-archive.com/?u=%s&id=%s',
+			'mail_chimp.preview_url'    => 'http://%s.campaign-archive.com/?u=%s&id=%s',
 		);
 	}
 

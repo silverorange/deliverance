@@ -151,8 +151,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 			'connectionTimeout' => $connection_timeout,
 		);
 
-		$this->client = XML_RPC2_Client::create(
-			$this->app->config->mail_chimp->api_url, $client_options);
+		$url = sprintf($this->app->config->mail_chimp->api_url,
+			$this->app->config->mail_chimp->datacenter);
+
+		$this->client = XML_RPC2_Client::create($url, $client_options);
 
 		if ($this->shortname === null)
 			$this->shortname = $app->config->mail_chimp->default_list;
@@ -636,7 +638,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function getMembers(array $segment_options = array(), $since = '')
 	{
 		$members = null;
-		$url     = $this->app->config->mail_chimp->export_api_url.'list/';
+		$url     = sprintf($this->app->config->mail_chimp->export_api_url,
+			$this->app->config->mail_chimp->datacenter).'list/';
 
 		$url.= sprintf('?apikey=%s&id=%s&status=%s',
 				urlencode($this->app->config->mail_chimp->api_key),

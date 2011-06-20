@@ -65,8 +65,7 @@ class DeliveranceCampaign
 
 	public function getFromAddress()
 	{
-		return null;
-		// TODO: default to a config setting
+		return $this->app->config->deliverance_campaign->from_address;
 	}
 
 	// }}}
@@ -74,7 +73,7 @@ class DeliveranceCampaign
 
 	public function getFromName()
 	{
-		return null;
+		return $this->app->config->deliverance_campaign->from_name;
 	}
 
 	// }}}
