@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceList.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2010 silverorange
+ * @copyright 2009-2011 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceCampaign
@@ -41,7 +41,8 @@ class DeliveranceCampaign
 	// }}}
 	// {{{ public function __construct()
 
-	public function __construct(SiteApplication $app, $shortname, $directory)
+	public function __construct(SiteApplication $app, $shortname,
+		$directory = null)
 	{
 		$this->app       = $app;
 		$this->shortname = $shortname;

@@ -773,7 +773,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	public function saveCampaign(DeliveranceCampaign $campaign)
 	{
-		$campaign->id = $this->getCampaignId($campaign);
+		// if the id is already set, don't bother looking it up.
+		if ($campaign->id == null) {
+			$campaign->id = $this->getCampaignId($campaign);
+		}
 
 		if ($campaign->id != null) {
 			$this->updateCampaign($campaign);
@@ -948,10 +951,9 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
-	// {{{ public function testSegmentOptions()
+	// {{{ public function getSegmentSize()
 
-	public function getSegmentSize(DeliveranceMailChimpCampaign $campaign,
-		array $segment_options)
+	public function getSegmentSize(array $segment_options)
 	{
 		$segment_size = 0;
 
@@ -990,6 +992,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		// call this separately because XML/RPC can't pass nulls, and it's often
 		// null. And other values are type checked by MailChimp
 		$this->updateCampaignSegmentOptions($campaign);
+
+		return $campaign_id;
 	}
 
 	// }}}
@@ -1097,7 +1101,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		$segment_options = $campaign->getSegmentOptions();
 		if ($segment_options != null) {
-			if ($this->getSegmentSize($campaign, $segment_options) == 0) {
+			if ($this->getSegmentSize($segment_options) == 0) {
 				throw new SiteException('Campaign Segment Options return no '.
 					'members');
 			}
@@ -1113,10 +1117,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		DeliveranceMailChimpCampaign $campaign)
 	{
 		$content = array(
-			'html' => $campaign->getContent(
-				DeliveranceCampaign::FORMAT_XHTML),
-			'text' => $campaign->getContent(
-				DeliveranceCampaign::FORMAT_TEXT),
+			'html' => $campaign->getContent(DeliveranceCampaign::FORMAT_XHTML),
+			'text' => $campaign->getContent(DeliveranceCampaign::FORMAT_TEXT),
 		);
 
 		return $content;

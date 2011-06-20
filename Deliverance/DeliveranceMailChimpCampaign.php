@@ -4,7 +4,7 @@ require_once 'Deliverance/DeliveranceCampaign.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2010 silverorange
+ * @copyright 2009-2011 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpCampaign extends DeliveranceCampaign
@@ -31,7 +31,8 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	// }}}
 	// {{{ public function __construct()
 
-	public function __construct(SiteApplication $app, $shortname, $directory)
+	public function __construct(SiteApplication $app, $shortname,
+		$directory = null)
 	{
 		parent::__construct($app, $shortname, $directory);
 		$this->type = self::CAMPAIGN_TYPE_REGULAR;
