@@ -77,7 +77,7 @@ class DeliveranceMailChimpCampaignBuilder extends
 	protected function displayFinalOutput()
 	{
 		$this->debug(sprintf("\nView the generated campaign at:\n%s\n\n",
-			$this->campaign->getPreviewUrl()));
+			DeliveranceMailChimpCampaign::getPreviewUrl($this->campaign->id)));
 	}
 
 	// }}}

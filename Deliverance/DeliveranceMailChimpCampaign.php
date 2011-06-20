@@ -71,14 +71,14 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	}
 
 	// }}}
-	// {{{ public function getPreviewUrl()
+	// {{{ public static function getPreviewUrl()
 
-	public function getPreviewUrl()
+	public static function getPreviewUrl(SiteApplication $app, $campaign_id)
 	{
-		return sprintf($this->app->config->mail_chimp->preview_url,
-			$this->app->config->mail_chimp->datacenter,
-			$this->app->config->mail_chimp->user_id,
-			$this->id);
+		return sprintf($app->config->mail_chimp->preview_url,
+			$app->config->mail_chimp->datacenter,
+			$app->config->mail_chimp->user_id,
+			$campaign_id);
 	}
 
 	// }}}
