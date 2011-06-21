@@ -8,7 +8,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  * subscriber requests.
  *
  * @package   Deliverance
- * @copyright 2009-2010 silverorange
+ * @copyright 2009-2011 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
@@ -18,7 +18,8 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 	protected function getList()
 	{
 		// long custom timeout
-		return new DeliveranceMailChimpList($this, null, 90000);
+		return new DeliveranceMailChimpList($this, null,
+			$this->app->config->mailchimp->script_connection_timeout);
 	}
 
 	// }}}

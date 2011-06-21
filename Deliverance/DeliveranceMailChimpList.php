@@ -140,9 +140,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// {{{ public function __construct()
 
 	public function __construct(SiteApplication $app, $shortname = null,
-		$connection_timeout = 1000)
+		$connection_timeout = null)
 	{
 		parent::__construct($app, $shortname);
+
+		if ($connection_timeout === null) {
+			$connection_timeout = $app->config->mailchimp->connection_timeout;
+		}
 
 		// if the connection takes longer than 1s timeout. This will prevent
 		// users from waiting too long when MailChimp is down - requests will
@@ -824,11 +828,26 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
+	// {{{ public function sendCampaign()
+
+	public function sendCampaign(DeliveranceCampaign $campaign)
+	{
+		try {
+			$this->client->campaignSendNow(
+				$this->app->config->mail_chimp->api_key,
+				$campaign->id);
+		} catch (XML_RPC2_Exception $e) {
+			$e = new SiteException($e);
+			$e->process();
+		}
+	}
+
+	// }}}
 	// {{{ public function scheduleCampaign()
 
 	public function scheduleCampaign(DeliveranceCampaign $campaign)
 	{
-		$send_date = $campaign->getSendDate();
+		$send_date = clone $campaign->getSendDate();
 		if ($send_date instanceof SwatDate) {
 			// Campaigns have to be unscheduled to set a new send time. Only
 			// unschedule if we're rescheduling so that we don't accidentally

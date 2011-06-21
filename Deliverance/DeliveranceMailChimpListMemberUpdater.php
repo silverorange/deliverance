@@ -20,7 +20,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  * Queue must manually be cleared (or left to the cron).
  *
  * @package   Deliverance
- * @copyright 2009-2010 silverorange
+ * @copyright 2009-2011 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Don't queue updates when the field already exists. Make sure
  *            queued subscribes haven't unsubscribed? Now that getting the
@@ -221,7 +221,8 @@ abstract class DeliveranceMailChimpListMemberUpdater
 	protected function initList()
 	{
 		// long custom timeout
-		$this->list = new DeliveranceMailChimpList($this, null, 90000);
+		$this->list = new DeliveranceMailChimpList($this, null,
+			$this->app->config->mailchimp->script_connection_timeout);
 	}
 
 	// }}}
