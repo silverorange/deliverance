@@ -222,7 +222,7 @@ abstract class DeliveranceMailChimpListMemberUpdater
 	{
 		// long custom timeout
 		$this->list = new DeliveranceMailChimpList($this, null,
-			$this->app->config->mailchimp->script_connection_timeout);
+			$this->app->config->mail_chimp->script_connection_timeout);
 	}
 
 	// }}}

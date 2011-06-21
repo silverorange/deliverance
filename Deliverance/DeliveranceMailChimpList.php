@@ -145,7 +145,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		parent::__construct($app, $shortname);
 
 		if ($connection_timeout === null) {
-			$connection_timeout = $app->config->mailchimp->connection_timeout;
+			$connection_timeout = $app->config->mail_chimp->connection_timeout;
 		}
 
 		// if the connection takes longer than 1s timeout. This will prevent
