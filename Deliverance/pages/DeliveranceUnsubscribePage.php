@@ -132,7 +132,13 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 
 	protected function getRemovedInterests()
 	{
-		return $this->ui->getWidget('email_interests')->values;
+		$removed = array();
+
+		if ($this->ui->hasWidget('email_interests')) {
+			$removed = $this->ui->getWidget('email_interests')->values;
+		}
+
+		return $removed;
 	}
 
 	// }}}
@@ -159,12 +165,16 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 			$this->ui->getWidget('email')->value = $email;
 		}
 
-		$interests = $this->getInterests();
-		if (count($interests) <= 1) {
-			$this->ui->getWidget('email_interests_field')->visible = false;
-		} else {
-			$this->ui->getWidget('email_interests')->addOptionsByArray(
-				$interests);
+		if ($this->ui->hasWidget('email_interests_field') &&
+			$this->ui->hasWidget('email_interests')) {
+
+			$interests = $this->getInterests();
+			if (count($interests) <= 1) {
+				$this->ui->getWidget('email_interests_field')->visible = false;
+			} else {
+				$this->ui->getWidget('email_interests')->addOptionsByArray(
+					$interests);
+			}
 		}
 	}
 
