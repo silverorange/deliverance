@@ -19,7 +19,7 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 	{
 		// long custom timeout
 		return new DeliveranceMailChimpList($this, null,
-			$this->app->config->mail_chimp->script_connection_timeout);
+			$this->config->mail_chimp->script_connection_timeout);
 	}
 
 	// }}}
