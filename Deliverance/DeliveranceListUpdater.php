@@ -380,14 +380,14 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 	{
 		$addresses = array();
 
-		$sql = 'select email from MailingListUpdateQueue';
+		$sql = 'select email, info from MailingListUpdateQueue';
 
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
 			$address          = unserialize($row->info);
 			$address['email'] = $row->email;
 
-			$addresses[] = $row->email;
+			$addresses[] = $address;
 		}
 
 		return $addresses;
@@ -454,9 +454,7 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 				'text');
 		}
 
-		$sql = sprintf($sql,
-			implode(',', $quoted_address_array),
-			$this->db->quote($with_welcome, 'boolean'));
+		$sql = sprintf($sql, implode(',', $quoted_address_array));
 
 		$delete_count = SwatDB::exec($this->db, $sql);
 
