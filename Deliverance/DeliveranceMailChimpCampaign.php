@@ -47,6 +47,14 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	}
 
 	// }}}
+	// {{{ public function getToName()
+
+	public function getToName()
+	{
+		return '*|FNAME|* *|LNAME|*';
+	}
+
+	// }}}
 	// {{{ public function getSendDate()
 
 	public function getSendDate()

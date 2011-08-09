@@ -1140,6 +1140,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		if ($from_name == null)
 			throw new SiteException('Campaign “From Name” is null');
 
+		$to_name = $campaign->getToName();
+
 		$analytics = '';
 		$key = $campaign->getAnalyticsKey();
 		if ($key != null)
@@ -1151,7 +1153,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			'subject'      => $subject,
 			'from_email'   => $from_address,
 			'from_name'    => $from_name,
-			'to_email'     => '*|FNAME|* *|LNAME|*',
+			'to_email'     => $to_name,
 			'authenticate' => 'true',
 			'analytics'    => $analytics,
 			'inline_css'   => true,
