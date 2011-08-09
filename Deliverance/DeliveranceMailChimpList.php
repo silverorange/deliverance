@@ -833,6 +833,9 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function sendCampaign(DeliveranceCampaign $campaign)
 	{
 		try {
+			// you can't send a campaign immediately if its been scheduled. So
+			// unschedule first.
+			$this->unscheduleCampaign($campaign);
 			$this->client->campaignSendNow(
 				$this->app->config->mail_chimp->api_key,
 				$campaign->id);
@@ -959,8 +962,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$url = $report['secure_url'];
 		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+			// TODO: Anything we should catch and always ignore?
+			throw $e;
 		}
 
 		return $url;
