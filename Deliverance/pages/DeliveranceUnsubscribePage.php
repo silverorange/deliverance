@@ -51,6 +51,40 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 
 	// }}}
 
+	// init phase
+	// {{{ protected function initInternal()
+
+	protected function initInternal()
+	{
+		parent::initInternal();
+
+		if ($this->ui->hasWidget('email_interests_field') &&
+			$this->ui->hasWidget('email_interests')) {
+
+			$interests = $this->getInterests();
+			if (count($interests) <= 1) {
+				$this->ui->getWidget('email_interests_field')->visible = false;
+			} else {
+				$this->ui->getWidget('email_interests')->addOptionsByArray(
+					$interests);
+
+				$this->ui->getWidget('email_interests')->values =
+					$this->getDefaultInterestValues();
+			}
+		}
+	}
+
+	// }}}
+	// {{{ protected function getDefaultInterestValues()
+
+	protected function getDefaultInterestValues()
+	{
+		// default to unsubscribing all interests.
+		return array_flip($this->getInterests());
+	}
+
+	// }}}
+
 	// process phase
 	// {{{ protected function save()
 
@@ -142,6 +176,23 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	}
 
 	// }}}
+	// {{{ protected function getNewInterests()
+
+	protected function getNewInterests()
+	{
+		$new = array();
+
+		// new interests are the difference of available interests and removed
+		// interests. flip so we can compare ids.
+		$interests = array_flip($this->getInterests());
+		if (count($interests) > 0) {
+			$new = array_diff($interests, $this->getRemovedInterests());
+		}
+
+		return $new;
+	}
+
+	// }}}
 	// {{{ protected function relocate()
 
 	protected function relocate(SwatForm $form)
@@ -163,18 +214,6 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 		$email = SiteApplication::initVar('email');
 		if (strlen($email) > 0) {
 			$this->ui->getWidget('email')->value = $email;
-		}
-
-		if ($this->ui->hasWidget('email_interests_field') &&
-			$this->ui->hasWidget('email_interests')) {
-
-			$interests = $this->getInterests();
-			if (count($interests) <= 1) {
-				$this->ui->getWidget('email_interests_field')->visible = false;
-			} else {
-				$this->ui->getWidget('email_interests')->addOptionsByArray(
-					$interests);
-			}
 		}
 	}
 

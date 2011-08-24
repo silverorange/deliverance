@@ -27,18 +27,12 @@ class DeliveranceMailChimpUnsubscribePage extends DeliveranceUnsubscribePage
 	{
 		$info = array();
 
-		// we update the member with the difference of available interests and
-		// removed interests. Flip because we want to compare the ids.
-		$available_interests = array_keys($this->getInterests());
-		if (count($available_interests) > 0) {
-			$new_interests = array_diff($available_interests,
-				$interests_to_remove);
+		$new_interests = $this->getNewInterests();
 
-			// make sure interests changed
-			if (count($new_interests) > 0 &&
-				count($new_interests) !== count($available_interests)) {
-				$info['interests'] = $new_interests;
-			}
+		// make sure interests changed, if not, don't update the info.
+		if (count($new_interests) > 0 &&
+			count($new_interests) !== count($this->getInterests())) {
+			$info['interests'] = $new_interests;
 		}
 
 		return $info;
