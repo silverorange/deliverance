@@ -133,7 +133,7 @@ class DeliveranceCampaign
 	protected function transform($content, $format) {
 		switch ($format) {
 		case self::FORMAT_XHTML:
-			$document = $this->getDomDocument($content);
+			$document = $this->getDOMDocument($content);
 			$this->transformXhtml($document);
 			$content = $document->saveXML(
 				$document->documentElement, LIBXML_NOXMLDECL);
@@ -209,14 +209,14 @@ class DeliveranceCampaign
 	}
 
 	// }}}
-	// {{{ private function getDomDocument()
+	// {{{ private function getDOMDocument()
 
-	private function getDomDocument($xhtml)
+	private function getDOMDocument($xhtml)
 	{
 		$internal_errors = libxml_use_internal_errors(true);
 
 		$document = new DOMDocument();
-		if (!$document->loadXML($xhtml)) {
+		if (!$document->loadHTML($xhtml)) {
 			$xml_errors = libxml_get_errors();
 			$message = '';
 			foreach ($xml_errors as $error)
