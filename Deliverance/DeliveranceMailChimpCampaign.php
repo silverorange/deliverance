@@ -90,6 +90,20 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	}
 
 	// }}}
+	// {{{ protected function getDOMDocument()
+
+	protected function getDOMDocument($xhtml)
+	{
+		$document = parent::getDOMDocument($xhtml);
+		// MailChimp alters the head for its archive page, and breaks when there
+		// isn't whitespace between the head elements. Use formatOutput to
+		// ensure whitespace between the head elements.
+		$document->formatOutput = true;
+
+		return $document;
+	}
+
+	// }}}
 }
 
 ?>

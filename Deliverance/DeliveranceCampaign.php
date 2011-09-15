@@ -209,9 +209,9 @@ class DeliveranceCampaign
 	}
 
 	// }}}
-	// {{{ private function getDOMDocument()
+	// {{{ protected function getDOMDocument()
 
-	private function getDOMDocument($xhtml)
+	protected function getDOMDocument($xhtml)
 	{
 		$internal_errors = libxml_use_internal_errors(true);
 
