@@ -75,6 +75,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 	const CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE = 6;
 
 	/**
+	 * Error code returned when a problem occurs in the SSL handshake.
+	 */
+	const CURL_SSL_CONNECT_ERROR_CODE = 35;
+
+	/**
 	 * Email type preference value for html email.
 	 */
 	const EMAIL_TYPE_HTML = 'html';
@@ -135,6 +140,16 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 * @var string
 	 */
 	protected $email_type = self::EMAIL_TYPE_HTML;
+
+	// }}}
+	// {{{ private properties
+
+	private $curl_queueable_errors = array(
+		self::CURL_TIMEOUT_ERROR_CODE,
+		self::CURL_CONNECT_ERROR_CODE,
+		self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE,
+		self::CURL_SSL_CONNECT_ERROR_CODE,
+		);
 
 	// }}}
 	// {{{ public function __construct()
@@ -231,11 +246,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 				$e->processAndContinue();
 			}
 		} catch (XML_RPC2_CurlException $e) {
-			$error_code = $e->getCode();
-			// ignore timeout and connection exceptions.
-			if ($error_code !== self::CURL_TIMEOUT_ERROR_CODE &&
-				$error_code !== self::CURL_CONNECT_ERROR_CODE &&
-				$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
+			if ($this->processCurlException($e)) {
 				// No longer log these, as the queuing all works as expected.
 				// Logging left in but commented out in case we need it in the
 				// future.
@@ -299,11 +310,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$e->process();
 				}
 			} catch (XML_RPC2_CurlException $e) {
-				$error_code = $e->getCode();
-				// ignore timeout and connection exceptions.
-				if ($error_code !== self::CURL_TIMEOUT_ERROR_CODE &&
-					$error_code !== self::CURL_CONNECT_ERROR_CODE &&
-					$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
+				if ($this->processCurlException($e)) {
 					$e = new SiteException($e);
 					$e->processAndContinue();
 				} else {
@@ -448,11 +455,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$e->process();
 				}
 			} catch (XML_RPC2_CurlException $e) {
-				$error_code = $e->getCode();
-				// ignore timeout and connection exceptions.
-				if ($error_code !== self::CURL_TIMEOUT_ERROR_CODE &&
-					$error_code !== self::CURL_CONNECT_ERROR_CODE &&
-					$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
+				if ($this->processCurlException($e)) {
 					$e = new SiteException($e);
 					$e->processAndContinue();
 				} else {
@@ -564,11 +567,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$e->process();
 				}
 			} catch (XML_RPC2_CurlException $e) {
-				$error_code = $e->getCode();
-				// ignore timeout and connection exceptions.
-				if ($error_code !== self::CURL_TIMEOUT_ERROR_CODE &&
-					$error_code !== self::CURL_CONNECT_ERROR_CODE &&
-					$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
+				if ($this->processCurlException($e)) {
 					$e = new SiteException($e);
 					$e->processAndContinue();
 				} else {
@@ -1318,6 +1317,23 @@ class DeliveranceMailChimpList extends DeliveranceList
 		}
 
 		return $folders;
+	}
+
+	// }}}
+
+	// exception handling
+	// {{{ private function processCurlException()
+
+	private function processCurlException(XML_RPC2_CurlException $e)
+	{
+		$process    = false;
+		$error_code = $e->getCode();
+
+		if (array_search($error_code, $this->curl_queueable_errors) === false) {
+			$process = true;
+		}
+
+		return $process;
 	}
 
 	// }}}
