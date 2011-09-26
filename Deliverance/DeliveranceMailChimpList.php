@@ -228,7 +228,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			} else {
 				// throw whatever the chimp has given us back
 				$e = new SiteException($result);
-				$e->log();
+				$e->processAndContinue();
 			}
 		} catch (XML_RPC2_CurlException $e) {
 			$error_code = $e->getCode();
@@ -244,7 +244,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			}
 		} catch (Exception $e) {
 			$e = new SiteException($e);
-			$e->log();
+			$e->processAndContinue();
 		}
 
 		return $available;
@@ -305,7 +305,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$error_code !== self::CURL_CONNECT_ERROR_CODE &&
 					$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
 					$e = new SiteException($e);
-					$e->log();
+					$e->processAndContinue();
 				} else {
 					$queue_request = true;
 				}
@@ -454,7 +454,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$error_code !== self::CURL_CONNECT_ERROR_CODE &&
 					$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
 					$e = new SiteException($e);
-					$e->log();
+					$e->processAndContinue();
 				} else {
 					$queue_request = true;
 				}
@@ -570,7 +570,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$error_code !== self::CURL_CONNECT_ERROR_CODE &&
 					$error_code !== self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE) {
 					$e = new SiteException($e);
-					$e->log();
+					$e->processAndContinue();
 				} else {
 					$queue_request = true;
 				}
