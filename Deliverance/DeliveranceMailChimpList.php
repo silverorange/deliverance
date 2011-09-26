@@ -33,6 +33,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 * has previously unsubscribed. We can't programatically resubscribe them,
 	 * MailChimp requires them to resubscribe out of their own volition.
 	 */
+	const CONCURRENT_CONNECTION_ERROR_CODE = -50;
+
+	/**
+	 * Error code returned when attempting to subscribe an email address that
+	 * has previously unsubscribed. We can't programatically resubscribe them,
+	 * MailChimp requires them to resubscribe out of their own volition.
+	 */
 	const PREVIOUSLY_UNSUBSCRIBED_ERROR_CODE = 212;
 
 	/**
@@ -243,6 +250,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 			} else {
 				// throw whatever the chimp has given us back
 				$e = new SiteException($result);
+				$e->processAndContinue();
+			}
+		} catch (XML_RPC2_FaultException $e) {
+			// don't log exceptions we don't need to.
+			if ($e->getFaultCode() == self::CONCURRENT_CONNECTION_ERROR_CODE) {
+				// treat as unavailable.
+			} else {
+				$e = new SiteException($e);
 				$e->processAndContinue();
 			}
 		} catch (XML_RPC2_CurlException $e) {
