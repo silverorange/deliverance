@@ -5,6 +5,7 @@ create table MailingListInterest (
 	group_shortname varchar(255) not null,
 	title varchar(255) not null,
 	displayorder integer not null default 0,
+	visible boolean not null default true,
 
 	primary key (id)
 );

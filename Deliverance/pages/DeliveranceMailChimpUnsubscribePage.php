@@ -16,8 +16,16 @@ class DeliveranceMailChimpUnsubscribePage extends DeliveranceUnsubscribePage
 	protected function getList()
 	{
 		$list = new DeliveranceMailChimpList($this->app);
-		$list->setReplaceInterests(true);
 		return $list;
+	}
+
+	// }}}
+	// {{{ protected function removeInterests()
+
+	protected function removeInterests(DeliveranceList $list, array $interests)
+	{
+		$list->setReplaceInterests(true);
+		parent::removeInterests($list, $interests);
 	}
 
 	// }}}

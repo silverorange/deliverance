@@ -7,6 +7,9 @@ require_once 'Site/pages/SiteEditPage.php';
  * @package   Deliverance
  * @copyright 2009-2011 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
+ * @todo      Members with both non-visible and visible interests will lose all
+ *            non-visible interests when updating their subscription. This
+ *            should be improved if and when its needed.
  */
 abstract class DeliveranceUnsubscribePage extends SiteEditPage
 {
@@ -34,8 +37,13 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 			$this->interests = array();
 
 			if ($this->app->hasModule('SiteDatabaseModule')) {
-				$sql = 'select id, title, shortname from MailingListInterest
+				$sql = 'select id, title, shortname
+					from MailingListInterest
+					where visible = %s
 					order by displayorder';
+
+				$sql = sprintf($sql,
+					$this->app->db->quote(true, 'boolean'));
 
 				$rs = SwatDB::query($this->app->db, $sql, null,
 					array('integer', 'text'));
@@ -90,9 +98,8 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 
 	protected function save(SwatForm $form)
 	{
-		$list = $this->getList();
-
-		$interests = $this->getInterests();
+		$list              = $this->getList();
+		$interests         = $this->getInterests();
 		$removed_interests = $this->getRemovedInterests();
 
 		// if address is removed from all interest groups, unsubscribe
@@ -114,12 +121,10 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 
 	protected function unsubscribe(DeliveranceList $list)
 	{
-		$email = $this->getEmail();
+		$email    = $this->getEmail();
 		$response = $list->unsubscribe($email);
-		$message = $list->handleUnsubscribeResponse($response);
-		if ($message instanceof SwatMessage) {
-			$this->ui->getWidget('message_display')->add($message);
-		}
+
+		$this->handleUnsubscribeResponse($list, $response);
 	}
 
 	// }}}
@@ -133,10 +138,8 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 		if (count($info) > 0) {
 			$array_map = $this->getInterestArrayMap($interests);
 			$response  = $list->update($email, $info, $array_map);
-			$message   = $list->handleUpdateResponse($response);
-			if ($message instanceof SwatMessage) {
-				$this->ui->getWidget('message_display')->add($message);
-			}
+
+			$this->handleUpdateResponse($list, $response);
 		}
 	}
 
@@ -193,13 +196,72 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	}
 
 	// }}}
+	// {{{ protected function handleUnsubscribeResponse()
+
+	protected function handleUnsubscribeResponse(DeliveranceList $list,
+		$response)
+	{
+		$message = $list->handleUnsubscribeResponse($response);
+
+		$this->handleMessage($message);
+
+	}
+
+	// }}}
+	// {{{ protected function handleUpdateResponse($response)
+
+	protected function handleUpdateResponse(DeliveranceList $list, $response)
+	{
+		$message = $list->handleUpdateResponse($response);
+
+		$this->handleMessage($message);
+
+	}
+
+	// }}}
+	// {{{ protected function handleMessage()
+
+	protected function handleMessage(SwatMessage $message = null)
+	{
+		if ($message instanceof SwatMessage) {
+			$this->ui->getWidget('message_display')->add($message);
+		}
+	}
+
+	// }}}
 	// {{{ protected function relocate()
 
 	protected function relocate(SwatForm $form)
 	{
-		if ($this->ui->getWidget('message_display')->getMessageCount() == 0) {
-			$this->app->relocate($this->source.'/thankyou');
+		if ($this->canRelocate($form)) {
+			$this->addUnsubscribeMessage();
+			$this->app->relocate($this->getRelocateUri());
 		}
+	}
+
+	// }}}
+	// {{{ protected function canRelocate()
+
+	protected function canRelocate(SwatForm $form)
+	{
+		return ($this->ui->getWidget('message_display')->getMessageCount() ==
+			0);
+	}
+
+	// }}}
+	// {{{ protected function addUnsubscribeMessage()
+
+	protected function addUnsubscribeMessage()
+	{
+		// TODO - add interest update messages.
+	}
+
+	// }}}
+	// {{{ protected function getRelocateUri()
+
+	protected function getRelocateUri()
+	{
+		return $this->source.'/thankyou';
 	}
 
 	// }}}
