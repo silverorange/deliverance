@@ -134,7 +134,7 @@ class Deliverance
 			'mail_chimp.default_folder'            => null,
 			'mail_chimp.preview_url'               => 'http://%s.campaign-archive.com/?u=%s&id=%s',
 			'mail_chimp.connection_timeout'        => 1000,
-			'mail_chimp.admin_connection_timeout'  => 10000,
+			'mail_chimp.admin_connection_timeout'  => 5000,
 			'mail_chimp.script_connection_timeout' => 90000,
 		);
 	}
