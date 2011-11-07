@@ -1,9 +1,11 @@
 <?php
 
-require_once 'XML/RPC2/Client.php';
+require_once 'MailChimpAPI.php';
 require_once 'Swat/SwatDate.php';
 require_once 'Deliverance/DeliveranceList.php';
 require_once 'Deliverance/DeliveranceMailChimpCampaign.php';
+require_once 'Deliverance/exceptions/DeliveranceException.php';
+require_once 'Deliverance/exceptions/DeliveranceCampaignException.php';
 
 /**
  * @package   Deliverance
@@ -34,6 +36,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 * MailChimp requires them to resubscribe out of their own volition.
 	 */
 	const CONCURRENT_CONNECTION_ERROR_CODE = -50;
+
+	/**
+	 * Error code returned when the connection has timed out.
+	 */
+	const TIMEOUT_ERROR_CODE = -98;
 
 	/**
 	 * Error code returned when attempting to subscribe an email address that
@@ -67,24 +74,16 @@ class DeliveranceMailChimpList extends DeliveranceList
 	const INVALID_ADDRESS_ERROR_CODE = 502;
 
 	/**
-	 * Error code returned when the request timeouts.
+	 * Error code returned when attempting to unschedule a campaign that hasn't
+	 * yet been scheduled.
 	 */
-	const CURL_TIMEOUT_ERROR_CODE = 28;
+	const CAMPAIGN_NOT_SCHEDULED_ERROR = 122;
 
 	/**
-	 * Error code returned when the connection timeouts.
+	 * Error code returned when attempting to delete a campaign that doesn't
+	 * exist
 	 */
-	const CURL_CONNECT_ERROR_CODE = 7;
-
-	/**
-	 * Error code returned when the name lookup timeouts.
-	 */
-	const CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE = 6;
-
-	/**
-	 * Error code returned when a problem occurs in the SSL handshake.
-	 */
-	const CURL_SSL_CONNECT_ERROR_CODE = 35;
+	const CAMPAIGN_DOES_NOT_EXIST = 300;
 
 	/**
 	 * Email type preference value for html email.
@@ -149,38 +148,35 @@ class DeliveranceMailChimpList extends DeliveranceList
 	protected $email_type = self::EMAIL_TYPE_HTML;
 
 	// }}}
-	// {{{ private properties
+	// {{{ public static function getDataCenter()
 
-	private $curl_queueable_errors = array(
-		self::CURL_TIMEOUT_ERROR_CODE,
-		self::CURL_CONNECT_ERROR_CODE,
-		self::CURL_NAME_LOOKUP_TIMEOUT_ERROR_CODE,
-		self::CURL_SSL_CONNECT_ERROR_CODE,
-		);
+	public static function getDataCenter($api_key)
+	{
+		$api_key_parts = explode('-', $api_key, 2);
+
+		// if datacenter isn't set as part of the key, default to us1
+		return (isset($api_key_parts[1])) ?
+			$api_key_parts[1] :
+			'us1';
+	}
 
 	// }}}
 	// {{{ public function __construct()
 
-	public function __construct(SiteApplication $app, $shortname = null,
-		$connection_timeout = null)
+	public function __construct(SiteApplication $app, $shortname = null)
 	{
 		parent::__construct($app, $shortname);
 
-		if ($connection_timeout === null) {
-			$connection_timeout = $app->config->mail_chimp->connection_timeout;
-		}
+		$this->client = new MailChimpAPI(
+			$this->app->config->mail_chimp->api_key);
 
-		// if the connection takes longer than 1s timeout. This will prevent
-		// users from waiting too long when MailChimp is down - requests will
-		// just get queued. Without setting this, the timeout is ~90s
-		$client_options = array(
-			'connectionTimeout' => $connection_timeout,
-		);
+		$this->client->useSecure(true);
 
-		$url = sprintf($this->app->config->mail_chimp->api_url,
-			$this->app->config->mail_chimp->datacenter);
-
-		$this->client = XML_RPC2_Client::create($url, $client_options);
+		// by default if the connection takes longer than 1s timeout. This will
+		// prevent users from waiting too long when MailChimp is down - requests
+		// will just get queued. Without setting this, the default timeout is
+		// 300 seconds
+		$this->client->setTimeOut($app->config->mail_chimp->connection_timeout);
 
 		if ($this->shortname === null)
 			$this->shortname = $app->config->mail_chimp->default_list;
@@ -224,6 +220,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
+	// {{{ public function setTimeout()
+
+	public function setTimeout($timeout)
+	{
+		$timeout = intval($timeout);
+		$this->client->setTimeout($timeout);
+	}
+
+	// }}}
 	// {{{ public function isAvailable()
 
 	/**
@@ -241,35 +246,19 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$available = false;
 
 		try {
-			$result = $this->client->ping(
-				$this->app->config->mail_chimp->api_key);
+			$result = $this->client->ping();
+
+			$this->handleClientErrors();
 
 			// Endearing? Yes. But also annoying to have to check for a string.
 			if ($result === "Everything's Chimpy!") {
 				$available = true;
-			} else {
-				// throw whatever the chimp has given us back
-				$e = new SiteException($result);
-				$e->processAndContinue();
 			}
-		} catch (XML_RPC2_FaultException $e) {
-			// don't log exceptions we don't need to.
-			if ($e->getFaultCode() == self::CONCURRENT_CONNECTION_ERROR_CODE) {
-				// treat as unavailable.
-			} else {
-				$e = new SiteException($e);
-				$e->processAndContinue();
-			}
-		} catch (XML_RPC2_CurlException $e) {
-			if ($this->processCurlException($e)) {
-				// No longer log these, as the queuing all works as expected.
-				// Logging left in but commented out in case we need it in the
-				// future.
-				//$e = new SiteException($e);
-				//$e->processAndContinue();
-			}
+		// Queueing works but log exceptions for now for unexpected responses.
+		} catch (DeliveranceException $e) {
+			$e->processAndContinue();
 		} catch (Exception $e) {
-			$e = new SiteException($e);
+			$e = new DeliveranceException($e);
 			$e->processAndContinue();
 		}
 
@@ -285,7 +274,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			'email'      => 'EMAIL', // only used for batch subscribes
 			'first_name' => 'FNAME',
 			'last_name'  => 'LNAME',
-			'user_ip'    => 'OPTINIP',
+			'user_ip'    => 'OPTIN_IP',
 			'interests'  => 'INTERESTS',
 		);
 	}
@@ -305,7 +294,6 @@ class DeliveranceMailChimpList extends DeliveranceList
 			$merges = $this->mergeInfo($info, $array_map);
 			try {
 				$result = $this->client->listSubscribe(
-					$this->app->config->mail_chimp->api_key,
 					$this->shortname,
 					$address,
 					$merges,
@@ -315,25 +303,26 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$this->replace_interests,
 					$send_welcome
 					);
-			} catch (XML_RPC2_FaultException $e) {
+
+				$this->handleClientErrors();
+			} catch (DeliveranceException $e) {
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
-				if ($e->getFaultCode() == self::INVALID_ADDRESS_ERROR_CODE) {
+				switch ($e->getCode()) {
+				case self::INVALID_ADDRESS_ERROR_CODE:
 					$result = DeliveranceList::INVALID;
-				} else {
-					$e = new SiteException($e);
-					$e->process();
-				}
-			} catch (XML_RPC2_CurlException $e) {
-				if ($this->processCurlException($e)) {
-					$e = new SiteException($e);
-					$e->processAndContinue();
-				} else {
+					break;
+
+				case self::TIMEOUT_ERROR_CODE:
 					$queue_request = true;
+					break;
+
+				default:
+					$e->processAndExit();
 				}
-			} catch (XML_RPC2_Exception $e) {
-				$e = new SiteException($e);
-				$e->process();
+			} catch (Exception $e) {
+				$e = new DeliveranceException($e);
+				$e->processAndExit();
 			}
 		} else {
 			$queue_request = true;
@@ -360,38 +349,56 @@ class DeliveranceMailChimpList extends DeliveranceList
 		array $array_map = array())
 	{
 		$result = false;
+		$queue_request = false;
 
 		if ($this->isAvailable()) {
+			// Match MailChimp's return array structure plus added array keys
+			// for when we have to queue only part of the batch subscribe. If
+			// the entire request is queued, the method returns the QUEUED
+			// constant instead of this array.
 			$result = array(
-				'success_count' => 0,
-				'error_count'   => 0,
-				'errors'        => array(),
+				'add_count'    => 0,
+				'update_count' => 0,
+				'error_count'  => 0,
+				'errors'       => array(),
+				'queued_count' => 0,
+				'queued      ' => array(),
 				);
 
 			// MailChimp doesn't allow welcomes to be sent on batch subscribes.
-			// So if we need to send them, do individual subscribes instead.
+			// So if we need to send them, do individual subscribes instead, and
+			// update the result queue to match what a batchSubscribe would
+			// return. Any queuing on individual subscribes is handled by the
+			// subscribe() method.
 			if ($send_welcome === true) {
 				foreach ($addresses as $info) {
+					$is_member      = $this->isMember($info['email']);
 					$current_result = $this->subscribe($info['email'], $info,
 						$send_welcome, $array_map);
 
 					switch ($current_result) {
 					case self::SUCCESS:
-						$result['success_count']++;
+						if ($is_member) {
+							$result['update_count']++;
+						} else {
+							$result['add_count']++;
+						}
 						break;
 
 					default:
 						// Match MailChimp's batch subscribe error structure.
 						$result['error_count']++;
 						$result['errors'][] = array(
+							'email'   => $info['email'],
 							'code'    => $current_result,
-							'message' => Site::_(sprintf('Error subscribing %s',
-								$info['email'])),
+							'message' => sprintf('Error subscribing %s',
+								$info['email']),
 						);
 					}
 				}
 			} else {
-				$merged_addresses = array();
+				$addresses_chunk  = array();
+				$queued_addresses = array();
 				$address_count    = count($addresses);
 				$current_count    = 0;
 
@@ -400,39 +407,77 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 					$merges = $this->mergeInfo($info, $array_map);
 					if (count($merges)) {
-						$merged_addresses[] = $merges;
+						$addresses_chunk[] = $merges;
 					}
 
-					if (count($merged_addresses) === self::BATCH_UPDATE_SIZE ||
+					if (count($addresses_chunk) === self::BATCH_UPDATE_SIZE ||
 						$current_count == $address_count) {
-						// do update
+						$queue_current_request = false;
+
+						// subscribe the current chunk
 						try {
 							$current_result = $this->client->listBatchSubscribe(
-								$this->app->config->mail_chimp->api_key,
 								$this->shortname,
-								$merged_addresses,
+								$addresses_chunk,
 								$this->double_opt_in,
 								$this->update_existing,
 								$this->replace_interests
 								);
 
-						} catch (XML_RPC2_Exception $e) {
-							$e = new SiteException($e);
-							$e->process();
+							$this->handleClientErrors();
+						} catch (DeliveranceException $e) {
+							if ($e->getCode() == self::TIMEOUT_ERROR_CODE) {
+								$queue_current_request = true;
+								$queued_addresses = array_merge(
+									$queued_addresses,
+									$addresses_chunk);
+							} else {
+								$e->processAndExit();
+							}
+						} catch (Exception $e) {
+							$e = new DeliveranceException($e);
+							$e->processAndExit();
 						}
 
-						$result['success_count']+=
-							$current_result['success_count'];
+						if ($queue_current_request === false) {
+							$result['add_count']+= $current_result['add_count'];
+							$result['update_count']+=
+								$current_result['update_count'];
 
-						$result['error_count']+= $current_result['error_count'];
-						$result['errors'] = array_merge($result['errors'],
-							$current_result['errors']);
+							$result['error_count']+=
+								$current_result['error_count'];
 
-						$merged_addresses = array();
+							$result['errors'] = array_merge(
+								$result['errors'],
+								$current_result['errors']);
+						}
+
+						$addresses_chunk = array();
 					}
 				}
+
+				// If all batch requests have timed out, queue the entire
+				// request. Otherwise, just queue and report on the timed out
+				// batches.
+				$queued_address_count = count($queued_addresses);
+				if ($queued_address_count == $address_count) {
+					$queue_request = true;
+				} elseif ($queued_address_count &&
+					$this->app->hasModule('SiteDatabaseModule')) {
+					$this->queueBatchSubscribe($queued_addresses,
+						$send_welcome);
+
+					// treat the queueing as a special case.
+					$result['queued_count']     = $queued_address_count;
+					$result['queued_addresses'] = $queued_addresses;
+				}
 			}
-		} elseif ($this->app->hasModule('SiteDatabaseModule')) {
+		} else {
+			$queue_request = true;
+		}
+
+		if ($queue_request === true &&
+			$this->app->hasModule('SiteDatabaseModule')) {
 			$result = $this->queueBatchSubscribe($addresses, $send_welcome);
 		}
 
@@ -450,35 +495,35 @@ class DeliveranceMailChimpList extends DeliveranceList
 		if ($this->isAvailable()) {
 			try {
 				$result = $this->client->listUnsubscribe(
-					$this->app->config->mail_chimp->api_key,
 					$this->shortname,
 					$address,
 					false, // delete_member
 					false  // send_goodbye
 					);
 
-			} catch (XML_RPC2_FaultException $e) {
+				$this->handleClientErrors();
+			} catch (DeliveranceException $e) {
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
-				if ($e->getFaultCode() == self::NOT_FOUND_ERROR_CODE) {
-					$result = DeliveranceList::NOT_FOUND;
-				} elseif ($e->getFaultCode() ==
-					self::NOT_SUBSCRIBED_ERROR_CODE) {
-					$result = DeliveranceList::NOT_SUBSCRIBED;
-				} else {
-					$e = new SiteException($e);
-					$e->process();
-				}
-			} catch (XML_RPC2_CurlException $e) {
-				if ($this->processCurlException($e)) {
-					$e = new SiteException($e);
-					$e->processAndContinue();
-				} else {
+				switch ($e->getCode()) {
+				case self::TIMEOUT_ERROR_CODE:
 					$queue_request = true;
+					break;
+
+				case self::NOT_FOUND_ERROR_CODE:
+					$result = DeliveranceList::NOT_FOUND;
+					break;
+
+				case self::NOT_SUBSCRIBED_ERROR_CODE:
+					$result = DeliveranceList::NOT_SUBSCRIBED;
+					break;
+
+				default:
+					$e->processAndExit();
 				}
-			} catch (XML_RPC2_Exception $e) {
-				$e = new SiteException($e);
-				$e->process();
+			} catch (Exception $e) {
+				$e = new DeliveranceException($e);
+				$e->processAndExit();
 			}
 		} else {
 			$queue_request = true;
@@ -504,15 +549,24 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function batchUnsubscribe(array $addresses)
 	{
 		$result = false;
+		$queue_request = false;
 
 		if ($this->isAvailable()) {
-			$addresses_chunk = array();
-			$address_count   = count($addresses);
-			$current_count   = 0;
-			$result          = array(
+			$addresses_chunk  = array();
+			$address_count    = count($addresses);
+			$current_count    = 0;
+			$queued_addresses = array();
+
+			// Match MailChimp's return array structure plus added array keys
+			// for when we have to queue only part of the batch. If the entire
+			// request is queued, the method returns the QUEUED constant instead
+			// of this array.
+			$result = array(
 				'success_count' => 0,
 				'error_count'   => 0,
 				'errors'        => array(),
+				'queued_count'  => 0,
+				'queued      '  => array(),
 				);
 
 			foreach ($addresses as $email) {
@@ -521,29 +575,68 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 				if (count($addresses_chunk) === self::BATCH_UPDATE_SIZE ||
 					$current_count == $address_count) {
+					$queue_current_request = false;
 
 					// unsubscribe the current chunk
 					try {
 						$current_result = $this->client->listBatchUnsubscribe(
-							$this->app->config->mail_chimp->api_key,
 							$this->shortname,
 							$addresses_chunk,
 							false, // delete_member
 							false  // send_goodbye
 							);
-					} catch (XML_RPC2_Exception $e) {
-						$e = new SiteException($e);
-						$e->process();
+
+						$this->handleClientErrors();
+					} catch (DeliveranceException $e) {
+						if ($e->getCode() == self::TIMEOUT_ERROR_CODE) {
+							$queue_current_request = true;
+							$queued_addresses = array_merge(
+								$queued_addresses,
+								$addresses_chunk);
+						} else {
+							$e->processAndExit();
+						}
+					} catch (Exception $e) {
+						$e = new DeliveranceException($e);
+						$e->processAndExit();
+					}
+
+					if ($queue_current_request === false) {
+						$result['success_count']+=
+							$current_result['success_count'];
+
+						$result['error_count']+=
+							$current_result['error_count'];
+
+						$result['errors'] = array_merge(
+							$result['errors'],
+							$current_result['errors']);
 					}
 
 					$addresses_chunk = array();
-					$result['success_count']+= $current_result['success_count'];
-					$result['error_count']+= $current_result['error_count'];
-					$result['errors'] = array_merge($result['errors'],
-						$current_result['errors']);
+				}
+
+				// If all batch requests have timed out, queue the entire
+				// request. Otherwise, just queue and report on the timed out
+				// batches.
+				$queued_address_count = count($queued_addresses);
+				if ($queued_address_count == $address_count) {
+					$queue_request = true;
+				} elseif ($queued_address_count &&
+					$this->app->hasModule('SiteDatabaseModule')) {
+					$this->queueBatchSubscribe($queued_addresses);
+
+					// treat the queueing as a special case.
+					$result['queued_count']     = $queued_address_count;
+					$result['queued_addresses'] = $queued_addresses;
 				}
 			}
-		} elseif ($this->app->hasModule('SiteDatabaseModule')) {
+		} else {
+			$queue_request = true;
+		}
+
+		if ($queue_request === true &&
+			$this->app->hasModule('SiteDatabaseModule')) {
 			$result = $this->queueBatchUnsubscribe($addresses);
 		}
 
@@ -562,35 +655,36 @@ class DeliveranceMailChimpList extends DeliveranceList
 			$merges = $this->mergeInfo($info, $array_map);
 			try {
 				$result = $this->client->listUpdateMember(
-					$this->app->config->mail_chimp->api_key,
 					$this->shortname,
 					$address,
 					$merges,
 					'', // email_type, left blank to keep existing preference.
 					$this->replace_interests
 					);
-			} catch (XML_RPC2_FaultException $e) {
+
+				$this->handleClientErrors();
+			} catch (DeliveranceException $e) {
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
-				if ($e->getFaultCode() == self::NOT_FOUND_ERROR_CODE) {
+				switch ($e->getCode()) {
+				case self::NOT_FOUND_ERROR_CODE:
 					$result = DeliveranceList::NOT_FOUND;
-				} elseif ($e->getFaultCode() ==
-					self::NOT_SUBSCRIBED_ERROR_CODE) {
+					break;
+
+				case self::NOT_SUBSCRIBED_ERROR_CODE:
 					$result = DeliveranceList::NOT_SUBSCRIBED;
-				} else {
-					$e = new SiteException($e);
-					$e->process();
-				}
-			} catch (XML_RPC2_CurlException $e) {
-				if ($this->processCurlException($e)) {
-					$e = new SiteException($e);
-					$e->processAndContinue();
-				} else {
+					break;
+
+				case self::TIMEOUT_ERROR_CODE:
 					$queue_request = true;
+					break;
+
+				default:
+					$e->processAndExit();
 				}
-			} catch (XML_RPC2_Exception $e) {
-				$e = new SiteException($e);
-				$e->process();
+			} catch (Exception $e) {
+				$e = new DeliveranceException($e);
+				$e->processAndExit();
 			}
 		} else {
 			$queue_request = true;
@@ -629,25 +723,17 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	public function isMember($address)
 	{
-		$result = false;
+		$is_member = false;
 
-		try {
-			$info = $this->client->listMemberInfo(
-				$this->app->config->mail_chimp->api_key,
-				$this->shortname,
-				$address
-				);
+		$member_info = $this->getMemberInfo($address);
 
-			// this is the only way to tell if a member is actually subscribed.
-			if ($info['status'] == 'subscribed') {
-				$result = true;
-			}
-		} catch (XML_RPC2_Exception $e) {
-			// if it fails for any reason, just consider the address as not
-			// subscribed.
+		// Status of subscribed is the only way we can validate a current member
+		if ($member_info !== null &&
+			$member_info['status'] == 'subscribed') {
+			$is_member = true;
 		}
 
-		return $result;
+		return $is_member;
 	}
 
 	// }}}
@@ -655,9 +741,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	public function getMembers(array $segment_options = array(), $since = '')
 	{
+		// Export API isn't support in MailChimpAPI, so build the call as part
+		// of the method until we can find or make a wrapper for the export api.
 		$members = null;
-		$url     = sprintf($this->app->config->mail_chimp->export_api_url,
-			$this->app->config->mail_chimp->datacenter).'list/';
+		$url     = sprintf('https://%s.api.mailchimp.com/export/1.0/list/',
+			self::getDataCenter($this->app->config->mail_chimp->api_key));
 
 		$url.= sprintf('?apikey=%s&id=%s&status=%s',
 				urlencode($this->app->config->mail_chimp->api_key),
@@ -696,7 +784,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		try {
 			$members = file_get_contents($url);
 		} catch (Exception $e) {
-			throw new SiteException($e);
+			throw new DeliveranceException($e);
 		}
 
 		$first = true;
@@ -738,15 +826,30 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		$member_info = null;
 
-		try {
-			$member_info = $this->client->listMemberInfo(
-				$this->app->config->mail_chimp->api_key,
-				$this->shortname,
-				$address
-				);
-		} catch (XML_RPC2_Exception $e) {
-			// if it fails for any reason, just consider the address as not
-			// subscribed.
+		if ($this->isAvailable()) {
+			try {
+				$result = $this->client->listMemberInfo(
+					$this->shortname,
+					$address
+					);
+
+				$this->handleClientErrors();
+
+				// Since we're only checking a single address, success count
+				// should be one, and the first array in data should have a
+				// member info for the email address
+				if ($result['success'] == 1) {
+					$member_info = $result['data'][0];
+				}
+			} catch (DeliveranceException $e) {
+				// if it fails for any reason, just consider the address as not
+				// subscribed.
+			} catch (Exception $e) {
+				// log these for the time being to see if anything unexpected
+				// crops up.
+				$e = new DeliveranceException();
+				$e->processAndContine();
+			}
 		}
 
 		return $member_info;
@@ -765,6 +868,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		foreach ($info as $id => $value) {
 			if (array_key_exists($id, $array_map) && $value != null) {
 				$merge_var = $array_map[$id];
+				// TODO: use new-style interest groups.
 				// interests can be passed in as an array, but MailChimp
 				// expects a comma delimited list.
 				if ($merge_var == 'INTERESTS' && is_array($value)) {
@@ -824,17 +928,22 @@ class DeliveranceMailChimpList extends DeliveranceList
 		if ($campaign->id != null) {
 			try {
 				$result = $this->client->campaignDelete(
-					$this->app->config->mail_chimp->api_key,
-					$campaign->id);
-			} catch (XML_RPC2_Exception $e) {
-				// ignore errors caused by trying to delete a campaign that
-				// doesn't exist. Consider it safely deleted.
-				if ($e->getFaultCode() == 300) {
+					$campaign->id
+					);
+
+				$this->handleClientErrors();
+			} catch (DeliveranceException $e) {
+				// consider a campaign that already doesn't exist a successful
+				// deletion.
+				if ($e->getCode() == self::CAMPAIGN_DOES_NOT_EXIST) {
 					$result = true;
 				} else {
-					$e = new SiteException($e);
-					$e->process();
+					$e = new DeliveranceCampaignException($e);
+					$e->processAndExit();
 				}
+			} catch (Exception $e) {
+				$e = new DeliveranceCampaignException($e);
+				$e->processAndExit();
 			}
 		}
 
@@ -851,11 +960,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 			// unschedule first.
 			$this->unscheduleCampaign($campaign);
 			$this->client->campaignSendNow(
-				$this->app->config->mail_chimp->api_key,
-				$campaign->id);
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+				$campaign->id
+				);
+
+			$this->handleClientErrors();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 	}
 
@@ -878,12 +989,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 				// TZ intentionally omitted, API call expects date in UTC with
 				// no timezone information.
 				$this->client->campaignSchedule(
-					$this->app->config->mail_chimp->api_key,
 					$campaign->id,
-					$send_date->getDate());
-			} catch (XML_RPC2_Exception $e) {
-				$e = new SiteException($e);
-				$e->process();
+					$send_date->getDate()
+					);
+
+				$this->handleClientErrors();
+			} catch (Exception $e) {
+				$e = new DeliveranceCampaignException($e);
+				$e->processAndExit();
 			}
 		}
 	}
@@ -895,18 +1008,20 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		try {
 			$this->client->campaignUnschedule(
-				$this->app->config->mail_chimp->api_key,
-				$campaign->id);
-		} catch (XML_RPC2_FaultException $e) {
+				$campaign->id
+				);
+
+			$this->handleClientErrors();
+		} catch (DeliveranceException $e) {
 			// ignore errors caused by trying to unschedule a campaign that
 			// isn't scheduled yet. These are safe to ignore.
-			if ($e->getFaultCode() != 122) {
-				$e = new SiteException($e);
-				$e->process();
+			if ($e->getCode() != self::CAMPAIGN_NOT_SCHEDULED_ERROR) {
+				$e = new DeliveranceCampaignException($e);
+				$e->processAndExit();
 			}
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 	}
 
@@ -924,15 +1039,17 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$campaigns = $this->client->campaigns(
-				$this->app->config->mail_chimp->api_key,
-				$filters);
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+				$filters
+				);
+
+			$this->handleClientErrors();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 
 		if (count($campaigns) > 1) {
-			throw new SiteException(sprintf(
+			throw new DeliveranceCampaignException(sprintf(
 				'Multiple campaigns exist with a title of ‘%s’',
 				$campaign->getTitle()));
 		} elseif (count($campaigns) == 1) {
@@ -955,8 +1072,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		while (count($chunk) > 0) {
 			$campaigns = array_merge($campaigns, $chunk);
 			$offset++;
-			$chunk = $this->getCampaignsChunk($filters, $offset,
-				$chunk_size);
+			$chunk = $this->getCampaignsChunk($filters, $offset, $chunk_size);
 		}
 
 		return $campaigns;
@@ -971,13 +1087,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$report = $this->client->campaignShareReport(
-				$this->app->config->mail_chimp->api_key,
-				$campaign_id);
+				$campaign_id
+				);
+
+			$this->handleClientErrors();
 
 			$url = $report['secure_url'];
-		} catch (XML_RPC2_Exception $e) {
-			// TODO: Anything we should catch and always ignore?
-			throw $e;
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 
 		return $url;
@@ -992,11 +1110,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$stats = $this->client->campaignStats(
-				$this->app->config->mail_chimp->api_key,
-				$campaign_id);
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+				$campaign_id
+				);
+
+			$this->handleClientErrors();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 
 		// This is the stat we most often want to report back. Standardize here
@@ -1016,11 +1136,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$stats = $this->client->campaignClickStats(
-				$this->app->config->mail_chimp->api_key,
-				$campaign_id);
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+				$campaign_id
+				);
+
+			$this->handleClientErrors();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 
 		return $stats;
@@ -1034,12 +1156,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		try {
 			$this->client->campaignSendTest(
-				$this->app->config->mail_chimp->api_key,
 				$campaign->id,
-				$test_emails);
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+				$test_emails
+				);
+
+			$this->handleClientErrors();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 	}
 
@@ -1052,12 +1176,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$segment_size = $this->client->campaignSegmentTest(
-				$this->app->config->mail_chimp->api_key,
 				$this->shortname,
-				$segment_options);
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+				$segment_options
+				);
+
+			$this->handleClientErrors();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 
 		return $segment_size;
@@ -1073,17 +1199,21 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$campaign_id = $this->client->campaignCreate(
-				$this->app->config->mail_chimp->api_key,
-				$campaign->type, $options, $content);
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+				$campaign->type,
+				$options,
+				$content
+				);
+
+			$this->handleClientErrors();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 
 		$campaign->id = $campaign_id;
-
 		// call this separately because XML/RPC can't pass nulls, and it's often
 		// null. And other values are type checked by MailChimp
+		// TODO: do this better to cut down on mailchimp calls.
 		$this->updateCampaignSegmentOptions($campaign);
 
 		return $campaign_id;
@@ -1099,20 +1229,29 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$this->client->campaignUpdate(
-				$this->app->config->mail_chimp->api_key,
-				$campaign->id, 'content', $content);
+				$campaign->id,
+				'content',
+				$content
+				);
+
+			$this->handleClientErrors();
 
 			// options can only be updated one at a time.
+			// TODO: double check this is still true with 1.3
 			foreach ($options as $title => $value) {
 				$this->client->campaignUpdate(
-					$this->app->config->mail_chimp->api_key,
-					$campaign->id, $title, $value);
+					$campaign->id,
+					$title,
+					$value
+					);
+
+				$this->handleClientErrors();
 			}
 
 			$this->updateCampaignSegmentOptions($campaign);
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+		} catch (Exception $e) {
+			$e = new DeliveranceCampaignException($e);
+			$e->processAndExit();
 		}
 	}
 
@@ -1126,11 +1265,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 		if ($segment_options !== null) {
 			try {
 				$this->client->campaignUpdate(
-					$this->app->config->mail_chimp->api_key,
-					$campaign->id, 'segment_opts', $segment_options);
-			} catch (XML_RPC2_Exception $e) {
-				$e = new SiteException($e);
-				$e->process();
+					$campaign->id,
+					'segment_opts',
+					$segment_options
+					);
+
+				$this->handleClientErrors();
+			} catch (Exception $e) {
+				$e = new DeliveranceCampaignException($e);
+				$e->processAndExit();
 			}
 		}
 	}
@@ -1142,27 +1285,36 @@ class DeliveranceMailChimpList extends DeliveranceList
 		DeliveranceMailChimpCampaign $campaign)
 	{
 		$title = $campaign->getTitle();
-		if ($title == null)
-			throw new SiteException('Campaign “Title” is null');
+		if ($title == null) {
+			throw new DeliveranceCampaignException(
+				'Campaign “Title” is null');
+		}
 
 		$subject = $campaign->getSubject();
-		if ($subject == null)
-			throw new SiteException('Campaign “Subject” is null');
+		if ($subject == null) {
+			throw new DeliveranceCampaignException(
+				'Campaign “Subject” is null');
+		}
 
 		$from_address = $campaign->getFromAddress();
-		if ($from_address == null)
-			throw new SiteException('Campaign “From Address” is null');
+		if ($from_address == null) {
+			throw new DeliveranceCampaignException(
+				'Campaign “From Address” is null');
+		}
 
 		$from_name = $campaign->getFromName();
-		if ($from_name == null)
-			throw new SiteException('Campaign “From Name” is null');
+		if ($from_name == null) {
+			throw new DeliveranceCampaignException(
+				'Campaign “From Name” is null');
+		}
 
 		$to_name = $campaign->getToName();
 
 		$analytics = '';
 		$key = $campaign->getAnalyticsKey();
-		if ($key != null)
+		if ($key != null) {
 			$analytics = array('google' => $key);
+		}
 
 		$options = array(
 			'list_id'      => $this->shortname,
@@ -1170,7 +1322,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			'subject'      => $subject,
 			'from_email'   => $from_address,
 			'from_name'    => $from_name,
-			'to_email'     => $to_name,
+			'to_name'      => $to_name,
 			'authenticate' => 'true',
 			'analytics'    => $analytics,
 			'inline_css'   => true,
@@ -1192,13 +1344,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 	protected function getCampaignSegmentOptions(
 		DeliveranceMailChimpCampaign $campaign)
 	{
-		$segment_options = array();
-
 		$segment_options = $campaign->getSegmentOptions();
+
 		if ($segment_options != null) {
 			if ($this->getSegmentSize($segment_options) == 0) {
-				throw new SiteException('Campaign Segment Options return no '.
-					'members');
+				throw new DeliveranceCampaignException(
+					'Campaign Segment Options return no members');
 			}
 		}
 
@@ -1225,8 +1376,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 	protected function getCampaignsChunk(array $filters = array(), $offset = 0,
 		$chunk_size = 0)
 	{
-		if ($chunk_size > 1000)
-			throw new SiteException('Campaign chunk size exceeds API limit');
+		if ($chunk_size > 1000) {
+			throw new DeliveranceException(
+				'Campaign chunk size exceeds API limit');
+		}
 
 		$campaigns = array();
 		// add the list id to the set of passed in filters
@@ -1234,15 +1387,17 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$campaigns = $this->client->campaigns(
-				$this->app->config->mail_chimp->api_key,
 				$filters,
 				$offset,
 				$chunk_size
 				);
 
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+			$this->handleClientErrors();
+		} catch (DeliveranceException $e) {
+			$e->processAndExit();
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndExit();
 		}
 
 		return $campaigns;
@@ -1258,18 +1413,20 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$member_count = null;
 
 		try {
-		    $lists = $this->client->lists(
-				$this->app->config->mail_chimp->api_key);
+		    $lists = $this->client->lists();
+			$this->handleClientErrors();
 
 			foreach ($lists as $list) {
 				if ($list['id'] == $this->shortname) {
-					$member_count = $list['member_count'];
+					$member_count = $list['stats']['member_count'];
 					break;
 				}
 			}
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+		} catch (DeliveranceException $e) {
+			$e->processAndExit();
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndExit();
 		}
 
 		return $member_count;
@@ -1284,11 +1441,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		try {
 			$merge_vars = $this->client->listMergeVars(
-				$this->app->config->mail_chimp->api_key, $this->shortname);
+				$this->shortname
+				);
 
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+			$this->handleClientErrors();
+		} catch (DeliveranceException $e) {
+			$e->processAndExit();
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndExit();
 		}
 
 		return $merge_vars;
@@ -1304,12 +1465,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$lists = null;
 
 		try {
-		    $lists = $this->client->lists(
-				$this->app->config->mail_chimp->api_key);
-
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+		    $lists = $this->client->lists();
+			$this->handleClientErrors();
+		} catch (DeliveranceException $e) {
+			$e->processAndExit();
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndExit();
 		}
 
 		return $lists;
@@ -1323,12 +1485,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$folders = null;
 
 		try {
-		    $folders = $this->client->campaignFolders(
-				$this->app->config->mail_chimp->api_key);
-
-		} catch (XML_RPC2_Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+		    $folders = $this->client->campaignFolders();
+			$this->handleClientErrors();
+		} catch (DeliveranceException $e) {
+			$e->processAndExit();
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndExit();
 		}
 
 		return $folders;
@@ -1336,19 +1499,20 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	// }}}
 
-	// exception handling
-	// {{{ private function processCurlException()
+	// exception throwing and handling
+	// {{{ private function handleClientErrors()
 
-	private function processCurlException(XML_RPC2_CurlException $e)
+	private function handleClientErrors()
 	{
-		$process    = false;
-		$error_code = $e->getCode();
-
-		if (array_search($error_code, $this->curl_queueable_errors) === false) {
-			$process = true;
+		// errorCode is initialized to a blank string, and if it gets set to
+		// anything else, throw an exception.
+		if ($this->client->errorCode !== '') {
+			throw new DeliveranceException(
+				sprintf("Code: %s\nMessage: %s",
+					$this->client->errorCode,
+					$this->client->errorMessage),
+				$this->client->errorCode);
 		}
-
-		return $process;
 	}
 
 	// }}}

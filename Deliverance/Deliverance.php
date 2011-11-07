@@ -124,18 +124,15 @@ class Deliverance
 			'deliverance_campaign.from_address' => null,
 
 			// mailchimp
-			'mail_chimp.datacenter'                => 'us1',
-			'mail_chimp.api_url'                   => 'https://%s.api.mailchimp.com/1.2/',
-			'mail_chimp.export_api_url'            => 'https://%s.api.mailchimp.com/export/1.0/',
 			'mail_chimp.double_opt_in'             => false,
 			'mail_chimp.api_key'                   => null,
 			'mail_chimp.user_id'                   => null,
 			'mail_chimp.default_list'              => null,
 			'mail_chimp.default_folder'            => null,
 			'mail_chimp.preview_url'               => 'http://%s.campaign-archive.com/?u=%s&id=%s',
-			'mail_chimp.connection_timeout'        => 1000,
-			'mail_chimp.admin_connection_timeout'  => 5000,
-			'mail_chimp.script_connection_timeout' => 90000,
+			'mail_chimp.connection_timeout'        => 1,
+			'mail_chimp.admin_connection_timeout'  => 5,
+			'mail_chimp.script_connection_timeout' => 300,
 		);
 	}
 
