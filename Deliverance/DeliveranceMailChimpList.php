@@ -1048,12 +1048,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 			$e->processAndExit();
 		}
 
-		if (count($campaigns) > 1) {
+		if ($campaigns['total'] > 1) {
 			throw new DeliveranceCampaignException(sprintf(
 				'Multiple campaigns exist with a title of ‘%s’',
 				$campaign->getTitle()));
-		} elseif (count($campaigns) == 1) {
-			$campaign_id = $campaigns[0]['id'];
+		} elseif ($campaigns['total'] == 1) {
+			$campaign_id = $campaigns['data'][0]['id'];
 		}
 
 		return $campaign_id;
