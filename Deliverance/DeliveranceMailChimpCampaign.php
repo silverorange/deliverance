@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Deliverance/DeliveranceCampaign.php';
+require_once 'Deliverance/DeliveranceMailChimpList.php';
 
 /**
  * @package   Deliverance
@@ -84,7 +85,8 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	public static function getPreviewUrl(SiteApplication $app, $campaign_id)
 	{
 		return sprintf($app->config->mail_chimp->preview_url,
-			$app->config->mail_chimp->datacenter,
+			DeliveranceMailChimpList::getDataCenter(
+				$app->config->mail_chimp->api_key),
 			$app->config->mail_chimp->user_id,
 			$campaign_id);
 	}
