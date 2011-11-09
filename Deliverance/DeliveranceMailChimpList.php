@@ -1063,8 +1063,9 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$chunk_size = 50;
 		$chunk      = $this->getCampaignsChunk($filters, $offset, $chunk_size);
 
-		while (count($chunk) > 0) {
-			$campaigns = array_merge($campaigns, $chunk);
+		while ($chunk['total'] > count($campaigns) &&
+			count($chunk['data']) > 0) {
+			$campaigns = array_merge($campaigns, $chunk['data']);
 			$offset++;
 			$chunk = $this->getCampaignsChunk($filters, $offset, $chunk_size);
 		}
