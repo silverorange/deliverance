@@ -5,6 +5,7 @@ require_once 'Swat/SwatDate.php';
 require_once 'Deliverance/DeliveranceList.php';
 require_once 'Deliverance/DeliveranceMailChimpCampaign.php';
 require_once 'Deliverance/exceptions/DeliveranceException.php';
+require_once 'Deliverance/exceptions/DeliveranceAPIConnectionException.php';
 require_once 'Deliverance/exceptions/DeliveranceCampaignException.php';
 
 /**
@@ -40,7 +41,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 	/**
 	 * Error code returned when the connection has timed out.
 	 */
-	const TIMEOUT_ERROR_CODE = -98;
+	const CONNECTION_TIMEOUT_ERROR_CODE = -98;
+
+	/**
+	 * Error code returned when we could not connect to the API.
+	 */
+	const CONNECTION_ERROR_CODE = -99;
 
 	/**
 	 * Error code returned when attempting to subscribe an email address that
@@ -77,7 +83,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 * Error code returned when attempting to unschedule a campaign that hasn't
 	 * yet been scheduled.
 	 */
-	const CAMPAIGN_NOT_SCHEDULED_ERROR = 122;
+	const CAMPAIGN_NOT_SCHEDULED_ERROR = 313;
 
 	/**
 	 * Error code returned when attempting to delete a campaign that doesn't
@@ -146,6 +152,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 * @var string
 	 */
 	protected $email_type = self::EMAIL_TYPE_HTML;
+
+	// }}}
+	// {{{ private properties
+
+	private $connection_errors = array(
+		self::CONNECTION_ERROR_CODE,
+		self::CONNECTION_TIMEOUT_ERROR_CODE,
+		self::CONCURRENT_CONNECTION_ERROR_CODE,
+		);
 
 	// }}}
 	// {{{ public static function getDataCenter()
@@ -254,10 +269,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 			if ($result === "Everything's Chimpy!") {
 				$available = true;
 			}
-		// Queueing works but log exceptions for now for unexpected responses.
-		} catch (DeliveranceException $e) {
-			$e->processAndContinue();
+		} catch (DeliveranceAPIConnectionException $e) {
+			// exception is known, API is not available.
 		} catch (Exception $e) {
+			// If its not a known exception type, log it but still return
+			// unavailable
 			$e = new DeliveranceException($e);
 			$e->processAndContinue();
 		}
@@ -305,6 +321,9 @@ class DeliveranceMailChimpList extends DeliveranceList
 					);
 
 				$this->handleClientErrors();
+			} catch (DeliveranceAPIConnectionException $e) {
+				// exception is known, API is not available.
+				$queue_request = true;
 			} catch (DeliveranceException $e) {
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
@@ -313,16 +332,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$result = DeliveranceList::INVALID;
 					break;
 
-				case self::TIMEOUT_ERROR_CODE:
-					$queue_request = true;
-					break;
-
 				default:
-					$e->processAndExit();
+					throw $e;
 				}
 			} catch (Exception $e) {
-				$e = new DeliveranceException($e);
-				$e->processAndExit();
+				throw new DeliveranceException($e);
 			}
 		} else {
 			$queue_request = true;
@@ -425,18 +439,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 								);
 
 							$this->handleClientErrors();
-						} catch (DeliveranceException $e) {
-							if ($e->getCode() == self::TIMEOUT_ERROR_CODE) {
-								$queue_current_request = true;
-								$queued_addresses = array_merge(
-									$queued_addresses,
-									$addresses_chunk);
-							} else {
-								$e->processAndExit();
-							}
+						} catch (DeliveranceAPIConnectionException $e) {
+							$queue_current_request = true;
+							$queued_addresses = array_merge(
+								$queued_addresses,
+								$addresses_chunk);
 						} catch (Exception $e) {
-							$e = new DeliveranceException($e);
-							$e->processAndExit();
+							throw new DeliveranceException($e);
 						}
 
 						if ($queue_current_request === false) {
@@ -502,14 +511,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 					);
 
 				$this->handleClientErrors();
+			} catch (DeliveranceAPIConnectionException $e) {
+				$queue_request = true;
 			} catch (DeliveranceException $e) {
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
 				switch ($e->getCode()) {
-				case self::TIMEOUT_ERROR_CODE:
-					$queue_request = true;
-					break;
-
 				case self::NOT_FOUND_ERROR_CODE:
 					$result = DeliveranceList::NOT_FOUND;
 					break;
@@ -519,11 +526,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 					break;
 
 				default:
-					$e->processAndExit();
+					throw $e;
 				}
 			} catch (Exception $e) {
-				$e = new DeliveranceException($e);
-				$e->processAndExit();
+				throw new DeliveranceException($e);
 			}
 		} else {
 			$queue_request = true;
@@ -587,18 +593,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 							);
 
 						$this->handleClientErrors();
-					} catch (DeliveranceException $e) {
-						if ($e->getCode() == self::TIMEOUT_ERROR_CODE) {
-							$queue_current_request = true;
-							$queued_addresses = array_merge(
-								$queued_addresses,
-								$addresses_chunk);
-						} else {
-							$e->processAndExit();
-						}
+					} catch (DeliveranceAPIConnectionException $e) {
+						$queue_current_request = true;
+						$queued_addresses = array_merge(
+							$queued_addresses,
+							$addresses_chunk);
 					} catch (Exception $e) {
-						$e = new DeliveranceException($e);
-						$e->processAndExit();
+						throw new DeliveranceException($e);
 					}
 
 					if ($queue_current_request === false) {
@@ -663,6 +664,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 					);
 
 				$this->handleClientErrors();
+			} catch (DeliveranceAPIConnectionException $e) {
+				$queue_request = true;
 			} catch (DeliveranceException $e) {
 				// gracefully handle exceptions that we can provide nice
 				// feedback about.
@@ -675,16 +678,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 					$result = DeliveranceList::NOT_SUBSCRIBED;
 					break;
 
-				case self::TIMEOUT_ERROR_CODE:
-					$queue_request = true;
-					break;
-
 				default:
-					$e->processAndExit();
+					throw $e;
 				}
 			} catch (Exception $e) {
-				$e = new DeliveranceException($e);
-				$e->processAndExit();
+				throw new DeliveranceException($e);
 			}
 		} else {
 			$queue_request = true;
@@ -841,12 +839,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 				if ($result['success'] == 1) {
 					$member_info = $result['data'][0];
 				}
+			} catch (DeliveranceAPIConnectionException $e) {
+				// consider the address not subscribed.
 			} catch (DeliveranceException $e) {
 				// if it fails for any reason, just consider the address as not
-				// subscribed.
+				// subscribed. Log for now out of curiosity.
+				$e->processAndContine();
 			} catch (Exception $e) {
-				// log these for the time being to see if anything unexpected
-				// crops up.
+				// log these for the time being to see if anything outside of
+				// expected DeliveranceException's crop up.
 				$e = new DeliveranceException();
 				$e->processAndContine();
 			}
@@ -938,12 +939,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 				if ($e->getCode() == self::CAMPAIGN_DOES_NOT_EXIST) {
 					$result = true;
 				} else {
-					$e = new DeliveranceCampaignException($e);
-					$e->processAndExit();
+					throw new DeliveranceCampaignException($e);
 				}
 			} catch (Exception $e) {
-				$e = new DeliveranceCampaignException($e);
-				$e->processAndExit();
+				throw new DeliveranceCampaignException($e);
 			}
 		}
 
@@ -965,8 +964,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$this->handleClientErrors();
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 	}
 
@@ -995,8 +993,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 				$this->handleClientErrors();
 			} catch (Exception $e) {
-				$e = new DeliveranceCampaignException($e);
-				$e->processAndExit();
+				throw new DeliveranceCampaignException($e);
 			}
 		}
 	}
@@ -1016,12 +1013,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 			// ignore errors caused by trying to unschedule a campaign that
 			// isn't scheduled yet. These are safe to ignore.
 			if ($e->getCode() != self::CAMPAIGN_NOT_SCHEDULED_ERROR) {
-				$e = new DeliveranceCampaignException($e);
-				$e->processAndExit();
+				throw new DeliveranceCampaignException($e);
 			}
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 	}
 
@@ -1044,8 +1039,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$this->handleClientErrors();
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 
 		if ($campaigns['total'] > 1) {
@@ -1094,8 +1088,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$url = $report['secure_url'];
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 
 		return $url;
@@ -1115,8 +1108,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$this->handleClientErrors();
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 
 		// This is the stat we most often want to report back. Standardize here
@@ -1141,8 +1133,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$this->handleClientErrors();
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 
 		return $stats;
@@ -1162,8 +1153,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$this->handleClientErrors();
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 	}
 
@@ -1182,8 +1172,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$this->handleClientErrors();
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 
 		return $segment_size;
@@ -1206,8 +1195,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$this->handleClientErrors();
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 
 		$campaign->id = $campaign_id;
@@ -1250,8 +1238,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$this->updateCampaignSegmentOptions($campaign);
 		} catch (Exception $e) {
-			$e = new DeliveranceCampaignException($e);
-			$e->processAndExit();
+			throw new DeliveranceCampaignException($e);
 		}
 	}
 
@@ -1272,8 +1259,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 				$this->handleClientErrors();
 			} catch (Exception $e) {
-				$e = new DeliveranceCampaignException($e);
-				$e->processAndExit();
+				throw new DeliveranceCampaignException($e);
 			}
 		}
 	}
@@ -1393,11 +1379,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 				);
 
 			$this->handleClientErrors();
-		} catch (DeliveranceException $e) {
-			$e->processAndExit();
 		} catch (Exception $e) {
-			$e = new DeliveranceException($e);
-			$e->processAndExit();
+			throw new DeliveranceException($e);
 		}
 
 		return $campaigns;
@@ -1422,11 +1405,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 					break;
 				}
 			}
-		} catch (DeliveranceException $e) {
-			$e->processAndExit();
 		} catch (Exception $e) {
-			$e = new DeliveranceException($e);
-			$e->processAndExit();
+			throw new DeliveranceException($e);
 		}
 
 		return $member_count;
@@ -1445,11 +1425,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 				);
 
 			$this->handleClientErrors();
-		} catch (DeliveranceException $e) {
-			$e->processAndExit();
 		} catch (Exception $e) {
-			$e = new DeliveranceException($e);
-			$e->processAndExit();
+			throw new DeliveranceException($e);
 		}
 
 		return $merge_vars;
@@ -1467,11 +1444,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		try {
 		    $lists = $this->client->lists();
 			$this->handleClientErrors();
-		} catch (DeliveranceException $e) {
-			$e->processAndExit();
 		} catch (Exception $e) {
-			$e = new DeliveranceException($e);
-			$e->processAndExit();
+			throw new DeliveranceException($e);
 		}
 
 		return $lists;
@@ -1487,11 +1461,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		try {
 		    $folders = $this->client->campaignFolders();
 			$this->handleClientErrors();
-		} catch (DeliveranceException $e) {
-			$e->processAndExit();
 		} catch (Exception $e) {
-			$e = new DeliveranceException($e);
-			$e->processAndExit();
+			throw new DeliveranceException($e);
 		}
 
 		return $folders;
@@ -1504,13 +1475,26 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	private function handleClientErrors()
 	{
-		// errorCode is initialized to a blank string, and if it gets set to
-		// anything else, throw an exception.
+		// errorCode is initialized to a blank string in the client at the start
+		// of each call and if it gets set to anything else, throw an exception.
 		if ($this->client->errorCode !== '') {
-			throw new DeliveranceException(
-				sprintf("Code: %s\nMessage: %s",
-					$this->client->errorCode,
-					$this->client->errorMessage),
+			// if the error code is a connection error code, throw a specific
+			// exception class.
+			if (array_search($this->client->errorCode,
+				$this->connection_errors) === false) {
+				$class_name = 'DeliveranceException';
+			} else {
+				$class_name = 'DeliveranceAPIConnectionException';
+			}
+
+			// include the code in the exception message for easier debug from
+			// logs
+			$message = sprintf("Code: %s\nMessage: %s",
+				$this->client->errorCode,
+				$this->client->errorMessage);
+
+			throw new $class_name(
+				$message,
 				$this->client->errorCode);
 		}
 	}
