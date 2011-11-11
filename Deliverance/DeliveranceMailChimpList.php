@@ -92,6 +92,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 	const CAMPAIGN_DOES_NOT_EXIST = 300;
 
 	/**
+	 * Error code returned when attempting to add an order that already has been
+	 * added.
+	 */
+	const PREVIOUSLY_ADDED_ORDER_ERROR_CODE = 330;
+
+	/**
 	 * Email type preference value for html email.
 	 */
 	const EMAIL_TYPE_HTML = 'html';
@@ -191,7 +197,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		// prevent users from waiting too long when MailChimp is down - requests
 		// will just get queued. Without setting this, the default timeout is
 		// 300 seconds
-		$this->client->setTimeOut($app->config->mail_chimp->connection_timeout);
+		$this->client->setTimeout($app->config->mail_chimp->connection_timeout);
 
 		if ($this->shortname === null)
 			$this->shortname = $app->config->mail_chimp->default_list;
@@ -1389,6 +1395,40 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	// }}}
 
+	// ecomm360 methods
+	// {{{ protected function addOrder()
+
+	protected function addOrder(array $info)
+	{
+		$success = false;
+
+		try {
+			// attach to a campaign if it exists in the info array
+			if (isset($info['campaign_id'])) {
+				$success = $this->client->campaignEcommOrderAdd($info);
+			} else {
+				$success = $this->client->ecommOrderAdd($info);
+			}
+		} catch (DeliveranceAPIConnectionException $e) {
+			$success = false;
+			// do nothing, but treat as unsuccessful.
+		} catch (DeliveranceException $e) {
+			// 330 means order has already been submitted, we can safely
+			// throw these away
+			if ($e->getFaultCode() == self::PREVIOUSLY_ADDED_ORDER_ERROR_CODE) {
+				$success = true;
+			} else {
+				throw $e;
+			}
+		} catch (Execption $e) {
+			throw new DeliveranceException($e);
+		}
+
+		return $success;
+	}
+
+	// }}}
+
 	// list methods
 	// {{{ public function getMemberCount()
 
@@ -1488,14 +1528,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 				$class_name = 'DeliveranceAPIConnectionException';
 			}
 
-			// include the code in the exception message for easier debug from
-			// logs
-			$message = sprintf("Code: %s\nMessage: %s",
-				$this->client->errorCode,
-				$this->client->errorMessage);
-
 			throw new $class_name(
-				$message,
+				$this->client->errorMessage,
 				$this->client->errorCode);
 		}
 	}
