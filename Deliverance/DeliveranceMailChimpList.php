@@ -1420,9 +1420,9 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// }}}
 
 	// ecomm360 methods
-	// {{{ protected function addOrder()
+	// {{{ public function addOrder()
 
-	protected function addOrder(array $info)
+	public function addOrder(array $info)
 	{
 		$success = false;
 
@@ -1433,13 +1433,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 			} else {
 				$success = $this->client->ecommOrderAdd($info);
 			}
+			$this->handleClientErrors();
 		} catch (DeliveranceAPIConnectionException $e) {
 			$success = false;
 			// do nothing, but treat as unsuccessful.
 		} catch (DeliveranceException $e) {
 			// 330 means order has already been submitted, we can safely
 			// throw these away
-			if ($e->getFaultCode() == self::PREVIOUSLY_ADDED_ORDER_ERROR_CODE) {
+			if ($e->getCode() == self::PREVIOUSLY_ADDED_ORDER_ERROR_CODE) {
 				$success = true;
 			} else {
 				throw $e;
