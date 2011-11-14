@@ -711,23 +711,23 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// }}}
 	// {{{ public function updateMemberEmailAddress()
 
-	public function updateMemberEmailAddress($old_address, $new_address, $info = array())
+	public function updateMemberEmailAddress($old_email, $new_email)
 	{
 		// if we have member info on both address we can't simply update one as
 		// MailChimp returns an error. Member info exists on addresses that have
 		// previously unsubscribed, so we can do an isMember() check. If they do
 		// both exist, unsubscribe the old one and subscribe the new one.
-		if ($list->getMemberInfo($new_email) !== null &&
-			$list->getMemberInfo($old_email) !== null) {
-			$list->unsubscribe($old_email);
+		if ($this->getMemberInfo($new_email) !== null &&
+			$this->getMemberInfo($old_email) !== null) {
+			$this->unsubscribe($old_email);
 			// don't send a welcome message.
-			$list->subscribe($new_email, array(), false);
+			$this->subscribe($new_email, array(), false);
 		} else {
 			$info = array(
 				'email' => $new_email,
 			);
 
-			$list->update($old_email, $info);
+			$this->update($old_email, $info);
 		}
 
 	}
