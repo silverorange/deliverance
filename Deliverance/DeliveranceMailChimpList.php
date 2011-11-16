@@ -383,7 +383,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 				'error_count'   => 0,
 				'errors'        => array(),
 				'queued_count'  => 0,
-				'queued      '  => array(),
+				'queued'        => array(),
 				);
 
 			// MailChimp doesn't allow welcomes to be sent on batch subscribes.
@@ -457,15 +457,17 @@ class DeliveranceMailChimpList extends DeliveranceList
 						}
 
 						if ($queue_current_request === false) {
-							$result['success_count']+=
+							$result['success_count'] +=
 								$current_result['add_count'] +
 								$current_result['update_count'];
 
-							$result['add_count']+= $current_result['add_count'];
-							$result['update_count']+=
+							$result['add_count'] +=
+								$current_result['add_count'];
+
+							$result['update_count'] +=
 								$current_result['update_count'];
 
-							$result['error_count']+=
+							$result['error_count'] +=
 								$current_result['error_count'];
 
 							$result['errors'] = array_merge(
@@ -584,7 +586,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 				'error_count'   => 0,
 				'errors'        => array(),
 				'queued_count'  => 0,
-				'queued      '  => array(),
+				'queued'        => array(),
 				);
 
 			foreach ($addresses as $email) {
@@ -615,10 +617,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 					}
 
 					if ($queue_current_request === false) {
-						$result['success_count']+=
+						$result['success_count'] +=
 							$current_result['success_count'];
 
-						$result['error_count']+=
+						$result['error_count'] +=
 							$current_result['error_count'];
 
 						$result['errors'] = array_merge(
