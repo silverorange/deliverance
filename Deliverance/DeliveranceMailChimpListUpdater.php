@@ -103,7 +103,7 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 						$errors[]  = $error_message;
 						$execption = new SiteException($error_message);
 						// don't exit on returned errors
-						$execption->process(false);
+						$execption->processAndContinue();
 					}
 				}
 
