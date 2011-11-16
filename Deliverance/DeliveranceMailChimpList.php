@@ -377,12 +377,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 			// the entire request is queued, the method returns the QUEUED
 			// constant instead of this array.
 			$result = array(
-				'add_count'    => 0,
-				'update_count' => 0,
-				'error_count'  => 0,
-				'errors'       => array(),
-				'queued_count' => 0,
-				'queued      ' => array(),
+				'success_count' => 0,
+				'add_count'     => 0,
+				'update_count'  => 0,
+				'error_count'   => 0,
+				'errors'        => array(),
+				'queued_count'  => 0,
+				'queued      '  => array(),
 				);
 
 			// MailChimp doesn't allow welcomes to be sent on batch subscribes.
@@ -398,6 +399,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 					switch ($current_result) {
 					case self::SUCCESS:
+						$result['success_count']++;
 						if ($is_member) {
 							$result['update_count']++;
 						} else {
@@ -455,6 +457,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 						}
 
 						if ($queue_current_request === false) {
+							$result['success_count']+=
+								$current_result['add_count'] +
+								$current_result['update_count'];
+
 							$result['add_count']+= $current_result['add_count'];
 							$result['update_count']+=
 								$current_result['update_count'];

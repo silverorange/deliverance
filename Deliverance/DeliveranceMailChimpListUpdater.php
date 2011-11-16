@@ -18,8 +18,9 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 	protected function getList()
 	{
 		// long custom timeout
-		return new DeliveranceMailChimpList($this, null,
-			$this->config->mail_chimp->script_connection_timeout);
+		$list = new DeliveranceMailChimpList($this);
+
+		return $list;
 	}
 
 	// }}}
@@ -35,13 +36,39 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 			$this->debug(sprintf($success_message,
 				$result['success_count']));
 
+			// add count doesn't always exist.
+			if (isset($result['add_count']) && $result['add_count']) {
+				$this->debug(
+					sprintf(
+						Deliverance::_('%s addresses added.')."\n",
+						$result['add_count']
+					)
+				);
+			}
+
+			// update count doesn't always exist.
+			if (isset($result['update_count']) && $result['update_count']) {
+				$this->debug(
+					sprintf(
+						Deliverance::_('%s addresses updated.')."\n",
+						$result['update_count']
+					)
+				);
+			}
+
+			// Queued requests can exist in errors or in the result message
+			// depending on the request type.
+			$queued_count = 0;
+			if (isset($result['queued_count']) && $result['queued_count']) {
+				$queued_count = $result['queued_count'];
+			}
+
 			if ($result['error_count']) {
 				$errors = array();
 				$not_found_count = 0;
 				$bounced_count = 0;
 				$previously_unsubscribed_count = 0;
 				$invalid_count = 0;
-				$queued_count = 0;
 
 				// don't throw errors for codes we know can be ignored.
 				foreach ($result['errors'] as $error) {
@@ -122,16 +149,6 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 					);
 				}
 
-				if ($queued_count > 0) {
-					$clear_queued = false;
-					$this->debug(
-						sprintf(
-							Deliverance::_('%s addresses queued.')."\n",
-							$queued_count
-						)
-					);
-				}
-
 				if (count($errors)) {
 					$this->debug(
 						sprintf(
@@ -144,6 +161,16 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 						$this->debug($error."\n");
 					}
 				}
+			}
+
+			if ($queued_count > 0) {
+				$clear_queued = false;
+				$this->debug(
+					sprintf(
+						Deliverance::_('%s addresses queued.')."\n",
+						$queued_count
+					)
+				);
 			}
 		}
 
