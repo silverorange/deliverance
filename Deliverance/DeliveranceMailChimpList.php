@@ -49,6 +49,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 	const CONNECTION_ERROR_CODE = -99;
 
 	/**
+	 * Error code returned when account is under maintenance and unavailable.
+	 */
+	const ACCOUNT_MAINTENANCE_ERROR_CODE = 105;
+
+	/**
 	 * Error code returned when attempting to subscribe an email address that
 	 * has previously unsubscribed. We can't programatically resubscribe them,
 	 * MailChimp requires them to resubscribe out of their own volition.
@@ -166,6 +171,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		self::CONNECTION_ERROR_CODE,
 		self::CONNECTION_TIMEOUT_ERROR_CODE,
 		self::CONCURRENT_CONNECTION_ERROR_CODE,
+		self::ACCOUNT_MAINTENANCE_ERROR_CODE,
 		);
 
 	// }}}
