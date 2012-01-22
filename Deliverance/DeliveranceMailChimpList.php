@@ -10,7 +10,7 @@ require_once 'Deliverance/exceptions/DeliveranceCampaignException.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2011 silverorange
+ * @copyright 2009-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Handle addresses somehow magically, perhaps add type checking on
  *            merge vars, and allow zip to be passed into an address field by
@@ -888,12 +888,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 			} catch (DeliveranceException $e) {
 				// if it fails for any reason, just consider the address as not
 				// subscribed. Log for now out of curiosity.
-				$e->processAndContine();
+				$e->processAndContinue();
 			} catch (Exception $e) {
 				// log these for the time being to see if anything outside of
 				// expected DeliveranceException's crop up.
 				$e = new DeliveranceException();
-				$e->processAndContine();
+				$e->processAndContinue();
 			}
 		}
 
