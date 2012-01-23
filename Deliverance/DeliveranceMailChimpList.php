@@ -122,10 +122,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// {{{ public properties
 
 	public $default_address = array(
-		'addr1'   => 'null',
-		'city'    => 'null',
-		'state'   => 'null',
-		'zip'     => 'null',
+		'addr1' => 'null',
+		'city'  => 'null',
+		'state' => 'null',
+		'zip'   => 'null',
 		);
 
 	// }}}
@@ -280,7 +280,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 * Tests to make sure the service is available.
 	 *
 	 * Returns false if MailChimp returns an unexpected value or the
-	 * XML_RPC2_Client throws an exception. Unexpected values from MailChimp
+	 * MailChimpAPI throws an exception. Unexpected values from MailChimp
 	 * get thrown in exceptions as well. Any exceptions thrown are not exited
 	 * on, so that we can queue requests based on service availability.
 	 *
@@ -291,9 +291,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$available = false;
 
 		try {
-			$result = $this->client->ping();
-
-			$this->handleClientErrors();
+			$result = $this->callClientMethod('ping');
 
 			// Endearing? Yes. But also annoying to have to check for a string.
 			if ($result === "Everything's Chimpy!") {
@@ -337,20 +335,22 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$queue_request = false;
 
 		if ($this->isAvailable()) {
-			$merges = $this->mergeInfo($info, $array_map);
-			try {
-				$result = $this->client->listSubscribe(
-					$this->shortname,
-					$address,
-					$merges,
-					$this->email_type,
-					$this->double_opt_in,
-					$this->update_existing,
-					$this->replace_interests,
-					$send_welcome
-					);
+			$merges     = $this->mergeInfo($info, $array_map);
+			$parameters = array(
+				$this->shortname,
+				$address,
+				$merges,
+				$this->email_type,
+				$this->double_opt_in,
+				$this->update_existing,
+				$this->replace_interests,
+				$send_welcome,
+				);
 
-				$this->handleClientErrors();
+			try {
+				$result = $this->callClientMethod(
+					'listSubscribe',
+					$parameters);
 			} catch (DeliveranceAPIConnectionException $e) {
 				// exception is known, API is not available.
 				$queue_request = true;
@@ -459,18 +459,19 @@ class DeliveranceMailChimpList extends DeliveranceList
 					if (count($addresses_chunk) === self::BATCH_UPDATE_SIZE ||
 						$current_count == $address_count) {
 						$queue_current_request = false;
+						$parameters = array(
+							$this->shortname,
+							$addresses_chunk,
+							$this->double_opt_in,
+							$this->update_existing,
+							$this->replace_interests,
+							);
 
 						// subscribe the current chunk
 						try {
-							$current_result = $this->client->listBatchSubscribe(
-								$this->shortname,
-								$addresses_chunk,
-								$this->double_opt_in,
-								$this->update_existing,
-								$this->replace_interests
-								);
-
-							$this->handleClientErrors();
+							$current_result = $this->callClientMethod(
+								'listBatchSubscribe',
+								$parameters);
 						} catch (DeliveranceAPIConnectionException $e) {
 							$queue_current_request = true;
 							$queued_addresses = array_merge(
@@ -540,15 +541,17 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$queue_request = false;
 
 		if ($this->isAvailable()) {
-			try {
-				$result = $this->client->listUnsubscribe(
-					$this->shortname,
-					$address,
-					false, // delete_member
-					false  // send_goodbye
-					);
+			$parameters = array(
+				$this->shortname,
+				$address,
+				false, // delete_member
+				false, // send_goodbye
+				);
 
-				$this->handleClientErrors();
+			try {
+				$result = $this->callClientMethod(
+					'listUnsubscribe',
+					$parameters);
 			} catch (DeliveranceAPIConnectionException $e) {
 				$queue_request = true;
 			} catch (DeliveranceException $e) {
@@ -620,17 +623,18 @@ class DeliveranceMailChimpList extends DeliveranceList
 				if (count($addresses_chunk) === self::BATCH_UPDATE_SIZE ||
 					$current_count == $address_count) {
 					$queue_current_request = false;
+					$parameters = array(
+						$this->shortname,
+						$addresses_chunk,
+						false, // delete_member
+						false, // send_goodbye
+						);
 
 					// unsubscribe the current chunk
 					try {
-						$current_result = $this->client->listBatchUnsubscribe(
-							$this->shortname,
-							$addresses_chunk,
-							false, // delete_member
-							false  // send_goodbye
-							);
-
-						$this->handleClientErrors();
+						$current_result = $this->callClientMethod(
+							'listBatchUnsubscribe',
+							$parameters);
 					} catch (DeliveranceAPIConnectionException $e) {
 						$queue_current_request = true;
 						$queued_addresses = array_merge(
@@ -692,16 +696,18 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		if ($this->isAvailable()) {
 			$merges = $this->mergeInfo($info, $array_map);
-			try {
-				$result = $this->client->listUpdateMember(
-					$this->shortname,
-					$address,
-					$merges,
-					'', // email_type, left blank to keep existing preference.
-					$this->replace_interests
-					);
+			$parameters = array(
+				$this->shortname,
+				$address,
+				$merges,
+				'', // email_type, left blank to keep existing preference.
+				$this->replace_interests,
+				);
 
-				$this->handleClientErrors();
+			try {
+				$result = $this->callClientMethod(
+					'listUpdateMember',
+					$parameters);
 			} catch (DeliveranceAPIConnectionException $e) {
 				$queue_request = true;
 			} catch (DeliveranceException $e) {
@@ -887,13 +893,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$member_info = null;
 
 		if ($this->isAvailable()) {
-			try {
-				$result = $this->client->listMemberInfo(
-					$this->shortname,
-					$address
-					);
+			$parameters = array(
+				$this->shortname,
+				$address,
+				);
 
-				$this->handleClientErrors();
+			try {
+				$result = $this->callClientMethod(
+					'listMemberInfo',
+					$parameters);
 
 				// Since we're only checking a single address, success count
 				// should be one, and the first array in data should have a
@@ -989,12 +997,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 		}
 
 		if ($campaign->id != null) {
-			try {
-				$result = $this->client->campaignDelete(
-					$campaign->id
-					);
+			$parameters = array(
+				$campaign->id,
+				);
 
-				$this->handleClientErrors();
+			try {
+				$result = $this->callClientMethod(
+					'campaignDelete',
+					$parameters);
 			} catch (DeliveranceException $e) {
 				// consider a campaign that already doesn't exist a successful
 				// deletion.
@@ -1020,11 +1030,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 			// you can't send a campaign immediately if its been scheduled. So
 			// unschedule first.
 			$this->unscheduleCampaign($campaign);
-			$this->client->campaignSendNow(
-				$campaign->id
+
+			$parameters = array(
+				$campaign->id,
 				);
 
-			$this->handleClientErrors();
+			$this->callClientMethod(
+				'campaignSendNow',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceCampaignException($e);
 		}
@@ -1048,12 +1061,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 			try {
 				// TZ intentionally omitted, API call expects date in UTC with
 				// no timezone information.
-				$this->client->campaignSchedule(
+				$parameters = array(
 					$campaign->id,
-					$send_date->getDate()
+					$send_date->getDate(),
 					);
 
-				$this->handleClientErrors();
+				$this->callClientMethod(
+					'campaignSchedule',
+					$parameters);
 			} catch (Exception $e) {
 				throw new DeliveranceCampaignException($e);
 			}
@@ -1066,11 +1081,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function unscheduleCampaign(DeliveranceCampaign $campaign)
 	{
 		try {
-			$this->client->campaignUnschedule(
-				$campaign->id
+			$parameters = array(
+				$campaign->id,
 				);
 
-			$this->handleClientErrors();
+			$this->callClientMethod(
+				'campaignUnschedule',
+				$parameters);
 		} catch (DeliveranceException $e) {
 			// ignore errors caused by trying to unschedule a campaign that
 			// isn't scheduled yet. These are safe to ignore.
@@ -1088,18 +1105,18 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function getCampaignId(DeliveranceCampaign $campaign)
 	{
 		$campaign_id = null;
-		$filters     = array(
-			'list_id' => $this->shortname,
-			'title'   => $campaign->getTitle(),
-			'exact'   => true,
+		$parameters  = array(
+			'filters' => array(
+				'list_id' => $this->shortname,
+				'title'   => $campaign->getTitle(),
+				'exact'   => true,
+			),
 		);
 
 		try {
-			$campaigns = $this->client->campaigns(
-				$filters
-				);
-
-			$this->handleClientErrors();
+			$campaigns = $this->callClientMethod(
+				'campaigns',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceCampaignException($e);
 		}
@@ -1141,13 +1158,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function getCampaignReportUrl($campaign_id)
 	{
 		$url = null;
+		$parameters = array(
+			$campaign_id,
+			);
 
 		try {
-			$report = $this->client->campaignShareReport(
-				$campaign_id
-				);
-
-			$this->handleClientErrors();
+			$report = $this->callClientMethod(
+				'campaignShareReport',
+				$parameters);
 
 			$url = $report['secure_url'];
 		} catch (Exception $e) {
@@ -1163,13 +1181,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function getCampaignStats($campaign_id)
 	{
 		$stats = array();
+		$parameters = array(
+			$campaign_id,
+			);
 
 		try {
-			$stats = $this->client->campaignStats(
-				$campaign_id
-				);
-
-			$this->handleClientErrors();
+			$stats = $this->callClientMethod('campaignStats',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceCampaignException($e);
 		}
@@ -1188,13 +1206,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function getCampaignClickStats($campaign_id)
 	{
 		$stats = array();
+		$parameters = array(
+			$campaign_id,
+			);
 
 		try {
-			$stats = $this->client->campaignClickStats(
-				$campaign_id
-				);
-
-			$this->handleClientErrors();
+			$stats = $this->callClientMethod(
+				'campaignClickStats',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceCampaignException($e);
 		}
@@ -1208,13 +1227,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function sendCampaignTest(DeliveranceMailChimpCampaign $campaign,
 		array $test_emails)
 	{
-		try {
-			$this->client->campaignSendTest(
-				$campaign->id,
-				$test_emails
-				);
+		$parameters = array(
+			$campaign_id,
+			$test_emails,
+			);
 
-			$this->handleClientErrors();
+		try {
+			$this->callClientMethod(
+				'campaignSendTest',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceCampaignException($e);
 		}
@@ -1226,14 +1247,15 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function getSegmentSize(array $segment_options)
 	{
 		$segment_size = 0;
+		$parameters = array(
+			$this->shortname,
+			$segment_options,
+			);
 
 		try {
-			$segment_size = $this->client->campaignSegmentTest(
-				$this->shortname,
-				$segment_options
-				);
-
-			$this->handleClientErrors();
+			$segment_size = $this->callClientMethod(
+				'campaignSegmentTest',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceCampaignException($e);
 		}
@@ -1248,15 +1270,16 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		$options = $this->getCampaignOptions($campaign);
 		$content = $this->getCampaignContent($campaign);
+		$parameters = array(
+			$campaign->type,
+			$options,
+			$content,
+			);
 
 		try {
-			$campaign_id = $this->client->campaignCreate(
-				$campaign->type,
-				$options,
-				$content
-				);
-
-			$this->handleClientErrors();
+			$campaign_id = $this->callClientMethod(
+				'campaignCreate',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceCampaignException($e);
 		}
@@ -1277,26 +1300,29 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		$options = $this->getCampaignOptions($campaign);
 		$content = $this->getCampaignContent($campaign);
+		$parameters = array(
+			$campaign->id,
+			'content',
+			$content,
+			);
 
 		try {
-			$this->client->campaignUpdate(
-				$campaign->id,
-				'content',
-				$content
-				);
-
-			$this->handleClientErrors();
+			$this->callClientMethod(
+				'campaignUpdate',
+				$parameters);
 
 			// options can only be updated one at a time.
 			// TODO: double check this is still true with 1.3
 			foreach ($options as $title => $value) {
-				$this->client->campaignUpdate(
+				$parameters = array(
 					$campaign->id,
 					$title,
-					$value
+					$value,
 					);
 
-				$this->handleClientErrors();
+				$this->callClientMethod(
+					'campaignUpdate',
+					$parameters);
 			}
 
 			$this->updateCampaignSegmentOptions($campaign);
@@ -1313,14 +1339,16 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		$segment_options = $this->getCampaignSegmentOptions($campaign);
 		if ($segment_options !== null) {
-			try {
-				$this->client->campaignUpdate(
-					$campaign->id,
-					'segment_opts',
-					$segment_options
-					);
+			$parameters = array(
+				$campaign->id,
+				'segment_opts',
+				$segment_options
+				);
 
-				$this->handleClientErrors();
+			try {
+				$this->callClientMethod(
+					'campaignUpdate',
+					$parameters);
 			} catch (Exception $e) {
 				throw new DeliveranceCampaignException($e);
 			}
@@ -1434,14 +1462,16 @@ class DeliveranceMailChimpList extends DeliveranceList
 		// add the list id to the set of passed in filters
 		$filters['list_id'] = $this->shortname;
 
-		try {
-			$campaigns = $this->client->campaigns(
-				$filters,
-				$offset,
-				$chunk_size
-				);
+		$parameters = array(
+			$filters,
+			$offset,
+			$chunk_size,
+			);
 
-			$this->handleClientErrors();
+		try {
+			$campaigns = $this->callClientMethod(
+				'campaigns',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceException($e);
 		}
@@ -1454,18 +1484,23 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// ecomm360 methods
 	// {{{ public function addOrder()
 
-	public function addOrder(array $info)
+	public function addOrder(array $order_info)
 	{
 		$success = false;
 
 		try {
-			// attach to a campaign if it exists in the info array
-			if (isset($info['campaign_id'])) {
-				$success = $this->client->campaignEcommOrderAdd($info);
-			} else {
-				$success = $this->client->ecommOrderAdd($info);
-			}
-			$this->handleClientErrors();
+			$parameters = array(
+				$order_info,
+				);
+
+			// attach to a campaign if it exists in the order_info array
+			$method = (isset($order_info['campaign_id'])) ?
+				'campaignEcommOrderAdd' :
+				'ecommOrderAdd';
+
+			$success = $this->callClientMethod(
+				$method,
+				$parameters);
 		} catch (DeliveranceAPIConnectionException $e) {
 			$success = false;
 			// do nothing, but treat as unsuccessful.
@@ -1494,8 +1529,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$member_count = null;
 
 		try {
-		    $lists = $this->client->lists();
-			$this->handleClientErrors();
+			$lists = $this->callClientMethod('lists');
 
 			foreach ($lists as $list) {
 				if ($list['id'] == $this->shortname) {
@@ -1516,13 +1550,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 	public function getMergeVars()
 	{
 		$merge_vars = null;
+		$parameters = array(
+			$this->shortname,
+			);
 
 		try {
-			$merge_vars = $this->client->listMergeVars(
-				$this->shortname
-				);
-
-			$this->handleClientErrors();
+			$merge_vars = $this->callClientMethod(
+				'listMergeVars',
+				$parameters);
 		} catch (Exception $e) {
 			throw new DeliveranceException($e);
 		}
@@ -1540,8 +1575,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$lists = null;
 
 		try {
-		    $lists = $this->client->lists();
-			$this->handleClientErrors();
+			$lists = $this->callClientMethod('lists');
 		} catch (Exception $e) {
 			throw new DeliveranceException($e);
 		}
@@ -1557,8 +1591,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$folders = null;
 
 		try {
-		    $folders = $this->client->campaignFolders();
-			$this->handleClientErrors();
+			$folders = $this->callClientMethod('campaignFolders');
 		} catch (Exception $e) {
 			throw new DeliveranceException($e);
 		}
@@ -1569,6 +1602,30 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// }}}
 
 	// exception throwing and handling
+	// {{{ private function callClientMethod()
+
+	private function callClientMethod($method, array $parameters = array())
+	{
+		$handler = set_error_handler(
+			array(__CLASS__, '_handleClientWarning'),
+			E_NOTICE | E_WARNING);
+
+		try {
+			$result = call_user_func_array(
+				array($this->client, $method),
+				$parameters);
+
+			$this->handleClientErrors();
+		} catch(Exception $e) {
+			throw $e;
+		}
+
+		restore_error_handler();
+
+		return $result;
+	}
+
+	// }}}
 	// {{{ private function handleClientErrors()
 
 	private function handleClientErrors()
@@ -1592,6 +1649,25 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
+    // {{{ _handleClientWarning()
+
+	/**
+	 * Handles notices and warnings generated by MailChimpAPI
+	 *
+	 * @param integer $errno  the error level of the error.
+	 * @param string  $errstr the error message.
+	 *
+	 * @return void
+	 */
+	public static function _handleClientWarning($errno, $errstr)
+	{
+		// The warnings in MailChimpAPI are generated by fsocketopen() and
+		// unserialize(). If either fail, it is the same as the connection
+		// failing, so throw that exception type.
+		throw new DeliveranceAPIConnectionException($errstr, $errno);
+	}
+
+    // }}}
 }
 
 ?>
