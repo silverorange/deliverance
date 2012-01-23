@@ -54,6 +54,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 	const ACCOUNT_MAINTENANCE_ERROR_CODE = 105;
 
 	/**
+	 * Error code by an invalid call. MailChimp is currently returning this for
+	 * maintenance sometimes as well.
+	 */
+	const ACCOUNT_INVALID_ACTION_ERROR_CODE = 120;
+
+	/**
 	 * Error code returned when attempting to subscribe an email address that
 	 * has previously unsubscribed. We can't programatically resubscribe them,
 	 * MailChimp requires them to resubscribe out of their own volition.
@@ -167,11 +173,23 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// }}}
 	// {{{ private properties
 
+	/**
+	 * Error codes returned by the api related to connection issues.
+	 *
+	 * This is used to create and filter exceptions we know are safe to ignore.
+	 * Note: ACCOUNT_INVALID_ACTION_ERROR_CODE is only in this list due to an
+	 * open API issue on MailChimp's end where that code is erroneously returned
+	 * for the ACCOUNT_MAINTENANCE_ERROR_CODE error. Remove as soon as the API
+	 * issue is fixed.
+	 *
+	 * @var array
+	 */
 	private $connection_errors = array(
 		self::CONNECTION_ERROR_CODE,
 		self::CONNECTION_TIMEOUT_ERROR_CODE,
 		self::CONCURRENT_CONNECTION_ERROR_CODE,
 		self::ACCOUNT_MAINTENANCE_ERROR_CODE,
+		self::ACCOUNT_INVALID_ACTION_ERROR_CODE,
 		);
 
 	// }}}
