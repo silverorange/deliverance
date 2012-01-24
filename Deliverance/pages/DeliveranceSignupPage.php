@@ -60,6 +60,14 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 		$response = $list->subscribe($email, $info, $this->send_welcome,
 			$array_map);
 
+		$this->handleSubscribeResponse($list, $response);
+	}
+
+	// }}}
+	// {{{ protected function handleSubscribeResponse()
+
+	protected function handleSubscribeResponse(DeliveranceList $list, $response)
+	{
 		$message = $list->handleSubscribeResponse($response);
 		if ($message instanceof SwatMessage) {
 			$this->ui->getWidget('message_display')->add($message);
@@ -96,7 +104,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 			$this->send_welcome = false;
 			$message = $this->getExistingMemberMessage($list, $email);
 			if ($message != null) {
-				$this->app->messages->add($message);
+				$this->addAppMessage($message);
 			}
 		}
 	}
@@ -155,6 +163,14 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 		}
 
 		return $this->interests;
+	}
+
+	// }}}
+	// {{{ protected function addAppMessage()
+
+	protected function addAppMessage(SwatMessage $message)
+	{
+		$this->app->messages->add($message);
 	}
 
 	// }}}
