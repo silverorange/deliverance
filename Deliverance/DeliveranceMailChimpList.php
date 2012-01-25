@@ -1616,7 +1616,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 				$parameters);
 
 			$this->handleClientErrors();
-		} catch(Exception $e) {
+		} catch (Exception $e) {
+			restore_error_handler();
 			throw $e;
 		}
 
