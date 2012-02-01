@@ -1228,7 +1228,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		array $test_emails)
 	{
 		$parameters = array(
-			$campaign_id,
+			$campaign->id,
 			$test_emails,
 			);
 
