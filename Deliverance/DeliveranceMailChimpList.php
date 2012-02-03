@@ -39,6 +39,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 	const CONCURRENT_CONNECTION_ERROR_CODE = -50;
 
 	/**
+	 * Error code returned by MailChimp due to transient database errors on
+	 * their systems. Requests that change subscriber info that get this
+	 * exception should be queued, so consider this a
+	 * DeliveranceAPIConnectionException.
+	 */
+	const BACKEND_DB_ERROR = -91;
+
+	/**
 	 * Error code returned when the connection has timed out.
 	 */
 	const CONNECTION_TIMEOUT_ERROR_CODE = -98;
@@ -190,6 +198,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		self::CONCURRENT_CONNECTION_ERROR_CODE,
 		self::ACCOUNT_MAINTENANCE_ERROR_CODE,
 		self::ACCOUNT_INVALID_ACTION_ERROR_CODE,
+		self::BACKEND_DB_ERROR,
 		);
 
 	// }}}
