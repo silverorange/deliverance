@@ -12,7 +12,7 @@ require_once 'Deliverance/DeliveranceCampaign.php';
  * Builds a campaign from a provided shortname
  *
  * @package   Deliverance
- * @copyright 2010 silverorange
+ * @copyright 2010-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
@@ -202,6 +202,7 @@ abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
 		$this->cdn->bucket_id         = $config->amazon->bucket;
 		$this->cdn->access_key_id     = $config->amazon->access_key_id;
 		$this->cdn->access_key_secret = $config->amazon->access_key_secret;
+		$this->cdn->setUpdateMetadata(false);
 	}
 
 	// }}}
