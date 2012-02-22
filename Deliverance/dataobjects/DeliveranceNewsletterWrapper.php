@@ -19,7 +19,7 @@ class DeliveranceNewsletterWrapper extends SwatDBRecordsetWrapper
 	{
 		parent::init();
 
-		$this->row_wrapper_class = 'Newsletter';
+		$this->row_wrapper_class = SwatDBClassMap::get('DeliveranceNewsletter');
 		$this->index_field = 'id';
 	}
 
