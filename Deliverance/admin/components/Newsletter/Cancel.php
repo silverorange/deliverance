@@ -133,7 +133,7 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 		$link  = sprintf('Newsletter/Details?id=%s', $this->newsletter->id);
 		$this->navbar->createEntry($title, $link);
 
-		$this->navbar->createEntry(Delieverance::_('Cancel Delivery'));
+		$this->navbar->createEntry(Deliverance::_('Cancel Delivery'));
 	}
 
 	// }}}
