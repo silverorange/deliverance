@@ -140,5 +140,7 @@ class Deliverance
 }
 
 Deliverance::setupGettext();
+SwatUI::mapClassPrefixToPath('Deliverance', 'Deliverance');
+SwatDBClassMap::addPath('Deliverance/dataobjects');
 
 ?>

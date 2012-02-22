@@ -1,0 +1,17 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE swatml SYSTEM "http://swat.silverorange.com/swatml1.dtd">
+<swatml>
+	<widget class="SwatMessageDisplay" id="message_display" />
+	<widget class="SwatFrame" id="edit_frame">
+		<widget class="SwatForm" id="edit_form">
+			<widget class="SwatDisplayableContainer">
+				<widget class="SwatContentBlock" id="content_block" />
+			</widget>
+			<widget class="SwatFooterFormField">
+				<widget class="SwatButton" id="submit_button">
+					<property name="title">Cancel Delivery</property>
+				</widget>
+			</widget>
+		</widget>
+	</widget>
+</swatml>
