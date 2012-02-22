@@ -24,7 +24,6 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	// }}}
 	// {{{ public properties
 
-	public $id;
 	public $type;
 	public $timewarp = false;
 	public $track_orders = false;
