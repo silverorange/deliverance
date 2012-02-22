@@ -22,6 +22,7 @@ class DeliveranceCampaign
 	// }}}
 	// {{{ public properties
 
+	public $id;
 	public $shortname;
 
 	// }}}
@@ -48,6 +49,14 @@ class DeliveranceCampaign
 		$this->shortname = $shortname;
 		$this->directory = $directory;
 		$this->data      = new SiteLayoutData();
+	}
+
+	// }}}
+	// {{{ public function setId()
+
+	public function setId($id)
+	{
+		$this->id = $id;
 	}
 
 	// }}}

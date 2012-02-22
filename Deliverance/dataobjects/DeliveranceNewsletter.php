@@ -34,16 +34,6 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	public $text_content;
 
 	/**
-	 * @var string
-	 */
-	public $mailchimp_campaign_id;
-
-	/**
-	 * @var string
-	 */
-	public $mailchimp_report_url;
-
-	/**
 	 * @var SwatDate
 	 */
 	public $send_date;
@@ -52,6 +42,23 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	 * @var SwatDate
 	 */
 	public $createdate;
+
+	// }}}
+	// {{{ public static function getCampaign()
+
+	public static function getMailingLIst(SiteApplication $app)
+	{
+		return new DeliveranceList($app);
+	}
+
+	// }}}
+
+	// {{{ public static function getCampaign()
+
+	public static function getCampaignClass(SiteApplication $app, $shortname)
+	{
+		return new DeliveranceCampaign($app, $shortname);
+	}
 
 	// }}}
 	// {{{ public function isSent()
@@ -86,9 +93,9 @@ class DeliveranceNewsletter extends SwatDBDataObject
 
 	public function getCampaign(SiteApplication $app)
 	{
-		$campaign = new Campaign($app, $this->getCampaignShortname());
+		$campaign = self::getCampaignClass($app, $this->getCampaignShortname());
 
-		$campaign->id = $this->mailchimp_campaign_id;
+		$campaign->setId($this->getCampaignId());
 		$campaign->setSubject($this->subject);
 		$campaign->setNewsletterType($this->newsletter_type);
 		$campaign->setSegmentOptions($this->getSegmentOptions());
@@ -101,6 +108,14 @@ class DeliveranceNewsletter extends SwatDBDataObject
 		}
 
 		return $campaign;
+	}
+
+	// }}}
+	// {{{ protected function getCampaignId()
+
+	protected function getCampaignId()
+	{
+		return null;
 	}
 
 	// }}}
