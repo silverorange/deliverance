@@ -42,13 +42,31 @@ class DeliveranceCampaign
 	// }}}
 	// {{{ public function __construct()
 
-	public function __construct(SiteApplication $app, $shortname,
+	public function __construct(SiteApplication $app, $shortname = null,
 		$directory = null)
 	{
-		$this->app       = $app;
+		$this->app  = $app;
+		$this->data = new SiteLayoutData();
+
+		$this->setShortname($shortname);
+		$this->setDirectory($directory);
+	}
+
+	// }}}
+
+	// {{{ public function setShortname()
+
+	public function setShortname($shortname)
+	{
 		$this->shortname = $shortname;
+	}
+
+	// }}}
+	// {{{ public function setDirectory()
+
+	public function setDirectory($directory)
+	{
 		$this->directory = $directory;
-		$this->data      = new SiteLayoutData();
 	}
 
 	// }}}
