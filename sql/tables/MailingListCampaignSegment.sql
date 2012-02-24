@@ -5,6 +5,7 @@ create table MailingListCampaignSegment (
 	title varchar(255) not null,
 	displayorder integer not null default 0,
 	segment_options text,
+	cached_segment_size int,
 
 	primary key (id)
 );

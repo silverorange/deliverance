@@ -1,8 +1,8 @@
 <?php
 
 require_once 'SwatDB/SwatDBDataObject.php';
-require_once 'Deliverance/DeliveranceList.php';
-require_once 'Deliverance/DeliveranceCampaign.php';
+require_once 'Deliverance/DeliveranceCampaignFactory.php';
+require_once 'Deliverance/dataobjects/DeliveranceCampaignSegment.php';
 
 /**
  * @package   Deliverance
@@ -19,7 +19,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	public $id;
 
 	/**
-	 * @var SwatDate
+	 * @var string
 	 */
 	public $subject;
 
@@ -34,6 +34,16 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	public $text_content;
 
 	/**
+	 * @var string
+	 */
+	public $campaign_id;
+
+	/**
+	 * @var string
+	 */
+	public $campaign_report_url;
+
+	/**
 	 * @var SwatDate
 	 */
 	public $send_date;
@@ -42,23 +52,6 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	 * @var SwatDate
 	 */
 	public $createdate;
-
-	// }}}
-	// {{{ public static function getCampaign()
-
-	public static function getMailingLIst(SiteApplication $app)
-	{
-		return new DeliveranceList($app);
-	}
-
-	// }}}
-
-	// {{{ public static function getCampaign()
-
-	public static function getCampaignClass(SiteApplication $app, $shortname)
-	{
-		return new DeliveranceCampaign($app, $shortname);
-	}
 
 	// }}}
 	// {{{ public function isSent()
@@ -93,12 +86,13 @@ class DeliveranceNewsletter extends SwatDBDataObject
 
 	public function getCampaign(SiteApplication $app)
 	{
-		$campaign = self::getCampaignClass($app, $this->getCampaignShortname());
+		// TODO: allow loading different types of campaigns based on segment.
+		$campaign = DeliveranceCampaignFactory::get($app, 'default');
 
 		$campaign->setId($this->getCampaignId());
+		$campaign->setShortname($this->getCampaignShortname());
 		$campaign->setSubject($this->subject);
-		$campaign->setNewsletterType($this->newsletter_type);
-		$campaign->setSegmentOptions($this->getSegmentOptions());
+		$campaign->setCampaignSegment($this->campaign_segment);
 		$campaign->setHtmlContent($this->html_content);
 		$campaign->setTextContent($this->text_content);
 		$campaign->setTitle($this->getCampaignTitle());
@@ -115,7 +109,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 
 	protected function getCampaignId()
 	{
-		return null;
+		return $this->campaign_id;
 	}
 
 	// }}}
@@ -167,25 +161,11 @@ class DeliveranceNewsletter extends SwatDBDataObject
 			$this->getCampaignShortname(),
 			$this->subject);
 
-		if ($this->newsletter_type != null) {
-			$title.= ' - '.$this->newsletter_type;
+		if ($this->campaign_segment != null) {
+			$title.= ' - '.$this->campaign_segment->title;
 		}
 
 		return $title;
-	}
-
-	// }}}
-	// {{{ protected function getSegmentOptions()
-
-	protected function getSegmentOptions()
-	{
-		$sql = 'select segment_options from MailingListCampaignSegment
-			where shortname = %s';
-
-		$sql = sprintf($sql,
-			$this->db->quote($this->newsletter_type, 'text'));
-
-		return json_decode(SwatDB::queryOne($this->db, $sql), true);
 	}
 
 	// }}}
@@ -197,6 +177,9 @@ class DeliveranceNewsletter extends SwatDBDataObject
 
 		$this->table = 'Newsletter';
 		$this->id_field = 'integer:id';
+
+		$this->registerInternalProperty('campaign_segment',
+			SwatDBClassMap::get('DeliveranceCampaignSegment'));
 
 		$this->registerDateProperty('send_date');
 		$this->registerDateProperty('createdate');

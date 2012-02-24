@@ -5,10 +5,9 @@ create table Newsletter (
 	html_content text,
 	text_content text,
 
-	segment integer default null references MailingListCampaignSegment(id),
-
-	mailchimp_campaign_id varchar(255),
-	mailchimp_report_url varchar(255),
+	camapaign_segment integer default null references MailingListCampaignSegment(id),
+	campaign_id varchar(255),
+	campaign_report_url varchar(255),
 
 	send_date timestamp,
 	createdate timestamp,
