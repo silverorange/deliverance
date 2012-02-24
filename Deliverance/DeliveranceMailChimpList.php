@@ -1541,7 +1541,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		try {
 			$lists = $this->callClientMethod('lists');
 
-			foreach ($lists as $list) {
+			foreach ($lists['data'] as $list) {
 				if ($list['id'] == $this->shortname) {
 					$member_count = $list['stats']['member_count'];
 					break;
