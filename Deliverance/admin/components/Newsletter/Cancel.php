@@ -73,9 +73,9 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function initList()
 	{
-		$this->list = new MailChimpList($this->app);
-		$this->list->setTimeout(
-			$this->app->config->mail_chimp->admin_connection_timeout);
+		$list = DeliveranceListFactory::get($this->app, 'default');
+		$list->setTimeout(
+			$this->config->deliverance->list_admin_connection_timeout);
 	}
 
 	// }}}

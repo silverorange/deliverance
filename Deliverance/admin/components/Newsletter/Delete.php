@@ -25,7 +25,10 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 
 		$newsletters = $this->getNewsletters();
 		foreach ($newsletters as $newsletter) {
-			$list = new MailChimpList($this->app);
+			$list = DeliveranceListFactory::get($this->app, 'default');
+			$list->setTimeout(
+				$this->config->deliverance->list_admin_connection_timeout);
+
 
 			try {
 				$list->deleteCampaign($newsletter->getCampaign($this->app));

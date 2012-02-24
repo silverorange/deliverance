@@ -66,9 +66,9 @@ class DeliveranceNewsletterDetails extends AdminPage
 		// the campaign but it hasn't been saved yet.
 		if ($this->newsletter->isSent() &&
 			$this->newsletter->mailchimp_report_url === null) {
-			$list = new MailChimpList($this->app);
+			$list = DeliveranceListFactory::get($this->app, 'default');
 			$list->setTimeout(
-				$this->app->config->mail_chimp->admin_connection_timeout);
+				$this->config->deliverance->list_admin_connection_timeout);
 
 			try {
  				$this->newsletter->mailchimp_report_url =

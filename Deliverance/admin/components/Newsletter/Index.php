@@ -4,15 +4,16 @@ require_once 'Admin/pages/AdminIndex.php';
 require_once 'SwatDB/SwatDB.php';
 require_once 'Swat/SwatDetailsStore.php';
 require_once 'Swat/SwatTableStore.php';
-require_once dirname(__FILE__).'/../../../dataobjects/NewsletterWrapper.php';
+require_once 'Deliverance/dataobjects/DeliveranceNewsletterWrapper.php';
 
 /**
  * Page used to send a preview/test newsletter email
  *
- * @package   UscEssentials
- * @copyright 2011 silverorange
+ * @package   Deliverance
+ * @copyright 2011-2012 silverorange
+ * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class NewsletterIndex extends AdminIndex
+class DeliveranceNewsletterIndex extends AdminIndex
 {
 	// process phase
 	// {{{ protected function processInternal()
@@ -53,7 +54,8 @@ class NewsletterIndex extends AdminIndex
 
 		$pager = $this->ui->getWidget('pager');
 		$this->app->db->setLimit($pager->page_size, $pager->current_record);
-		$newsletters = SwatDB::query($this->app->db, $sql, 'NewsletterWrapper');
+		$newsletters = SwatDB::query($this->app->db, $sql,
+			SwatDBClassMap::get('DeliveranceNewsletterWrapper'));
 
 		$store = new SwatTableStore();
 		foreach ($newsletters as $newsletter) {

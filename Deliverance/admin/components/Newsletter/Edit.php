@@ -14,12 +14,12 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  * @copyright 2011-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class NewsletterEdit extends AdminDBEdit
+class DeliveranceNewsletterEdit extends AdminDBEdit
 {
 	// {{{ protected properties
 
 	/**
-	 * @var Newsletter
+	 * @var DeliveranceNewsletter
 	 */
 	protected $newsletter;
 
@@ -34,10 +34,7 @@ class NewsletterEdit extends AdminDBEdit
 		$this->ui->loadFromXML(dirname(__FILE__).'/edit.xml');
 		$this->initNewsletter();
 
-		$type_widget = $this->ui->getWidget('newsletter_type');
-		$type_widget->addOptionsByArray(SwatDB::getOptionArray(
-			$this->app->db, 'MailingListCampaignSegment', 'title', 'shortname',
-			'displayorder'));
+		$this->initSegments();
 	}
 
 	// }}}
@@ -45,7 +42,8 @@ class NewsletterEdit extends AdminDBEdit
 
 	protected function initNewsletter()
 	{
-		$this->newsletter = new Newsletter();
+		$class_name = SwatDBClassMap::get('DeliveranceNewsletter');
+		$this->newsletter = new $class_name();
 		$this->newsletter->setDatabase($this->app->db);
 		if ($this->id !== null && !$this->newsletter->load($this->id)) {
 			throw new AdminNotFoundException(sprintf(
@@ -57,6 +55,23 @@ class NewsletterEdit extends AdminDBEdit
 		// also cover the case where the newsletter has been sent.
 		if ($this->newsletter->isScheduled()) {
 			$this->relocate();
+		}
+	}
+
+	// }}}
+	// {{{ protected function initCampaignSegments()
+
+	protected function initCampaignSegments()
+	{
+		$options = SwatDB::getOptionArray($this->app->db,
+			'MailingListCampaignSegment', 'title', 'shortname',
+			'displayorder');
+
+		if (count($options)) {
+			$type_widget = $this->ui->getWidget('newsletter_type');
+			$type_widget->addOptionsByArray($options);
+			$type_widget->required = true;
+			$type_widget->parent->visible = true;
 		}
 	}
 
@@ -101,9 +116,9 @@ class NewsletterEdit extends AdminDBEdit
 	protected function saveMailChimpCampaign()
 	{
 		// Set a long timeout on mailchimp calls as we're in the admin & patient
-		$list = new DeliveranceMailChimpList($this->app);
+		$list = DeliveranceListFactory::get($this->app, 'default');
 		$list->setTimeout(
-			$this->app->config->mail_chimp->admin_connection_timeout);
+			$this->config->deliverance->list_admin_connection_timeout);
 
 		$campaign = $this->newsletter->getCampaign($this->app);
 		$mailchimp_campaign_id = $list->saveCampaign($campaign, false);

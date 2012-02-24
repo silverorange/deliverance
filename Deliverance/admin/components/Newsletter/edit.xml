@@ -7,7 +7,8 @@
 		<widget class="SwatForm" id="edit_form">
 			<widget class="SwatFormField" id="newsletter_type_field">
 				<property name="title">Recipients</property>
-				<widget class="SwatRadioList" id="newsletter_type">
+				<property name="visible" type="boolean">false</property>
+				<widget class="SwatRadioList" id="segment">
 					<property name="required" type="boolean">true</property>
 					<property name="show_blank" type="boolean">true</property>
 				</widget>
