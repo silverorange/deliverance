@@ -13,17 +13,6 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  */
 class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 {
-	// {{{ protected function getList()
-
-	protected function getList()
-	{
-		// long custom timeout
-		$list = new DeliveranceMailChimpList($this);
-
-		return $list;
-	}
-
-	// }}}
 	// {{{ protected function handleResult()
 
 	protected function handleResult($result, $success_message)

@@ -221,8 +221,9 @@ abstract class DeliveranceMailChimpListMemberUpdater
 	protected function initList()
 	{
 		// long custom timeout
-		$this->list = new DeliveranceMailChimpList($this, null,
-			$this->app->config->mail_chimp->script_connection_timeout);
+		$this->list = DeliveranceListFactory::get($this->app, 'default');
+		$this->list->setTimeout(
+			$this->config->mail_chimp->script_connection_timeout);
 	}
 
 	// }}}

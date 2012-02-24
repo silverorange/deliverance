@@ -64,14 +64,6 @@ class DeliveranceMailChimpCampaignBuilder extends
 	}
 
 	// }}}
-	// {{{ protected function getList()
-
-	protected function getList()
-	{
-		return new DeliveranceMailChimpList($this, null, 90000);
-	}
-
-	// }}}
 	// {{{ protected function displayFinalOutput()
 
 	protected function displayFinalOutput()

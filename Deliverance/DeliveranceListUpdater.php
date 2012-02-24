@@ -52,7 +52,6 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 		parent::run();
 
 		$list = $this->getList();
-		$list->setTimeout($this->config->mail_chimp->script_connection_timeout);
 
 		$this->debug(Deliverance::_('Updating Mailing List')."\n\n", true);
 
@@ -74,9 +73,15 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 	}
 
 	// }}}
-	// {{{ abstract protected function getList()
+	// {{{ protected function getList()
 
-	abstract protected function getList();
+	protected function getList()
+	{
+		$list = DeliveranceListFactory::get($this->app, 'default');
+		$list->setTimeout($this->config->mail_chimp->script_connection_timeout);
+
+		return $list;
+	}
 
 	// }}}
 	// {{{ protected function subscribe()

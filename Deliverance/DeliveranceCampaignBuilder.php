@@ -123,9 +123,13 @@ abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
 	}
 
 	// }}}
-	// {{{ abstract protected function getList()
+	// {{{ protected function getList()
 
-	abstract protected function getList();
+	protected function getList()
+	{
+		$list = DeliveranceListFactory::get($this->app, 'default');
+		$list->setTimeout($this->config->mail_chimp->script_connection_timeout);
+	}
 
 	// }}}
 	// {{{ abstract protected function displayFinalOutput()
