@@ -5,7 +5,7 @@ require_once 'Site/pages/SiteEditPage.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2010 silverorange
+ * @copyright 2009-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceSignupPage extends SiteEditPage
@@ -42,9 +42,12 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	}
 
 	// }}}
-	// {{{ abstract protected function getList()
+	// {{{ protected function getList()
 
-	abstract protected function getList();
+	protected function getList()
+	{
+		return DeliveranceListFactory::get($this->app, 'default');
+	}
 
 	// }}}
 	// {{{ protected function subscribe()

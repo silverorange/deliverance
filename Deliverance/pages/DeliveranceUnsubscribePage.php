@@ -5,7 +5,7 @@ require_once 'Site/pages/SiteEditPage.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2011 silverorange
+ * @copyright 2009-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Members with both non-visible and visible interests will lose all
  *            non-visible interests when updating their subscription. This
@@ -112,9 +112,12 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	}
 
 	// }}}
-	// {{{ abstract protected function getList()
+	// {{{ protected function getList()
 
-	abstract protected function getList();
+	protected function getList()
+	{
+		return DeliveranceListFactory::get($this->app, 'default');
+	}
 
 	// }}}
 	// {{{ protected function unsubscribe()

@@ -1,25 +1,15 @@
 <?php
 
 require_once 'Deliverance/pages/DeliveranceUnsubscribePage.php';
-require_once 'Deliverance/DeliveranceMailChimpList.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2011 silverorange
+ * @copyright 2009-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpUnsubscribePage extends DeliveranceUnsubscribePage
 {
 	// process phase
-	// {{{ protected function getList()
-
-	protected function getList()
-	{
-		$list = new DeliveranceMailChimpList($this->app);
-		return $list;
-	}
-
-	// }}}
 	// {{{ protected function removeInterests()
 
 	protected function removeInterests(DeliveranceList $list, array $interests)
