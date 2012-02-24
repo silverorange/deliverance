@@ -119,20 +119,23 @@ class Deliverance
 	public static function getConfigDefinitions()
 	{
 		return array(
-			// Deliverance Campaigns
-			'deliverance_campaign.from_name'    => null,
-			'deliverance_campaign.from_address' => null,
+			// Deliverance Lists
+			// Timeouts, in seconds.
+			'deliverance.list_connection_timeout'        => 1,
+			'deliverance.list_admin_connection_timeout'  => 5,
+			'deliverance.list_script_connection_timeout' => 300,
 
-			// mailchimp
-			'mail_chimp.double_opt_in'             => false,
-			'mail_chimp.api_key'                   => null,
-			'mail_chimp.user_id'                   => null,
-			'mail_chimp.default_list'              => null,
-			'mail_chimp.default_folder'            => null,
-			'mail_chimp.preview_url'               => 'http://%s.campaign-archive.com/?u=%s&id=%s',
-			'mail_chimp.connection_timeout'        => 1,
-			'mail_chimp.admin_connection_timeout'  => 5,
-			'mail_chimp.script_connection_timeout' => 300,
+			// Deliverance Campaigns
+			'deliverance.campaign_from_name'    => null,
+			'deliverance.campaign_from_address' => null,
+
+			// mailchimp specific
+			'mail_chimp.double_opt_in'  => false,
+			'mail_chimp.api_key'        => null,
+			'mail_chimp.user_id'        => null,
+			'mail_chimp.default_list'   => null,
+			'mail_chimp.default_folder' => null,
+			'mail_chimp.preview_url'    => 'http://%s.campaign-archive.com/?u=%s&id=%s',
 		);
 	}
 

@@ -223,7 +223,7 @@ abstract class DeliveranceMailChimpListMemberUpdater
 		// long custom timeout
 		$this->list = DeliveranceListFactory::get($this->app, 'default');
 		$this->list->setTimeout(
-			$this->config->mail_chimp->script_connection_timeout);
+			$this->config->deliverance->list_script_connection_timeout);
 	}
 
 	// }}}

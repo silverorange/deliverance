@@ -230,7 +230,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		// prevent users from waiting too long when MailChimp is down - requests
 		// will just get queued. Without setting this, the default timeout is
 		// 300 seconds
-		$this->client->setTimeout($app->config->mail_chimp->connection_timeout);
+		$this->client->setTimeout(
+			$app->config->deliverance->list_connection_timeout);
 
 		if ($this->shortname === null)
 			$this->shortname = $app->config->mail_chimp->default_list;

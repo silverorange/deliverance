@@ -74,7 +74,7 @@ class DeliveranceCampaign
 
 	public function getFromAddress()
 	{
-		return $this->app->config->deliverance_campaign->from_address;
+		return $this->app->config->deliverance->campaign_from_address;
 	}
 
 	// }}}
@@ -82,7 +82,7 @@ class DeliveranceCampaign
 
 	public function getFromName()
 	{
-		return $this->app->config->deliverance_campaign->from_name;
+		return $this->app->config->deliverance->campaign_from_name;
 	}
 
 	// }}}

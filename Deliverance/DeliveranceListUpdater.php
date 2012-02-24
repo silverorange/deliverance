@@ -78,7 +78,8 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 	protected function getList()
 	{
 		$list = DeliveranceListFactory::get($this->app, 'default');
-		$list->setTimeout($this->config->mail_chimp->script_connection_timeout);
+		$list->setTimeout(
+			$this->config->deliverance->list_script_connection_timeout);
 
 		return $list;
 	}
