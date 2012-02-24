@@ -1,7 +1,7 @@
 <?php
 
 require_once 'Admin/pages/AdminDBEdit.php';
-require_once 'Deliverance/DeliveranceList.php';
+require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
 
 /**
@@ -62,7 +62,8 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 			$this->app->relocate('Newsletter');
 		}
 
-		$this->newsletter = new Newsletter();
+		$class_name = SwatDBClassMap::get('DeliveranceNewsletter');
+		$this->newsletter = new $class_name();
 		$this->newsletter->setDatabase($this->app->db);
 		if (!$this->newsletter->load($this->id)) {
 			throw new AdminNotFoundException(sprintf(
@@ -84,9 +85,9 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 
 	protected function initList()
 	{
-		$list = DeliveranceListFactory::get($this->app, 'default');
-		$list->setTimeout(
-			$this->config->deliverance->list_admin_connection_timeout);
+		$this->list = DeliveranceListFactory::get($this->app, 'default');
+		$this->list->setTimeout(
+			$this->app->config->deliverance->list_admin_connection_timeout);
 	}
 
 	// }}}

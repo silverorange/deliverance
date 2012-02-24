@@ -3,8 +3,8 @@
 require_once 'Swat/SwatString.php';
 require_once 'Swat/SwatDetailsStore.php';
 require_once 'Admin/pages/AdminIndex.php';
-require_once 'Deliverance/DeliveranceList.php';
-require_once 'Deliverance/DeliveranceCampaign.php';
+require_once 'Deliverance/DeliveranceListFactory.php';
+require_once 'Deliverance/DeliveranceCampaignFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
 
 /**
@@ -24,7 +24,7 @@ class DeliveranceNewsletterDetails extends AdminPage
 	protected $id;
 
 	/**
-	 * @var newsletter
+	 * @var DeliveranceNewsletter
 	 */
 	protected $newsletter;
 
@@ -45,7 +45,8 @@ class DeliveranceNewsletterDetails extends AdminPage
 
 	protected function initNewsletter()
 	{
-		$this->newsletter = new Newsletter();
+		$class_name = SwatDBClassMap::get('DeliveranceNewsletter');
+		$this->newsletter = new $class_name();
 		$this->newsletter->setDatabase($this->app->db);
 
 		if ($this->id !== null) {
@@ -65,23 +66,22 @@ class DeliveranceNewsletterDetails extends AdminPage
 		// It may not be immediately available, so try to grab it if we've sent
 		// the campaign but it hasn't been saved yet.
 		if ($this->newsletter->isSent() &&
-			$this->newsletter->mailchimp_report_url === null) {
+			$this->newsletter->campaign_report_url === null) {
 			$list = DeliveranceListFactory::get($this->app, 'default');
 			$list->setTimeout(
-				$this->config->deliverance->list_admin_connection_timeout);
+				$this->app->config->deliverance->list_admin_connection_timeout);
 
 			try {
- 				$this->newsletter->mailchimp_report_url =
-					$list->getCampaignReportUrl(
-						$this->newsletter->mailchimp_campaign_id);
+ 				$this->newsletter->campaign_report_url =
+					$list->getCampaignReportUrl($this->newsletter->campaign_id);
 
 				$this->newsletter->save();
-			} catch(XML_RPC2_FaultException $e) {
+			/* } catch(DeliveranceException $e) {
 				// if stats aren't ready, don't care about the exception.
-				if ($e->getFaultCode() != '301') {
+				if ($e->getCode() != '301') {
 					$e = new SiteException($e);
 					$e->processAndContinue();
-				}
+				} */
 			} catch(Exception $e) {
 				$e = new SiteException($e);
 				$e->processAndContinue();
@@ -104,7 +104,11 @@ class DeliveranceNewsletterDetails extends AdminPage
 		$this->ui->getWidget('details_frame')->title =
 			$this->newsletter->getCampaignTitle();
 
-		$this->ui->getWidget('details_view')->data = $this->getDetailsStore();
+		$view = $this->ui->getWidget('details_view');
+		$view->data = $this->getDetailsStore();
+		if ($this->newsletter->campaign_segment == null) {
+			$view->getField('campaign_segment_field')->visible = false;
+		}
 	}
 
 	// }}}
@@ -115,9 +119,16 @@ class DeliveranceNewsletterDetails extends AdminPage
 		$toolbar = $this->ui->getWidget('details_toolbar');
 		$toolbar->setToolLinkValues($this->newsletter->id);
 
-		$this->ui->getWidget('preview_link')->link =
-			DeliveranceMailChimpCampaign::getPreviewUrl($this->app,
-				$this->newsletter->mailchimp_campaign_id);
+		$campaign = DeliveranceCampaignFactory::get($this->app, 'default');
+		$this->ui->getWidget('preview_link')->link = call_user_func_array(
+			array(
+				$campaign,
+				'getPreviewUrl',
+			),
+			array(
+				$this->app,
+				$this->newsletter->campaign_id,
+			));
 
 		if ($this->newsletter->isSent()) {
 			$this->ui->getWidget('preview_link')->title =
@@ -131,8 +142,8 @@ class DeliveranceNewsletterDetails extends AdminPage
 
 			// reports may not exist yet if the newsletter was recently sent.
 			$stats_link = $this->ui->getWidget('stats_link');
-			if ($this->newsletter->mailchimp_report_url != '') {
-				$stats_link->link = $this->newsletter->mailchimp_report_url;
+			if ($this->newsletter->campaign_report_url != '') {
+				$stats_link->link = $this->newsletter->campaign_report_url;
 			} else {
 				$stats_link->sensitive = false;
 				$stats_link->tooltip   = $this->getStatsToolTip();
@@ -170,14 +181,6 @@ class DeliveranceNewsletterDetails extends AdminPage
 
 		$ds = new SwatDetailsStore($newsletter);
 		$ds->newsletter_status = $newsletter->getCampaignStatus($this->app);
-
-		$sql = 'select title from MailingListCampaignSegment
-			where shortname = %s';
-
-		$sql = sprintf($sql,
-			$this->app->db->quote($newsletter->newsletter_type, 'text'));
-
-		$ds->newsletter_type = SwatDB::queryOne($this->app->db, $sql);
 
 		return $ds;
 	}

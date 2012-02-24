@@ -1,7 +1,7 @@
 <?php
 
 require_once 'Admin/pages/AdminDBEdit.php';
-require_once 'Deliverance/DeliveranceList.php';
+require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
 
 /**
@@ -49,7 +49,8 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 			$this->relocate('Newsletter');
 		}
 
-		$this->newsletter = new Newsletter();
+		$class_name = SwatDBClassMap::get('DeliveranceNewsletter');
+		$this->newsletter = new $class_name();
 		$this->newsletter->setDatabase($this->app->db);
 		if (!$this->newsletter->load($this->id)) {
 			throw new AdminNotFoundException(sprintf(
@@ -57,7 +58,7 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 				$this->id));
 		}
 
-		// Can't cancel a newsletter that has been scheduled.
+		// Can't cancel a newsletter that has not been scheduled.
 		if (!$this->newsletter->isScheduled()) {
 			$this->relocate();
 		}
@@ -73,9 +74,9 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function initList()
 	{
-		$list = DeliveranceListFactory::get($this->app, 'default');
-		$list->setTimeout(
-			$this->config->deliverance->list_admin_connection_timeout);
+		$this->list = DeliveranceListFactory::get($this->app, 'default');
+		$this->list->setTimeout(
+			$this->app->config->deliverance->list_admin_connection_timeout);
 	}
 
 	// }}}
@@ -86,17 +87,56 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 	protected function saveDBData()
 	{
 		$campaign = $this->newsletter->getCampaign($this->app);
-		$this->list->unscheduleCampaign($campaign);
+		$message  = null;
+		$relocate = true;
+		try {
+throw new DeliveranceAPIConnectionException('BROKEN');
+			$this->list->unscheduleCampaign($campaign);
 
-		$this->newsletter->send_date = null;
-		$this->newsletter->save();
+			$this->newsletter->send_date = null;
+			$this->newsletter->save();
 
-		$message = new SwatMessage(sprintf(
-			Deliverance::_('The delivery of “%s” has been canceled.'),
-			$this->newsletter->subject
-		));
+			$message = new SwatMessage(sprintf(
+				Deliverance::_('The delivery of “%s” has been canceled.'),
+				$this->newsletter->subject
+			));
+		} catch (DeliveranceAPIConnectionException $e) {
+			$e->processAndContinue();
 
-		$this->app->messages->add($message);
+			$relocate = false;
+			$message = new SwatMessage(
+				Deliverance::_('There was an issue connecting to the email '.
+					'service provider.'),
+				'error'
+			);
+
+			$message->secondary_content = sprintf('<strong>%s</strong> %s',
+				sprintf(Deliverance::_(
+					'The delivery of “%s” has not been canceled.'),
+					$this->newsletter->subject),
+				Deliverance::_('Connection issues are typically short-lived, '.
+					'and attempting to cancel the Newsletter after a delay '.
+					'should work.')
+				);
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndContinue();
+
+			$message = new SwatMessage(
+				Deliverance::_('An error has occurred. The newsletter was not '.
+					'cancelled.'),
+				'system-error'
+			);
+			$this->app->messages->add($message);
+
+			$relocate = false;
+		}
+
+		if ($message !== null) {
+			$this->app->messages->add($message);
+		}
+
+		return $relocate;
 	}
 
 	// }}}
@@ -157,8 +197,8 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function getMessage()
 	{
-		$message = sprintf('<p>%s</p><p>%s/p>',
-			Deliverance::_('The delivery of “%ss” will canceled.'),
+		$message = sprintf('<p>%s</p><p>%s</p>',
+			Deliverance::_('The delivery of “%s” will canceled.'),
 			Deliverance::_('The newsletter won’t be deleted and can be '.
 			'rescheduled for a later delivery date.'));
 

@@ -4,7 +4,7 @@ require_once 'Admin/pages/AdminDBEdit.php';
 require_once 'Admin/exceptions/AdminNotFoundException.php';
 require_once 'SwatDB/SwatDB.php';
 require_once 'Swat/SwatMessage.php';
-require_once 'Deliverance/DeliveranceList.php';
+require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
 
 /**
@@ -31,10 +31,11 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	protected function initInternal()
 	{
 		parent::initInternal();
-		$this->ui->loadFromXML(dirname(__FILE__).'/edit.xml');
-		$this->initNewsletter();
 
-		$this->initSegments();
+		$this->ui->loadFromXML(dirname(__FILE__).'/edit.xml');
+
+		$this->initNewsletter();
+		$this->initCampaignSegments();
 	}
 
 	// }}}
@@ -82,32 +83,67 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function saveDBData()
 	{
+		$relocate = true;
+		$message = null;
 		$values = $this->ui->getValues(array(
 			'subject',
-			'newsletter_type',
+			'campaign_segment',
 			'html_content',
 			'text_content',
 			));
 
-		$this->newsletter->subject         = $values['subject'];
-		$this->newsletter->newsletter_type = $values['newsletter_type'];
-		$this->newsletter->html_content    = $values['html_content'];
-		$this->newsletter->text_content    = $values['text_content'];
+		$this->newsletter->subject          = $values['subject'];
+		$this->newsletter->campaign_segment = $values['campaign_segment'];
+		$this->newsletter->html_content     = $values['html_content'];
+		$this->newsletter->text_content     = $values['text_content'];
 
 		// save/update on MailChimp.
-		$mailchimp_campaign_id = $this->saveMailChimpCampaign();
+		// TODO. save the db, but throw the error for MailChimp saving.
+		try {
+			$campaign_id = $this->saveMailChimpCampaign();
 
-		if ($this->newsletter->id === null) {
-			$this->newsletter->mailchimp_campaign_id = $mailchimp_campaign_id;
-			$this->newsletter->createdate            = new SwatDate();
-			$this->newsletter->createdate->toUTC();
+			if ($this->newsletter->id === null) {
+				$this->newsletter->campaign_id = $campaign_id;
+				$this->newsletter->createdate  = new SwatDate();
+				$this->newsletter->createdate->toUTC();
+			}
+
+			$this->newsletter->save();
+
+			$message = new SwatMessage(sprintf(
+				Deliverance::_('“%s” has been saved.'),
+				$this->newsletter->getCampaignTitle()));
+		} catch (DeliveranceAPIConnectionException $e) {
+			$e->processAndContinue();
+
+			$relocate = false;
+			$message = new SwatMessage(
+				Deliverance::_('There was an issue connecting to the email '.
+					'service provider.'),
+				'error'
+			);
+
+			$message->secondary_content = Deliverance::_('The newsletter has '.
+					'not been saved. Connection issues are typically '.
+					'short-lived, and attempting to save the Newsletter again '.
+					'should work.');
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndContinue();
+
+			$relocate = false;
+			$message = new SwatMessage(
+				Deliverance::_('An error has occurred. The newsletter was not '.
+					'cancelled.'),
+				'system-error'
+			);
 		}
 
-		$this->newsletter->save();
+		if ($message !== null) {
+			$this->app->messages->add($message);
+		}
 
-		$this->app->messages->add(new SwatMessage(sprintf(
-			Deliverance::_('“%s” has been saved.'),
-			$this->newsletter->getCampaignTitle())));
+		return $relocate;
 	}
 
 	// }}}
@@ -118,15 +154,15 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		// Set a long timeout on mailchimp calls as we're in the admin & patient
 		$list = DeliveranceListFactory::get($this->app, 'default');
 		$list->setTimeout(
-			$this->config->deliverance->list_admin_connection_timeout);
+			$this->app->config->deliverance->list_admin_connection_timeout);
 
 		$campaign = $this->newsletter->getCampaign($this->app);
-		$mailchimp_campaign_id = $list->saveCampaign($campaign, false);
+		$campaign_id = $list->saveCampaign($campaign, false);
 
 		// save/update campaign resources.
 		Campaign::uploadResources($this->app, $campaign);
 
-		return $mailchimp_campaign_id;
+		return $campaign_id;
 	}
 
 	// }}}

@@ -51,10 +51,10 @@
 					<property name="text" type="data">newsletter_status</property>
 				</object>
 			</object>
-			<object class="SwatDetailsViewField">
+			<object class="SwatDetailsViewField" id="campaign_segment_field">
 				<property name="title" translatable="yes">Recipients</property>
 				<object class="SwatTextCellRenderer">
-					<property name="text" type="data">newsletter_type</property>
+					<property name="text" type="data">campaign_segment.title</property>
 				</object>
 			</object>
 		</widget>

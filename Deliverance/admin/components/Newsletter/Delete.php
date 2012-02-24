@@ -4,7 +4,7 @@ require_once 'SwatDB/SwatDB.php';
 require_once 'Admin/pages/AdminDBDelete.php';
 require_once 'Admin/AdminListDependency.php';
 require_once 'Admin/AdminDependencyEntryWrapper.php';
-require_once 'Deliverance/DeliveranceList.php';
+require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
 
 /**
@@ -13,6 +13,10 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  * @package   Deliverance
  * @copyright 2011-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
+ * @todo      If the API connection drops midway through deleting a group of
+ *            newsletters, the database entries for the successful deletes won't
+ *            be removed, causing further errors. Delete entries as each api
+ *            call succeeds, and build better messages reflecting this.
  */
 class DeliveranceNewsletterDelete extends AdminDBDelete
 {
@@ -23,35 +27,66 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 	{
 		parent::processDBData();
 
-		$newsletters = $this->getNewsletters();
-		foreach ($newsletters as $newsletter) {
+		$message  = null;
+		$relocate = true;
+		try {
 			$list = DeliveranceListFactory::get($this->app, 'default');
 			$list->setTimeout(
-				$this->config->deliverance->list_admin_connection_timeout);
+				$this->app->config->deliverance->list_admin_connection_timeout);
 
-
-			try {
+			$newsletters = $this->getNewsletters();
+			foreach ($newsletters as $newsletter) {
 				$list->deleteCampaign($newsletter->getCampaign($this->app));
-			} catch (XML_RPC2_Exception $e) {
-				if ($e->faultCode)
-				var_dump($e); exit;
 			}
 
+			$sql = 'delete from Newsletter where id in (%s);';
+
+			$item_list = $this->getItemList('integer');
+			$sql = sprintf($sql, $item_list);
+			$num = SwatDB::exec($this->app->db, $sql);
+
+			$message = new SwatMessage(sprintf(Deliverance::ngettext(
+				'One newsletter has been deleted.',
+				'%s newsletters have been deleted.', $num),
+				SwatString::numberFormat($num)),
+				'notice');
+		} catch (DeliveranceAPIConnectionException $e) {
+			$e->processAndContinue();
+
+			$relocate = false;
+			$message = new SwatMessage(
+				Deliverance::_('There was an issue connecting to the email '.
+					'service provider.'),
+				'error'
+			);
+
+			$message->secondary_content = sprintf(Deliverance::ngettext(
+				'The newsletter has not been deleted.',
+				'The %s newsletters have not been deleted.', $num),
+				SwatString::numberFormat($num));
+
+			$message->secondary_content.= Deliverance::_('Connection issues'.
+				'are typically short-lived, and attempting to cancel the '.
+				'Newsletter again should work.');
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndContinue();
+
+			$relocate = false;
+			$message = new SwatMessage(sprintf(Deliverance::ngettext(
+				'An error has occurred. The newsletter has not been deleted.',
+				'An error has occurred. The %s newsletters have not been '.
+					'deleted.', $num),
+				SwatString::numberFormat($num)),
+				'system-error'
+			);
 		}
 
-		$sql = 'delete from Newsletter where id in (%s);';
+		if ($message !== null) {
+			$this->app->messages->add($message);
+		}
 
-		$item_list = $this->getItemList('integer');
-		$sql = sprintf($sql, $item_list);
-		$num = SwatDB::exec($this->app->db, $sql);
-
-		$message = new SwatMessage(sprintf(Deliverance::ngettext(
-			'One newsletter has been deleted.',
-			'%s newsletters have been deleted.', $num),
-			SwatString::numberFormat($num)),
-			'notice');
-
-		$this->app->messages->add($message);
+		return $relocate;
 	}
 
 	// }}}

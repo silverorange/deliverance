@@ -1,7 +1,7 @@
 <?php
 
 require_once 'Admin/pages/AdminEdit.php';
-require_once 'Deliverance/DeliveranceList.php';
+require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
 
 /**
@@ -49,7 +49,8 @@ class NewsletterPreview extends AdminEdit
 			$this->relocate('Newsletter');
 		}
 
-		$this->newsletter = new Newsletter();
+		$class_name = SwatDBClassMap::get('DeliveranceNewsletter');
+		$this->newsletter = new $class_name();
 		$this->newsletter->setDatabase($this->app->db);
 		if (!$this->newsletter->load($this->id)) {
 			throw new AdminNotFoundException(sprintf(
@@ -69,9 +70,9 @@ class NewsletterPreview extends AdminEdit
 
 	protected function initList()
 	{
-		$list = DeliveranceListFactory::get($this->app, 'default');
-		$list->setTimeout(
-			$this->config->deliverance->list_admin_connection_timeout);
+		$this->list = DeliveranceListFactory::get($this->app, 'default');
+		$this->list->setTimeout(
+			$this->app->config->deliverance->list_admin_connection_timeout);
 	}
 
 	// }}}
@@ -81,19 +82,53 @@ class NewsletterPreview extends AdminEdit
 
 	protected function saveData()
 	{
+		$relocate = true;
+		$message = null;
+
 		$form  = $this->ui->getWidget('edit_form');
 		$email = $this->ui->getWidget('email')->value;
 
 		$campaign = $this->newsletter->getCampaign($this->app);
 
-		// resave campaign, this makes life easier when testing template changes
-		$this->list->saveCampaign($campaign);
-		// save/update campaign resources.
-		Campaign::uploadResources($this->app, $campaign);
+		try {
+			// re-save campaign, this makes life easier when testing template
+			// changes
+			$this->list->saveCampaign($campaign);
+			// save/update campaign resources.
+			Campaign::uploadResources($this->app, $campaign);
 
-		$this->list->sendCampaignTest($campaign, array($email));
+			$this->list->sendCampaignTest($campaign, array($email));
+		} catch (DeliveranceAPIConnectionException $e) {
+			$e->processAndContinue();
 
-		return true;
+			$relocate = false;
+			$message = new SwatMessage(
+				Deliverance::_('There was an issue connecting to the email '.
+					'service provider.'),
+				'error'
+			);
+
+			$message->secondary_content = Deliverance::_('The preview has '.
+					'not been sent. Connection issues are typically '.
+					'short-lived, and attempting to send the Newsletter '.
+					'preview again should work.');
+		} catch (Exception $e) {
+			$e = new DeliveranceException($e);
+			$e->processAndContinue();
+
+			$relocate = false;
+			$message = new SwatMessage(
+				Deliverance::_('An error has occurred. The newsletter preview '.
+					' was not sent.'),
+				'system-error'
+			);
+		}
+
+		if ($message !== null) {
+			$this->app->messages->add($message);
+		}
+
+		return $relocate;
 	}
 
 	// }}}
@@ -155,8 +190,8 @@ class NewsletterPreview extends AdminEdit
 	protected function getMessage()
 	{
 		ob_start();
-		printf(Deliverance::_('<p>The newsletter “%s” will be sent to following email '.
-				'address.</p>'),
+		printf(Deliverance::_('<p>The newsletter “%s” will be sent to '.
+				'following email address.</p>'),
 			$this->newsletter->subject);
 
 		return ob_get_clean();
