@@ -96,12 +96,8 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 	protected function initSendCount()
 	{
 		$campaign = $this->newsletter->getCampaign($this->app);
-		if ($campaign->getSegmentOptions() == null) {
-			$this->send_count = $this->list->getMemberCount();
-		} else {
-			$this->send_count = $this->list->getSegmentSize(
-				$campaign->getSegmentOptions());
-		}
+		$this->send_count = $this->list->getSegmentSize(
+			$campaign->getSegmentOptions());
 	}
 
 	// }}}
