@@ -1,6 +1,6 @@
 <?php
 
-require_once 'Deliverance/DeliveranceListSegmentUpdater.php';
+require_once 'Deliverance/DeliveranceListCampaignSegmentCacheUpdater.php';
 
 /**
  * MailChimp specific application to update segment counts.
@@ -9,8 +9,8 @@ require_once 'Deliverance/DeliveranceListSegmentUpdater.php';
  * @copyright 2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class DeliveranceMailChimpListSegmentUpdater
-	extends DeliveranceListSegmentUpdater
+class DeliveranceMailChimpListCampaignSegmentCacheUpdater
+	extends DeliveranceListCampaignSegmentCacheUpdater
 {
 	// {{{ protected function updateSegment()
 

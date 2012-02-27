@@ -15,7 +15,8 @@ require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
  * @copyright 2009-2010 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-abstract class DeliveranceListSegmentUpdater extends SiteCommandLineApplication
+abstract class DeliveranceListCampaignSegmentCacheUpdater
+	extends SiteCommandLineApplication
 {
 	// {{{ protected properties
 
