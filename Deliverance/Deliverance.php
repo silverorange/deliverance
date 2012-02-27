@@ -129,6 +129,13 @@ class Deliverance
 			'deliverance.campaign_from_name'    => null,
 			'deliverance.campaign_from_address' => null,
 
+			// allow setting a custom cdn base for campaigns. As campaigns are
+			// cannot be edited once set, ideally use a CNAME for the CDN base
+			// to prevent breakage of older campaigns if the CDN store changes
+			// or moves. As campaigns are only served via http there is no
+			// drawback to using a CNAME.
+			'deliverance.campaign_cdn_base'     => null,
+
 			// mailchimp specific
 			'mail_chimp.double_opt_in'  => false,
 			'mail_chimp.api_key'        => null,
