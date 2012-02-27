@@ -1254,8 +1254,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// }}}
 	// {{{ public function getSegmentSize()
 
-	public function getSegmentSize(array $segment_options)
+	public function getSegmentSize(array $segment_options = null)
 	{
+		// if no options are passed for the segment, consider it the entire list
+		if ($segment_options === null)
+			return $this->getMemberCount();
+
 		$segment_size = 0;
 		$parameters = array(
 			$this->shortname,
