@@ -9,7 +9,7 @@
 			</widget>
 			<widget class="SwatFooterFormField">
 				<widget class="SwatButton" id="submit_button">
-					<property name="title">Cancel Delivery</property>
+					<property name="title" translatable="yes">Cancel Delivery</property>
 				</widget>
 			</widget>
 		</widget>

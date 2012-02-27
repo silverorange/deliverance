@@ -15,7 +15,7 @@
 			</widget>
 			<widget class="SwatFooterFormField">
 				<widget class="SwatButton" id="submit_button">
-					<property name="title">Send Preview</property>
+					<property name="title" translatable="yes">Send Preview</property>
 					<property name="stock_id">apply</property>
 				</widget>
 			</widget>
