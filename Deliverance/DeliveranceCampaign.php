@@ -42,6 +42,14 @@ class DeliveranceCampaign
 	// }}}
 	// {{{ public function __construct()
 
+	/**
+	 * Creates a new deliverance campaign
+	 *
+	 * @param SiteApplication $app
+	 * @param string $shortname optional shortname of the campaign. Deprecated.
+	 * @param directory $shortname optional directory for the campaign
+	 *                                       resources. Deprecated.
+	 */
 	public function __construct(SiteApplication $app, $shortname = null,
 		$directory = null)
 	{
