@@ -54,6 +54,14 @@ class DeliveranceCampaignSegment extends SwatDBDataObject
 	}
 
 	// }}}
+	// {{{ public function setSegmentOptions()
+
+	public function setSegmentOptions(array $segment_options)
+	{
+		$this->segment_options = json_encode($segment_options);
+	}
+
+	// }}}
 	// {{{ protected function init()
 
 	protected function init()
