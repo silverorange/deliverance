@@ -1,7 +1,7 @@
 <?php
 
 require_once 'SwatDB/SwatDBRecordsetWrapper.php';
-require_once dirname(__FILE__).'/DeliveranceCampaignSegment.php';
+require_once 'Deliverance/dataobjects/DeliveranceCampaignSegment.php';
 
 /**
  * A recordset wrapper class for DeliveranceCampaignSegment objects
@@ -11,7 +11,7 @@ require_once dirname(__FILE__).'/DeliveranceCampaignSegment.php';
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @see       DeliveranceCampaignSegment
  */
-class DeliveranceMailChimpNewsletterWrapper extends DeliveranceNewsletterWrapper
+class DeliveranceCampaignSegmentWrapper extends SwatDBRecordsetWrapper
 {
 	// {{{ protected function init()
 
