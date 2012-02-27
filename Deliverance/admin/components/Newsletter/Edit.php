@@ -6,6 +6,7 @@ require_once 'SwatDB/SwatDB.php';
 require_once 'Swat/SwatMessage.php';
 require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
+require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
 
 /**
  * Edit page for episodes
@@ -64,15 +65,38 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function initCampaignSegments()
 	{
-		$options = SwatDB::getOptionArray($this->app->db,
-			'MailingListCampaignSegment', 'title', 'shortname',
-			'displayorder');
+		$sql = 'select * from MailingListCampaignSegment order by displayorder';
 
-		if (count($options)) {
-			$type_widget = $this->ui->getWidget('newsletter_type');
-			$type_widget->addOptionsByArray($options);
-			$type_widget->required = true;
-			$type_widget->parent->visible = true;
+		$segments = SwatDB::query($this->app->db, $sql,
+			SwatDBClassMap::get('DeliveranceCampaignSegmentWrapper'));
+
+		if (count($segments)) {
+			$segment_widget = $this->ui->getWidget('campaign_segment');
+			$segment_widget->parent->visible = true;
+			$locale = SwatI18NLocale::get();
+			foreach ($segments as $segment) {
+				if ($segment->cached_segment_size > 0) {
+					$subscribers = sprintf(Deliverance::ngettext(
+						'One subscriber',
+						'%s subscribers',
+						$segment->cached_segment_size),
+						$locale->formatNumber($segment->cached_segment_size));
+				} else {
+					$subscribers = Deliverance::_('No subscribers');
+				}
+
+				$title = sprintf('%s <span class="swat-note">(%s)</span>',
+					$segment->title,
+					$subscribers);
+
+				if ($segment->cached_segment_size > 0) {
+					$segment_widget->addOption($segment->id, $title,
+						'text/xml');
+				} else {
+					// TODO, use a real option and disable it.
+					$segment_widget->addDivider($title, 'text/xml');
+				}
+			}
 		}
 	}
 
