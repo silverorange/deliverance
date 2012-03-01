@@ -39,6 +39,49 @@ class DeliveranceCampaign
 	protected $xhtml_template_filename = 'template-html.php';
 	protected $text_template_filename  = 'template-text.php';
 
+	/**
+	 * @var string
+	 */
+	protected $subject;
+
+	/**
+	 * @var string
+	 */
+	protected $title;
+
+	/**
+	 * @var string
+	 */
+	protected $text_content;
+
+	/**
+	 * @var string
+	 */
+	protected $html_content;
+
+	/**
+	 * @var DeliveranceCampaignSegment
+	 */
+	protected $campaign_segment;
+
+	/**
+	 * @var SwatDate
+	 */
+	protected $send_date;
+
+	/**
+	 * @var array
+	 */
+	protected $segment_options;
+
+	/**
+	 * @var array
+	 * @todo move the segment_include_addresses into the ini or a table
+	 */
+	protected $segment_include_addresses = array(
+		'isaac@silverorange.com',
+	);
+
 	// }}}
 	// {{{ public function __construct()
 
@@ -61,7 +104,88 @@ class DeliveranceCampaign
 	}
 
 	// }}}
+	// {{{ public static function uploadResources()
 
+	public static function uploadResources(SiteApplication $app,
+		Campaign $campaign)
+	{
+		$resource_files = $campaign->getResources();
+
+		/*
+		 * Set a "never-expire" policy with a far future max age (10 years) as
+		 * suggested http://developer.yahoo.com/performance/rules.html#expires.
+		 * As well, set Cache-Control to public, as this allows some browsers to
+		 * cache the images to disk while on https, which is a good win.
+		 */
+		$http_headers =  array(
+			'cache-control' => 'public, max-age=315360000',
+		);
+
+		// copy them to s3
+		foreach ($resource_files as $destination => $source) {
+			$app->cdn->copyFile($source, $destination, null, 'public',
+				$http_headers);
+		}
+	}
+
+	// }}}
+	// {{{ public function getResources()
+
+	public function getResources()
+	{
+		$resource_files        = array();
+		$source_directory      = $this->getSourceDirectory();
+		$destination_directory = $this->getResourcesDestinationDirectory();
+
+		// grab only png, jpg, and gif files, and ignore any OS X ._
+		// resource fork files left behind by the evil Finder
+		$expression = '/^([^\._]).+(\.png|\.jpg|\.gif)$/';
+
+		$dir = new DirectoryIterator($source_directory);
+		foreach ($dir as $entry) {
+			$filename = $entry->getFilename();
+			if (preg_match($expression, $filename) == 1) {
+				$destination = $destination_directory.'/'.$filename;
+				$source      = $source_directory.'/'.$filename;
+				$resource_files[$destination] =
+					$source;
+			}
+		}
+
+		return $resource_files;
+	}
+
+	// }}}
+	// {{{ protected function getResourcesDestinationDirectory()
+
+	protected function getResourcesDestinationDirectory()
+	{
+		return 'newsletter/resources/'.$this->shortname;
+	}
+
+	// }}}
+	// {{{ protected function getResourceUri()
+
+	protected function getResourceUri()
+	{
+		// once the send_date is set, use the final cdn urls. Until then, use
+		// the direct s3 urls.
+		if ($this->send_date === null) {
+			$base_uri = sprintf('http://%s.s3.amazonaws.com/',
+				$this->app->config->amazon->bucket);
+		} else {
+			$base_uri =
+				($this->app->config->deliverance->campaign_cdn_base !== null) ?
+				$this->app->config->deliverance->campaign_cdn_base :
+				$this->app->config->uri->cdn_base;
+		}
+
+		$uri = $base_uri.$this->getResourcesDestinationDirectory();
+
+		return $uri;
+	}
+
+	// }}}
 	// {{{ public function setShortname()
 
 	public function setShortname($shortname)
@@ -86,11 +210,87 @@ class DeliveranceCampaign
 	}
 
 	// }}}
+	// {{{ public function setTitle()
+
+	public function setTitle($title)
+	{
+		$this->title = $title;
+	}
+
+	// }}}
+	// {{{ public function setSubject()
+
+	public function setSubject($subject)
+	{
+		$this->subject = $subject;
+	}
+
+	// }}}
+	// {{{ public function setHtmlContent()
+
+	public function setHtmlContent($html_content)
+	{
+		$this->html_content = $html_content;
+	}
+
+	// }}}
+	// {{{ public function setTextContent()
+
+	public function setTextContent($text_content)
+	{
+		$this->text_content = $text_content;
+	}
+
+	// }}}
+	// {{{ public function setCampaignSegement()
+
+	public function setCampaignSegment(
+		DeliveranceCampaignSegment $campaign_segment = null)
+	{
+		$this->campaign_segment = $campaign_segment;
+		if ($campaign_segment !== null) {
+			$this->setSegmentOptions(
+				$this->campaign_segment->getSegmentOptions());
+		}
+	}
+
+	// }}}
+	// {{{ public function setSendDate()
+
+	public function setSendDate(SwatDate $send_date)
+	{
+		$this->send_date = $send_date;
+	}
+
+	// }}}
+	// {{{ public function setSegmentOptions()
+
+	public function setSegmentOptions(array $segment_options = null)
+	{
+		$this->segment_options = $segment_options;
+	}
+
+	// }}}
+	// {{{ public function getTitle()
+
+	public function getTitle()
+	{
+		return $this->title;
+	}
+
+	// }}}
 	// {{{ public function getAnalyticsKey()
 
 	public function getAnalyticsKey()
 	{
+		// TODO - if more than one campaign is sent in a day, and the shortname
+		// is the campaign date, this will not work.
 		$key = $this->shortname;
+
+		if ($this->campaign_segment !== null) {
+			$key.=sprintf('_%s',
+				$this->campaign_segment->shortname);
+		}
 
 		return $key;
 	}
@@ -112,19 +312,46 @@ class DeliveranceCampaign
 	}
 
 	// }}}
-	// {{{ public function getTitle()
-
-	public function getTitle()
-	{
-		return $this->shortname;
-	}
-
-	// }}}
 	// {{{ public function getSubject()
 
 	public function getSubject()
 	{
-		return null;
+		return $this->subject;
+	}
+
+	// }}}
+	// {{{ public function getSegmentOptions()
+
+	public function getSegmentOptions()
+	{
+		$segment_options = null;
+
+		if ($this->segment_options !== null) {
+			$segment_options = $this->segment_options;
+
+			// always include these addresses so that we get a copy of all
+			// emails, even if we don't belong in the segment.
+			// TODO - move the segment_include_addresses into the ini or a table
+			if (count($this->segment_include_addresses)) {
+				foreach ($this->segment_include_addresses as $email) {
+					$segment_options['conditions'][] = array(
+						'field' => 'EMAIL',
+						'op'    => 'eq',
+						'value' => $email,
+					);
+				}
+			}
+		}
+
+		return $segment_options;
+	}
+
+	// }}}
+	// {{{ public function getSendDate()
+
+	public function getSendDate()
+	{
+		return $this->send_date;
 	}
 
 	// }}}
@@ -202,15 +429,41 @@ class DeliveranceCampaign
 		$base->setAttribute('href', $this->getBaseHref());
 		$head->insertBefore($base, $head->firstChild);
 
+		$style_sheet = $this->getStyleSheet();
+		if (file_exists($style_sheet)) {
+			// add style element to head
+			$style = $document->createElement('style');
+			$style->setAttribute('type', 'text/css');
+			$style->setAttribute('media', 'all');
+
+			$style->appendChild($document->createTextNode(file_get_contents(
+				$style_sheet)));
+
+			$head->appendChild($style);
+		}
+
+		// prepend img srcs with newsletter dir and resource base href
+		$images = $document->documentElement->getElementsByTagName('img');
+		foreach ($images as $image) {
+			$src = $this->getResourceUri().$image->getAttribute('src');
+			$image->setAttribute('src', $src);
+		}
+
 		// add analytics uri vars to all anchors in the rendered document
 		$anchors = $document->documentElement->getElementsByTagName('a');
 		foreach ($anchors as $anchor) {
 			$href = $anchor->getAttribute('href');
-			if (substr($href, 0, 2) != '*|') {
-				$href = $this->appendAnalyticsToUri($href);
-				$anchor->setAttribute('href', $href);
-			}
+			$href = $this->appendAnalyticsToUri($href);
+			$anchor->setAttribute('href', $href);
 		}
+	}
+
+	// }}}
+	// {{{ protected function getStyleSheet()
+
+	protected function getStyleSheet()
+	{
+		return $this->getSourceDirectory().'/newsletter.css';
 	}
 
 	// }}}
@@ -297,10 +550,11 @@ class DeliveranceCampaign
 		if (count($vars)) {
 			$var_string = implode('&', $vars);
 
-			if (strpos($uri, '?') === false)
+			if (strpos($uri, '?') === false) {
 				$uri = $uri.'?'.$var_string;
-			else
+			} else {
 				$uri = $uri.'&'.$var_string;
+			}
 		}
 
 		return $uri;

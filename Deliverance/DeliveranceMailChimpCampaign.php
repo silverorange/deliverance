@@ -5,7 +5,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2011 silverorange
+ * @copyright 2009-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpCampaign extends DeliveranceCampaign
@@ -39,27 +39,11 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	}
 
 	// }}}
-	// {{{ public function getSegmentOptions()
-
-	public function getSegmentOptions()
-	{
-		return null;
-	}
-
-	// }}}
 	// {{{ public function getToName()
 
 	public function getToName()
 	{
 		return '*|FNAME|* *|LNAME|*';
-	}
-
-	// }}}
-	// {{{ public function getSendDate()
-
-	public function getSendDate()
-	{
-		return null;
 	}
 
 	// }}}
@@ -102,6 +86,26 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 		$document->formatOutput = true;
 
 		return $document;
+	}
+
+	// }}}
+	// {{{ protected function appendAnalyticsToUri()
+
+	protected function appendAnalyticsToUri($uri)
+	{
+		if ($this->isMailChimpUri($uri) === false) {
+			$uri = parent::appendAnalyticsToUri($uri);
+		}
+
+		return $uri;
+	}
+
+	// }}}
+	// {{{ protected function isMailChimpUri()
+
+	protected function isMailChimpUri($uri)
+	{
+		return (substr($uri, 0, 2) == '*|');
 	}
 
 	// }}}
