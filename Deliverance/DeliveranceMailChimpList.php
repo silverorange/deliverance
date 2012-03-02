@@ -1580,6 +1580,27 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
+	// {{{ public function getInterests()
+
+	public function getInterests()
+	{
+		$interest_groups = null;
+		$parameters = array(
+			$this->shortname,
+			);
+
+		try {
+			$interest_groups = $this->callClientMethod(
+				'listInterestGroupings',
+				$parameters);
+		} catch (Exception $e) {
+			throw new DeliveranceException($e);
+		}
+
+		return $interest_groups;
+	}
+
+	// }}}
 
 	// list setup helper methods
 	// {{{ public function getAllLists()
