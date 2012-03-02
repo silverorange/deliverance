@@ -106,9 +106,16 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	/**
 	 * Error code returned when attempting to delete a campaign that doesn't
-	 * exist
+	 * exist.
 	 */
 	const CAMPAIGN_DOES_NOT_EXIST = 300;
+
+	/**
+	 * Error code returned when campaign stats haven't been generated yet. This
+	 * occurs if you try to get the stats before a mailing has finished being
+	 * sent to all subscribers.
+	 */
+	const CAMPAIGN_STATS_NOT_AVAILABLE = 301;
 
 	/**
 	 * Error code returned when attempting to add an order that already has been
@@ -1178,6 +1185,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 				$parameters);
 
 			$url = $report['secure_url'];
+		} catch (DeliveranceException $e) {
+			if ($e->getCode() == self::CAMPAIGN_STATS_NOT_AVAILABLE) {
+				// if stats aren't ready, don't care about the exception.
+			} else {
+				throw $e;
+			}
 		} catch (Exception $e) {
 			throw new DeliveranceCampaignException($e);
 		}
