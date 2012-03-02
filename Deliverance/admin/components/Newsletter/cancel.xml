@@ -11,6 +11,9 @@
 				<widget class="SwatButton" id="submit_button">
 					<property name="title" translatable="yes">Cancel Delivery</property>
 				</widget>
+				<widget class="SwatButton" id="cancel_button">
+					<property name="title" translatable="yes">Leave as Scheduled</property>
+				</widget>
 			</widget>
 		</widget>
 	</widget>

@@ -76,12 +76,6 @@ class DeliveranceNewsletterDetails extends AdminPage
 					$list->getCampaignReportUrl($this->newsletter->campaign_id);
 
 				$this->newsletter->save();
-			/* } catch(DeliveranceException $e) {
-				// if stats aren't ready, don't care about the exception.
-				if ($e->getCode() != '301') {
-					$e = new SiteException($e);
-					$e->processAndContinue();
-				} */
 			} catch(Exception $e) {
 				$e = new SiteException($e);
 				$e->processAndContinue();
@@ -119,20 +113,30 @@ class DeliveranceNewsletterDetails extends AdminPage
 		$toolbar = $this->ui->getWidget('details_toolbar');
 		$toolbar->setToolLinkValues($this->newsletter->id);
 
-		$campaign = DeliveranceCampaignFactory::get($this->app, 'default');
-		$this->ui->getWidget('preview_link')->link = call_user_func_array(
-			array(
-				$campaign,
-				'getPreviewUrl',
-			),
-			array(
-				$this->app,
-				$this->newsletter->campaign_id,
-			));
+		// Preview link can be unavailable if the database save was successful,
+		// but the mailing list call failed.
+		$preview_link = $this->ui->getWidget('preview_link');
+		if ($this->newsletter->campaign_id === null) {
+			$preview_link->sensitive = false;
+			$preview_link->tooltip   = Deliverance::_(
+				'This newsletter’s preview is not available due to connection '.
+				'issues with the email service provider. Edit the newsletter '.
+				'to enable the preview.');
+		} else {
+			$campaign = DeliveranceCampaignFactory::get($this->app, 'default');
+			$this->ui->getWidget('preview_link')->link = call_user_func_array(
+				array(
+					$campaign,
+					'getPreviewUrl',
+				),
+				array(
+					$this->app,
+					$this->newsletter->campaign_id,
+				));
+		}
 
 		if ($this->newsletter->isSent()) {
-			$this->ui->getWidget('preview_link')->title =
-				Deliverance::_('View Email');
+			$preview_link->title = Deliverance::_('View Email');
 
 			$this->ui->getWidget('edit_link')->visible         = false;
 			$this->ui->getWidget('delete_link')->visible       = false;
@@ -142,13 +146,15 @@ class DeliveranceNewsletterDetails extends AdminPage
 
 			// reports may not exist yet if the newsletter was recently sent.
 			$stats_link = $this->ui->getWidget('stats_link');
-			if ($this->newsletter->campaign_report_url != '') {
-				$stats_link->link = $this->newsletter->campaign_report_url;
-			} else {
+			if ($this->newsletter->campaign_report_url === null) {
 				$stats_link->sensitive = false;
-				$stats_link->tooltip   = $this->getStatsToolTip();
+				$stats_link->tooltip   = Deliverance::_(
+					'This newletter’s status report will become available '.
+					'shortly after the newsletter has been sent.');
+			} else {
+				$stats_link->link = $this->newsletter->campaign_report_url;
 			}
-		} else if ($this->newsletter->isScheduled()) {
+		} elseif ($this->newsletter->isScheduled()) {
 			$this->ui->getWidget('edit_link')->visible         = false;
 			$this->ui->getWidget('stats_link')->visible        = false;
 			$this->ui->getWidget('delete_link')->visible       = false;
@@ -169,7 +175,7 @@ class DeliveranceNewsletterDetails extends AdminPage
 	{
 		parent::buildNavBar();
 
-		$this->navbar->createEntry($this->newsletter->subject);
+		$this->navbar->createEntry($this->newsletter->getCampaignTitle());
 	}
 
 	// }}}
@@ -183,15 +189,6 @@ class DeliveranceNewsletterDetails extends AdminPage
 		$ds->newsletter_status = $newsletter->getCampaignStatus($this->app);
 
 		return $ds;
-	}
-
-	// }}}
-	// {{{ protected function getStatsToolTip()
-
-	protected function getStatsToolTip()
-	{
-		return Deliverance::_('This newletter’s status report will become '.
-			'available a few hours after the newsletter has been sent.');
 	}
 
 	// }}}

@@ -82,6 +82,20 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 	// }}}
 
 	// process phase
+	// {{{ protected function processInternal()
+
+	protected function processInternal()
+	{
+		// AdminDBEdit pages don't support cancel buttons by default, so
+		// just relocate here.
+		if ($this->ui->getWidget('cancel_button')->hasBeenClicked()) {
+			$this->relocate();
+		}
+
+		parent::processInternal();
+	}
+
+	// }}}
 	// {{{ protected function saveDBData()
 
 	protected function saveDBData()
@@ -90,7 +104,6 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 		$message  = null;
 		$relocate = true;
 		try {
-throw new DeliveranceAPIConnectionException('BROKEN');
 			$this->list->unscheduleCampaign($campaign);
 
 			$this->newsletter->send_date = null;
@@ -101,35 +114,39 @@ throw new DeliveranceAPIConnectionException('BROKEN');
 				$this->newsletter->subject
 			));
 		} catch (DeliveranceAPIConnectionException $e) {
+			$relocate = false;
+
+			// log api connection exceptions in the admin to keep a track of how
+			// frequent they are.
 			$e->processAndContinue();
 
-			$relocate = false;
 			$message = new SwatMessage(
 				Deliverance::_('There was an issue connecting to the email '.
 					'service provider.'),
 				'error'
 			);
 
-			$message->secondary_content = sprintf('<strong>%s</strong> %s',
+			$message->content_type = 'text/xml';
+			$message->secondary_content = sprintf(
+				'<strong>%s</strong><br />%s',
 				sprintf(Deliverance::_(
 					'The delivery of “%s” has not been canceled.'),
 					$this->newsletter->subject),
-				Deliverance::_('Connection issues are typically short-lived, '.
-					'and attempting to cancel the Newsletter after a delay '.
-					'should work.')
+				Deliverance::_('Connection issues are typically short-lived '.
+					'and attempting to cancel the newsletter again after a '.
+					'delay will usually be successful.')
 				);
 		} catch (Exception $e) {
+			$relocate = false;
+
 			$e = new DeliveranceException($e);
 			$e->processAndContinue();
 
 			$message = new SwatMessage(
-				Deliverance::_('An error has occurred. The newsletter was not '.
-					'cancelled.'),
+				Deliverance::_('An error has occurred. The newsletter has not '.
+					'been cancelled.'),
 				'system-error'
 			);
-			$this->app->messages->add($message);
-
-			$relocate = false;
 		}
 
 		if ($message !== null) {
@@ -199,7 +216,7 @@ throw new DeliveranceAPIConnectionException('BROKEN');
 	{
 		$message = sprintf('<p>%s</p><p>%s</p>',
 			Deliverance::_('The delivery of “%s” will canceled.'),
-			Deliverance::_('The newsletter won’t be deleted and can be '.
+			Deliverance::_('The newsletter will not be deleted and can be '.
 			'rescheduled for a later delivery date.'));
 
 		return sprintf($message, $this->newsletter->subject);

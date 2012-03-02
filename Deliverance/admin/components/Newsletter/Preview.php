@@ -11,7 +11,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  * @copyright 2011-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class NewsletterPreview extends AdminEdit
+class DeliveranceNewsletterPreview extends AdminEdit
 {
 	// {{{ protected properties
 
@@ -78,6 +78,20 @@ class NewsletterPreview extends AdminEdit
 	// }}}
 
 	// process phase
+	// {{{ protected function processInternal()
+
+	protected function processInternal()
+	{
+		// AdminDBEdit pages don't support cancel buttons by default, so
+		// just relocate here.
+		if ($this->ui->getWidget('cancel_button')->hasBeenClicked()) {
+			$this->relocate();
+		}
+
+		parent::processInternal();
+	}
+
+	// }}}
 	// {{{ protected function saveData()
 
 	protected function saveData()
@@ -85,9 +99,7 @@ class NewsletterPreview extends AdminEdit
 		$relocate = true;
 		$message = null;
 
-		$form  = $this->ui->getWidget('edit_form');
-		$email = $this->ui->getWidget('email')->value;
-
+		$email    = $this->ui->getWidget('email')->value;
 		$campaign = $this->newsletter->getCampaign($this->app);
 
 		try {
@@ -98,28 +110,44 @@ class NewsletterPreview extends AdminEdit
 			Campaign::uploadResources($this->app, $campaign);
 
 			$this->list->sendCampaignTest($campaign, array($email));
+
+			$message = new SwatMessage(sprintf(
+				Deliverance::_('A preview of “%s” has been sent to %s.'),
+				$this->newsletter->subject,
+				$email
+			));
 		} catch (DeliveranceAPIConnectionException $e) {
+			$relocate = false;
+
+			// log api connection exceptions in the admin to keep a track of how
+			// frequent they are.
 			$e->processAndContinue();
 
-			$relocate = false;
 			$message = new SwatMessage(
 				Deliverance::_('There was an issue connecting to the email '.
 					'service provider.'),
 				'error'
 			);
 
-			$message->secondary_content = Deliverance::_('The preview has '.
-					'not been sent. Connection issues are typically '.
-					'short-lived, and attempting to send the Newsletter '.
-					'preview again should work.');
+			$message->content_type = 'text/xml';
+			$message->secondary_content = sprintf(
+				'<strong>%s</strong><br />%s',
+				sprintf(Deliverance::_(
+					'The preview of “%s” has not been sent.'),
+					$this->newsletter->subject),
+				Deliverance::_('Connection issues are typically short-lived '.
+					'and attempting to re-send the preview again after a '.
+					'delay will usually be successful.')
+				);
 		} catch (Exception $e) {
+			$relocate = false;
+
 			$e = new DeliveranceException($e);
 			$e->processAndContinue();
 
-			$relocate = false;
 			$message = new SwatMessage(
 				Deliverance::_('An error has occurred. The newsletter preview '.
-					' was not sent.'),
+					'has not been sent.'),
 				'system-error'
 			);
 		}
@@ -190,9 +218,10 @@ class NewsletterPreview extends AdminEdit
 	protected function getMessage()
 	{
 		ob_start();
-		printf(Deliverance::_('<p>The newsletter “%s” will be sent to '.
-				'following email address.</p>'),
-			$this->newsletter->subject);
+		printf('<p>%s</p>',
+			sprintf(Deliverance::_('A preview of the newsletter “%s” will be '.
+				'sent to following email address.'),
+			$this->newsletter->subject));
 
 		return ob_get_clean();
 	}

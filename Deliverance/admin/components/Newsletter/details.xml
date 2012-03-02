@@ -21,9 +21,11 @@
 			</widget>
 			<widget class="SwatToolLink" id="preview_link">
 				<property name="title" translatable="yes">View Preview</property>
+				<property name="target">_blank</property>
 			</widget>
 			<widget class="SwatToolLink" id="stats_link">
 				<property name="title" translatable="yes">View Stats</property>
+				<property name="target">_blank</property>
 			</widget>
 			<widget class="SwatToolLink" id="delete_link">
 				<property name="title" translatable="yes">Delete</property>

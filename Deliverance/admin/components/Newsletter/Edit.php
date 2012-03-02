@@ -108,8 +108,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	protected function saveDBData()
 	{
 		$relocate = true;
-		$message = null;
-		$values = $this->ui->getValues(array(
+		$save     = true;
+		$message  = null;
+		$values   = $this->ui->getValues(array(
 			'subject',
 			'campaign_segment',
 			'html_content',
@@ -121,46 +122,71 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$this->newsletter->html_content     = $values['html_content'];
 		$this->newsletter->text_content     = $values['text_content'];
 
-		// save/update on MailChimp.
-		// TODO. save the db, but throw the error for MailChimp saving.
 		try {
+			// save/update on MailChimp.
 			$campaign_id = $this->saveMailChimpCampaign();
-
-			if ($this->newsletter->id === null) {
-				$this->newsletter->campaign_id = $campaign_id;
-				$this->newsletter->createdate  = new SwatDate();
-				$this->newsletter->createdate->toUTC();
-			}
-
-			$this->newsletter->save();
-
-			$message = new SwatMessage(sprintf(
-				Deliverance::_('“%s” has been saved.'),
-				$this->newsletter->getCampaignTitle()));
 		} catch (DeliveranceAPIConnectionException $e) {
+			$relocate = true;
+			$save     = true;
+
+			// log api connection exceptions in the admin to keep a track of how
+			// frequent they are.
 			$e->processAndContinue();
 
-			$relocate = false;
 			$message = new SwatMessage(
 				Deliverance::_('There was an issue connecting to the email '.
 					'service provider.'),
 				'error'
 			);
 
-			$message->secondary_content = Deliverance::_('The newsletter has '.
-					'not been saved. Connection issues are typically '.
-					'short-lived, and attempting to save the Newsletter again '.
-					'should work.');
+			// Note: the text about having to re-save before sending isn't true
+			// as the schedule/send tools re-save the newsletter to the mailing
+			// list before they send. But it is a good situation to instill
+			// THE FEAR in users.
+			$message->content_type = 'text/xml';
+			$message->secondary_content = sprintf(
+				'<strong>%s</strong><br />%s',
+				sprintf(Deliverance::_(
+					'“%s” has been saved locally so that your work is not '.
+					'lost. You must edit the newsletter again before sending '.
+					'to have your changes reflected in the sent newsletter.'),
+					$this->newsletter->subject),
+				Deliverance::_('Connection issues are typically short-lived '.
+					'and editing the newsletter again after a delay will '.
+					'usually be successful.')
+				);
 		} catch (Exception $e) {
+			$relocate = false;
+			$save     = false;
+
 			$e = new DeliveranceException($e);
 			$e->processAndContinue();
 
-			$relocate = false;
 			$message = new SwatMessage(
-				Deliverance::_('An error has occurred. The newsletter was not '.
-					'cancelled.'),
+				Deliverance::_('An error has occurred. The newsletter has not '.
+					'been saved.'),
 				'system-error'
 			);
+		}
+
+		if ($save) {
+			if ($this->newsletter->campaign_id === null) {
+				$this->newsletter->campaign_id = $campaign_id;
+			}
+
+			if ($this->newsletter->id === null) {
+				$this->newsletter->createdate  = new SwatDate();
+				$this->newsletter->createdate->toUTC();
+			}
+
+			$this->newsletter->save();
+
+			// if we don't already have a message, do a normal saved message
+			if ($message == null) {
+				$message = new SwatMessage(sprintf(
+					Deliverance::_('“%s” has been saved.'),
+					$this->newsletter->getCampaignTitle()));
+			}
 		}
 
 		if ($message !== null) {
@@ -180,8 +206,16 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$list->setTimeout(
 			$this->app->config->deliverance->list_admin_connection_timeout);
 
+		$lookup_id_by_title = false;
+		if ($this->newsletter->id !== null &&
+			$this->newsletter->campaign_id === null) {
+			// if the newsletter exists in the db, and doesn't have a campaign
+			// id set try to look it up when saving.
+			$lookup_id_by_title = true;
+		}
+
 		$campaign = $this->newsletter->getCampaign($this->app);
-		$campaign_id = $list->saveCampaign($campaign, false);
+		$campaign_id = $list->saveCampaign($campaign, $lookup_id_by_title);
 
 		// save/update campaign resources.
 		Campaign::uploadResources($this->app, $campaign);
@@ -224,6 +258,8 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	protected function loadDBData()
 	{
 		$this->ui->setValues(get_object_vars($this->newsletter));
+		$this->ui->getWidget('campaign_segment')->value =
+			$this->newsletter->getInternalValue('campaign_segment');
 	}
 
 	// }}}

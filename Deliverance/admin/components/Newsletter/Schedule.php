@@ -95,19 +95,38 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 
 	protected function initSendCount()
 	{
-		$campaign = $this->newsletter->getCampaign($this->app);
-		$this->send_count = $this->list->getSegmentSize(
-			$campaign->getSegmentOptions());
+		if ($this->newsletter->campaign_segment !== null) {
+			$this->send_count =
+				$this->newsletter->campaign_segment->cached_segment_size;
+		} else {
+			$this->send_count = $this->list->getMemberCount();
+		}
 	}
 
 	// }}}
 
 	// process phase
+	// {{{ protected function processInternal()
+
+	protected function processInternal()
+	{
+		// AdminDBEdit pages don't support cancel buttons by default, so
+		// just relocate here.
+		if ($this->ui->getWidget('cancel_button')->hasBeenClicked()) {
+			$this->relocate();
+		}
+
+		parent::processInternal();
+	}
+
+	// }}}
 	// {{{ protected function saveDBData()
 
 	protected function saveDBData()
 	{
 		$schedule = true;
+		$relocate = true;
+		$message  = null;
 
 		// Note: DeliveranceMailChimpList expects campaign send dates to be in
 		// local time. Send date must be set on the newsletter so that its
@@ -134,11 +153,12 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 			$send_date->setTimezone($this->app->default_time_zone);
 		}
 
-		// message before date conversion to prevent needing to convert to UTC
-		// for saving and then back to local time for display.
+		// build the success message before date conversion to prevent needing
+		// to convert to UTC for saving and then back to local time for display.
+		$locale = SwatI18NLocale::get();
 		$message = new SwatMessage(sprintf($message_text,
 			$this->newsletter->subject,
-			$this->send_count,
+			$locale->formatNumber($this->send_count),
 			$send_date->formatLikeIntl(SwatDate::DF_DATE),
 			$send_date->formatLikeIntl(SwatDate::DF_TIME),
 			$send_date->formatTZ(SwatDate::TZ_CURRENT_SHORT)));
@@ -164,16 +184,73 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 			} else {
 				$this->list->sendCampaign($campaign);
 			}
-		} catch(Exception $e) {
-			$e = new SiteException($e);
-			$e->process();
+
+			// Before we save the newsletter we need to convert it to UTC.
+			$this->newsletter->send_date->toUTC();
+			$this->newsletter->save();
+		} catch (DeliveranceAPIConnectionException $e) {
+			// send date needs to be reset to null so the page titles stay
+			// correct.
+			$this->newsletter->send_date = null;
+			$relocate = false;
+
+			// log api connection exceptions in the admin to keep a track of how
+			// frequent they are.
+			$e->processAndContinue();
+
+			$message = new SwatMessage(
+				Deliverance::_('There was an issue connecting to the email '.
+					'service provider.'),
+				'error'
+			);
+
+			$message->content_type = 'text/xml';
+			if ($schedule) {
+				$message->secondary_content = sprintf(
+					'<strong>%s</strong><br />%s',
+					sprintf(Deliverance::_('“%s” has not been scheduled.'),
+						$this->newsletter->subject),
+					Deliverance::_('Connection issues are typically '.
+						'short-lived  and attempting to schedule the '.
+						'newsletter again after a delay will usually be '.
+						'successful.')
+					);
+			} else {
+				$message->secondary_content = sprintf(
+					'<strong>%s</strong><br />%s',
+					sprintf(Deliverance::_('“%s” has not been sent.'),
+						$this->newsletter->subject),
+					Deliverance::_('Connection issues are typically '.
+						'short-lived and attempting to send the newsletter '.
+						'again after a delay will usually be successful.')
+					);
+			}
+		} catch (Exception $e) {
+			// send date needs to be reset to null so the page titles stay
+			// correct.
+			$this->newsletter->send_date = null;
+			$relocate = false;
+
+			$e = new DeliveranceException($e);
+			$e->processAndContinue();
+
+			if ($schedule) {
+				$message_text = Deliverance::_('An error has occurred. The '.
+					'newsletter has not been scheduled.');
+			} else {
+				$message_text = Deliverance::_('An error has occurred. The '.
+					'newsletter has not been sent.');
+			}
+
+			$message = new SwatMessage($message_text, 'system-error');
 		}
 
-		// Before we save the newsletter we need to convert it to UTC.
-		$this->newsletter->send_date->toUTC();
-		$this->newsletter->save();
 
-		$this->app->messages->add($message);
+		if ($message !== null) {
+			$this->app->messages->add($message);
+		}
+
+		return $relocate;
 	}
 
 	// }}}
@@ -218,13 +295,9 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 
 		$title = $this->newsletter->getCampaignTitle();
 		$link  = sprintf('Newsletter/Details?id=%s', $this->newsletter->id);
-		$this->navbar->createEntry($title, $link);
 
-		if ($this->newsletter->isScheduled()) {
-			$this->navbar->createEntry(Deliverance::_('Reschedule Newsletter'));
-		} else {
-			$this->navbar->createEntry(Deliverance::_('Schedule Newsletter'));
-		}
+		$this->navbar->createEntry($title, $link);
+		$this->navbar->createEntry($this->getTitle());
 	}
 
 	// }}}
@@ -233,12 +306,7 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 	protected function buildFrame()
 	{
 		$frame = $this->ui->getWidget('edit_frame');
-
-		if ($this->newsletter->isScheduled()) {
-			$frame->title = Deliverance::_('Reschedule Newsletter');
-		} else {
-			$frame->title = Deliverance::_('Schedule Newsletter');
-		}
+		$frame->title = $this->getTitle();
 	}
 
 	// }}}
@@ -247,12 +315,18 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 	protected function buildButton()
 	{
 		$button = $this->ui->getWidget('submit_button');
+		$button->title = ($this->newsletter->isScheduled()) ?
+			Deliverance::_('Reschedule') : Deliverance::_('Schedule');
+	}
 
-		if ($this->newsletter->isScheduled()) {
-			$button->title = Deliverance::_('Reschedule');
-		} else {
-			$button->title = Deliverance::_('Schedule');
-		}
+	// }}}
+	// {{{ protected function getTitle()
+
+	protected function getTitle()
+	{
+		return ($this->newsletter->isScheduled()) ?
+			Deliverance::_('Reschedule Newsletter') :
+			Deliverance::_('Schedule Newsletter');
 	}
 
 	// }}}
@@ -273,17 +347,19 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 
 	protected function getConfirmationMessage()
 	{
-		ob_start();
-		printf(Deliverance::ngettext(
-				'<p>The newsletter “%s” will be sent to one subscriber.</p>',
-				'<p>The newsletter “%s” will be sent to %s subscribers.</p>',
-				$this->send_count),
-			$this->newsletter->subject,
-			$this->send_count);
+		$locale = SwatI18NLocale::get();
 
-		printf('<p>%s</p>',
+		ob_start();
+		printf('<h4></h4><p>%s</p><p>%s</p>',
+			sprintf(Deliverance::ngettext(
+					'The newsletter “%s” will be sent to one subscriber.',
+					'The newsletter “%s” will be sent to %s subscribers.',
+					$this->send_count),
+				$this->newsletter->subject,
+				$locale->formatNumber($this->send_count)),
 			Deliverance::_('Subscriber counts are estimates. Full statistics '.
-			'will be available once the newsletter has been sent.'));
+				'will be available once the newsletter has been sent.')
+			);
 
 		return ob_get_clean();
 	}

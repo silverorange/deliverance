@@ -18,6 +18,9 @@
 					<property name="title" translatable="yes">Send Preview</property>
 					<property name="stock_id">apply</property>
 				</widget>
+				<widget class="SwatButton" id="cancel_button">
+					<property name="stock_id">cancel</property>
+				</widget>
 			</widget>
 		</widget>
 	</widget>

@@ -15,6 +15,9 @@
 			</widget>
 			<widget class="SwatFooterFormField">
 				<widget class="SwatButton" id="submit_button" />
+				<widget class="SwatButton" id="cancel_button">
+					<property name="stock_id">cancel</property>
+				</widget>
 			</widget>
 		</widget>
 	</widget>

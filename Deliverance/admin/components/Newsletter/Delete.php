@@ -5,7 +5,7 @@ require_once 'Admin/pages/AdminDBDelete.php';
 require_once 'Admin/AdminListDependency.php';
 require_once 'Admin/AdminDependencyEntryWrapper.php';
 require_once 'Deliverance/DeliveranceListFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
+require_once 'Deliverance/dataobjects/DeliveranceNewsletterWrapper.php';
 
 /**
  * Delete confirmation page for Newsletters
@@ -20,6 +20,24 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  */
 class DeliveranceNewsletterDelete extends AdminDBDelete
 {
+	// {{{ protected properties
+
+	/**
+	 * Whether or not the delte was successful.
+	 *
+	 * This is tracked to allow the page to relocate, but go back to the
+	 * newsletter details page when exceptions are thrown. Defaults to true to
+	 * match normal AdminDBDelete behaviour.
+	 *
+	 * @var boolean.
+	 *
+	 * @see DeliveranceNewsletterDelete::relocate()
+	 * @todo would this behaviour work in AdminDBDelete
+	 */
+	protected $success = true;
+
+	// }}}
+
 	// process phase
 	// {{{ protected function processDBData()
 
@@ -27,8 +45,10 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 	{
 		parent::processDBData();
 
-		$message  = null;
 		$relocate = true;
+		$message  = null;
+		$count    = $this->getItemCount();
+
 		try {
 			$list = DeliveranceListFactory::get($this->app, 'default');
 			$list->setTimeout(
@@ -43,41 +63,61 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 
 			$item_list = $this->getItemList('integer');
 			$sql = sprintf($sql, $item_list);
-			$num = SwatDB::exec($this->app->db, $sql);
+			$count = SwatDB::exec($this->app->db, $sql);
 
-			$message = new SwatMessage(sprintf(Deliverance::ngettext(
-				'One newsletter has been deleted.',
-				'%s newsletters have been deleted.', $num),
-				SwatString::numberFormat($num)),
+			$locale = SwatI18NLocale::get();
+			$message = new SwatMessage(sprintf(
+				Deliverance::ngettext(
+					'One newsletter has been deleted.',
+					'%s newsletters have been deleted.', $count),
+				$locale->formatNumber($count)),
 				'notice');
 		} catch (DeliveranceAPIConnectionException $e) {
+			$relocate = false;
+
+			// log api connection exceptions in the admin to keep a track of how
+			// frequent they are.
 			$e->processAndContinue();
 
-			$relocate = false;
 			$message = new SwatMessage(
 				Deliverance::_('There was an issue connecting to the email '.
 					'service provider.'),
 				'error'
 			);
 
-			$message->secondary_content = sprintf(Deliverance::ngettext(
-				'The newsletter has not been deleted.',
-				'The %s newsletters have not been deleted.', $num),
-				SwatString::numberFormat($num));
-
-			$message->secondary_content.= Deliverance::_('Connection issues'.
-				'are typically short-lived, and attempting to cancel the '.
-				'Newsletter again should work.');
+			$message->content_type = 'text/xml';
+			$message->secondary_content = sprintf(
+				'<strong>%s</strong><br />%s',
+				Deliverance::ngettext(
+					'The newsletter has not been deleted.',
+					'The newsletters have not been deleted.',
+					$count),
+				Deliverance::ngettext(
+					'Connection issues are typically short-lived and '.
+						'attempting to delete the newsletter again after a '.
+						'delay  will usually be successful.',
+					'Connection issues are typically short-lived and '.
+						'attempting to delete the newsletters again after a '.
+						'delay will usually be successful.',
+					$count)
+				);
 		} catch (Exception $e) {
+			// mimic the behaviour of other admin deletes and relocate on errors
+			// that aren't the mailing list api timing out.
+			$relocate = true;
+			$this->success = false;
+
 			$e = new DeliveranceException($e);
 			$e->processAndContinue();
 
-			$relocate = false;
-			$message = new SwatMessage(sprintf(Deliverance::ngettext(
-				'An error has occurred. The newsletter has not been deleted.',
-				'An error has occurred. The %s newsletters have not been '.
-					'deleted.', $num),
-				SwatString::numberFormat($num)),
+			$locale = SwatI18NLocale::get();
+			$message = new SwatMessage(
+				Deliverance::ngettext(
+					'An error has occurred. The newsletter has not been '.
+						'deleted.',
+					'An error has occurred. The newsletters have not been '.
+						'deleted.',
+					$count),
 				'system-error'
 			);
 		}
@@ -87,6 +127,24 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 		}
 
 		return $relocate;
+	}
+
+	// }}}
+	// {{{ protected function relocate()
+
+	/**
+	 * Relocates to the previous page after processsing confirmation response
+	 */
+	protected function relocate()
+	{
+		// Work around AdminDBDelete behaviour. If the delete wasn't succesful
+		// and we still want to relocate, relocate to the page we can from,
+		// don't force a relocate to the root of the component.
+		if ($this->success) {
+			parent::relocate();
+		} else {
+			AdminDBConfirmation::relocate();
+		}
 	}
 
 	// }}}
