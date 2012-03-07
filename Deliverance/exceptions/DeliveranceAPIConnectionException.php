@@ -1,6 +1,6 @@
 <?php
 
-require_once 'Swat/exceptions/SwatException.php';
+require_once 'Deliverance/exceptions/DeliveranceException.php';
 
 /**
  * Exception caused by Deliverance Campaign API calls that have connection
@@ -12,7 +12,7 @@ require_once 'Swat/exceptions/SwatException.php';
  * @package   Deliverance
  * @copyright 2011 silverorange
  */
-class DeliveranceAPIConnectionException extends SwatException
+class DeliveranceAPIConnectionException extends DeliveranceException
 {
 }
 
