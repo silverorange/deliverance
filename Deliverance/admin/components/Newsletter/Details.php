@@ -28,6 +28,11 @@ class DeliveranceNewsletterDetails extends AdminPage
 	 */
 	protected $newsletter;
 
+	/**
+	 * @var string
+	 */
+	protected $ui_xml = 'Deliverance/admin/components/Newsletter/details.xml';
+
 	// }}}
 	// {{{ protected function initInternal()
 
@@ -35,7 +40,7 @@ class DeliveranceNewsletterDetails extends AdminPage
 	{
 		parent::initInternal();
 		$this->id = SiteApplication::initVar('id');
-		$this->ui->loadFromXML(dirname(__FILE__).'/details.xml');
+		$this->ui->loadFromXML($this->ui_xml);
 		$this->initNewsletter();
 		$this->updateNewsletterStats();
 	}

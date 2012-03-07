@@ -24,6 +24,11 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	 */
 	protected $newsletter;
 
+	/**
+	 * @var string
+	 */
+	protected $ui_xml = 'Deliverance/admin/components/Newsletter/edit.xml';
+
 	// }}}
 
 	// init phase
@@ -33,7 +38,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	{
 		parent::initInternal();
 
-		$this->ui->loadFromXML(dirname(__FILE__).'/edit.xml');
+		$this->ui->loadFromXML($this->ui_xml);
 
 		$this->initNewsletter();
 		$this->initCampaignSegments();
