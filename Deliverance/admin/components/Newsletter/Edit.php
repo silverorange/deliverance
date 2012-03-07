@@ -115,17 +115,8 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$relocate = true;
 		$save     = true;
 		$message  = null;
-		$values   = $this->ui->getValues(array(
-			'subject',
-			'campaign_segment',
-			'html_content',
-			'text_content',
-			));
 
-		$this->newsletter->subject          = $values['subject'];
-		$this->newsletter->campaign_segment = $values['campaign_segment'];
-		$this->newsletter->html_content     = $values['html_content'];
-		$this->newsletter->text_content     = $values['text_content'];
+		$this->updateNewsletter();
 
 		try {
 			// save/update on MailChimp.
@@ -199,6 +190,24 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		}
 
 		return $relocate;
+	}
+
+	// }}}
+	// {{{ protected function updateNewsletter()
+
+	protected function updateNewsletter()
+	{
+		$values = $this->ui->getValues(array(
+			'subject',
+			'campaign_segment',
+			'html_content',
+			'text_content',
+			));
+
+		$this->newsletter->subject          = $values['subject'];
+		$this->newsletter->campaign_segment = $values['campaign_segment'];
+		$this->newsletter->html_content     = $values['html_content'];
+		$this->newsletter->text_content     = $values['text_content'];
 	}
 
 	// }}}
