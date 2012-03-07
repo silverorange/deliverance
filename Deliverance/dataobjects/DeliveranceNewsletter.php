@@ -162,7 +162,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 			$this->subject);
 
 		if ($this->campaign_segment != null) {
-			$title.= ' - '.$this->campaign_segment->title;
+			$title.= ' - '.$this->campaign_segment->shortname;
 		}
 
 		return $title;
