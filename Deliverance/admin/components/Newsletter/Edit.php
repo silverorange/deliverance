@@ -258,7 +258,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		if ($this->newsletter->id !== null) {
 			$last = $this->navbar->popEntry();
 
-			$title = $this->newsletter->subject;
+			$title = $this->newsletter->getCampaignTitle();
 			$link  = sprintf('Newsletter/Details?id=%s', $this->newsletter->id);
 			$this->navbar->createEntry($title, $link);
 
