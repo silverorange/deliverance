@@ -14,7 +14,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  * @copyright 2011-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class DeliveranceNewsletterDetails extends AdminPage
+class DeliveranceNewsletterDetails extends AdminIndex
 {
 	// {{{ protected properties
 
@@ -34,6 +34,8 @@ class DeliveranceNewsletterDetails extends AdminPage
 	protected $ui_xml = 'Deliverance/admin/components/Newsletter/details.xml';
 
 	// }}}
+
+	// init phase
 	// {{{ protected function initInternal()
 
 	protected function initInternal()
@@ -115,8 +117,10 @@ class DeliveranceNewsletterDetails extends AdminPage
 
 	protected function buildToolbars()
 	{
-		$toolbar = $this->ui->getWidget('details_toolbar');
-		$toolbar->setToolLinkValues($this->newsletter->id);
+		$toolbars = $this->ui->getRoot()->getDescendants('SwatToolbar');
+		foreach ($toolbars as $toolbar) {
+			$toolbar->setToolLinkValues($this->newsletter->id);
+		}
 
 		// Preview link can be unavailable if the database save was successful,
 		// but the mailing list call failed.
@@ -181,6 +185,14 @@ class DeliveranceNewsletterDetails extends AdminPage
 		parent::buildNavBar();
 
 		$this->navbar->createEntry($this->newsletter->getCampaignTitle());
+	}
+
+	// }}}
+	// {{{ protected function getTableModel()
+
+	protected function getTableModel(SwatView $view)
+	{
+		return null;
 	}
 
 	// }}}
