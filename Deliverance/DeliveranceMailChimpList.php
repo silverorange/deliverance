@@ -94,6 +94,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	/**
 	 * Error code returned when attempting to subscribe an email address that
+	 * has been banned by MailChimp. Banned addresses are per-list, although why
+	 * MailChimp bans them is unknown.
+	 */
+	const BANNED_ADDRESS_ERROR_CODE = 220;
+
+	/**
+	 * Error code returned when attempting to subscribe an email address that
 	 * is not a valid email address.
 	 */
 	const INVALID_ADDRESS_ERROR_CODE = 502;
@@ -376,6 +383,19 @@ class DeliveranceMailChimpList extends DeliveranceList
 				// feedback about.
 				switch ($e->getCode()) {
 				case self::INVALID_ADDRESS_ERROR_CODE:
+					$result = DeliveranceList::INVALID;
+					break;
+
+				case self::BANNED_ADDRESS_ERROR_CODE:
+					// log these to keep track of how frequent they are. If they
+					// become frequent we should build a better message for the
+					// user.
+					require_once 'Deliverance/exceptions/'.
+						'DeliveranceBannedAddressException.php';
+
+					$e = new DeliveranceBannedAddressException($e);
+					$e->processAndContinue();
+
 					$result = DeliveranceList::INVALID;
 					break;
 
