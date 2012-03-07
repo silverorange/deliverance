@@ -73,6 +73,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	protected function handleSubscribeResponse(DeliveranceList $list, $response)
 	{
 		$message = $list->handleSubscribeResponse($response);
+
 		if ($message instanceof SwatMessage) {
 			$this->ui->getWidget('message_display')->add($message);
 		}
@@ -140,9 +141,24 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 
 	protected function relocate(SwatForm $form)
 	{
-		if ($this->ui->getWidget('message_display')->getMessageCount() == 0) {
+		if ($this->canRelocate($form)) {
 			$this->app->relocate($this->source.'/thankyou');
 		}
+	}
+
+	// }}}
+	// {{{ protected function canRelocate()
+
+	protected function canRelocate(SwatForm $form)
+	{
+		$relocate = true;
+
+		if ($this->ui->hasWidget('message_display')) {
+			$message_display = $this->ui->getWidget('message_display');
+			$relocate = ($message_display->getMessageCount() == 0);
+		}
+
+		return $relocate;
 	}
 
 	// }}}
