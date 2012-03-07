@@ -12,7 +12,7 @@ require_once 'Deliverance/DeliveranceList.php';
  * requests.
  *
  * @package   Deliverance
- * @copyright 2009-2010 silverorange
+ * @copyright 2009-2012 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceListUpdater extends SiteCommandLineApplication
@@ -77,7 +77,7 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 
 	protected function getList()
 	{
-		$list = DeliveranceListFactory::get($this->app, 'default');
+		$list = DeliveranceListFactory::get($this, 'default');
 		$list->setTimeout(
 			$this->config->deliverance->list_script_connection_timeout);
 
