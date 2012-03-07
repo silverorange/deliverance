@@ -180,7 +180,7 @@ class DeliveranceCampaign
 				$this->app->config->uri->cdn_base;
 		}
 
-		$uri = $base_uri.$this->getResourcesDestinationDirectory();
+		$uri = $base_uri.$this->getResourcesDestinationDirectory().'/';
 
 		return $uri;
 	}
