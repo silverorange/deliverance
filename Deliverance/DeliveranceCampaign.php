@@ -118,13 +118,12 @@ class DeliveranceCampaign
 		 * cache the images to disk while on https, which is a good win.
 		 */
 		$http_headers =  array(
-			'cache-control' => 'public, max-age=315360000',
+			'Cache-Control' => 'public, max-age=315360000',
 		);
 
 		// copy them to s3
 		foreach ($resource_files as $destination => $source) {
-			$app->cdn->copyFile($source, $destination, null, 'public',
-				$http_headers);
+			$app->cdn->copyFile($destination, $source, $http_headers, 'public');
 		}
 	}
 
