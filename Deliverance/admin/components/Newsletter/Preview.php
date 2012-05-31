@@ -46,7 +46,7 @@ class DeliveranceNewsletterPreview extends AdminEdit
 	protected function initNewsletter()
 	{
 		if ($this->id == '') {
-			$this->relocate('Newsletter');
+			$this->app->relocate('Newsletter');
 		}
 
 		$class_name = SwatDBClassMap::get('DeliveranceNewsletter');
