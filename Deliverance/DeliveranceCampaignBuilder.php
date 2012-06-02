@@ -204,10 +204,9 @@ abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
 
 		$this->database->dsn = $config->database->dsn;
 
-		$this->cdn->bucket_id         = $config->amazon->bucket;
+		$this->cdn->bucket            = $config->amazon->bucket;
 		$this->cdn->access_key_id     = $config->amazon->access_key_id;
 		$this->cdn->access_key_secret = $config->amazon->access_key_secret;
-		$this->cdn->setUpdateMetadata(false);
 	}
 
 	// }}}
