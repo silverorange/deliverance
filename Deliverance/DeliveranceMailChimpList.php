@@ -235,8 +235,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		parent::__construct($app, $shortname);
 
-		$this->client = new MailChimpAPI(
-			$this->app->config->mail_chimp->api_key);
+		$this->client = new MailChimpAPI($this->getApiKey());
 
 		$this->client->useSecure(true);
 
@@ -848,10 +847,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 		// of the method until we can find or make a wrapper for the export api.
 		$members = null;
 		$url     = sprintf('https://%s.api.mailchimp.com/export/1.0/list/',
-			self::getDataCenter($this->app->config->mail_chimp->api_key));
+			self::getDataCenter($this->getApiKey()));
 
 		$url.= sprintf('?apikey=%s&id=%s&status=%s',
-				urlencode($this->app->config->mail_chimp->api_key),
+				urlencode($this->getApiKey()),
 				urlencode($this->shortname),
 				urlencode('subscribed'));
 
@@ -1665,6 +1664,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 		}
 
 		return $folders;
+	}
+
+	// }}}
+	// {{{ public function getApiKey()
+
+	public function getApiKey()
+	{
+		return $this->app->config->mail_chimp->api_key;
 	}
 
 	// }}}
