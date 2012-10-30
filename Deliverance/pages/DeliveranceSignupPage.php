@@ -213,7 +213,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 			$list = $list->getShortname();
 
 			$this->app->notifier->send(
-				'newsletter-signup',
+				'newsletter_signup',
 				array(
 					'site'      => $this->app->config->notifier->site,
 					'list'      => $list,
