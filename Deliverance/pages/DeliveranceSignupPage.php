@@ -65,6 +65,11 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 			$array_map);
 
 		$this->handleSubscribeResponse($list, $response);
+
+		if ($response === DeliveranceList::SUCCESS ||
+			$response === DeliveranceList::QUEUED) {
+			$this->sendNotification($list);
+		}
 	}
 
 	// }}}
@@ -191,6 +196,32 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	protected function addAppMessage(SwatMessage $message)
 	{
 		$this->app->messages->add($message);
+	}
+
+	// }}}
+	// {{{ protected function sendNotification()
+
+	protected function sendNotification(DeliveranceList $list)
+	{
+		if (isset($this->app->notifier)) {
+
+			$interests = array();
+			foreach ($this->getInterests() as $interest) {
+				$interests[] = $interest->shortname;
+			}
+
+			$list = $list->getShortname();
+
+			$this->app->notifier->send(
+				'newsletter-signup',
+				array(
+					'site'      => $this->app->config->notifier->site,
+					'list'      => $list,
+					'interests' => $interests
+				)
+			);
+
+		}
 	}
 
 	// }}}

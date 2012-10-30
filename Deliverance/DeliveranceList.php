@@ -437,6 +437,14 @@ abstract class DeliveranceList
 	}
 
 	// }}}
+	// {{{ public function getShortname()
+
+	public function getShortname()
+	{
+		return $this->shortname;
+	}
+
+	// }}}
 }
 
 ?>
