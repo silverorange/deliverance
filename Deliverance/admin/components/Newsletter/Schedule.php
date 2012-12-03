@@ -358,16 +358,23 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 		$locale = SwatI18NLocale::get();
 
 		ob_start();
-		printf('<h4></h4><p>%s</p><p>%s</p>',
-			sprintf(Deliverance::ngettext(
+
+		printf(
+			'<p>%s</p><p>%s</p>',
+			sprintf(
+				Deliverance::ngettext(
 					'The newsletter “%s” will be sent to one subscriber.',
 					'The newsletter “%s” will be sent to %s subscribers.',
-					$this->send_count),
+					$this->send_count
+				),
 				$this->newsletter->subject,
-				$locale->formatNumber($this->send_count)),
-			Deliverance::_('Subscriber counts are estimates. Full statistics '.
-				'will be available once the newsletter has been sent.')
-			);
+				$locale->formatNumber($this->send_count)
+			),
+			Deliverance::_(
+				'Subscriber counts are estimates. Full statistics '.
+				'will be available once the newsletter has been sent.'
+			)
+		);
 
 		return ob_get_clean();
 	}
