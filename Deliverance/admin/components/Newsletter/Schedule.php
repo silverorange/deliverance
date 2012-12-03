@@ -37,7 +37,7 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 
 	protected function initInternal()
 	{
-		$this->ui->loadFromXML(dirname(__FILE__).'/schedule.xml');
+		$this->ui->loadFromXML($this->getUiXml());
 
 		parent::initInternal();
 
@@ -101,6 +101,14 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 		} else {
 			$this->send_count = $this->list->getMemberCount();
 		}
+	}
+
+	// }}}
+	// {{{ protected function getUiXml()
+
+	protected function getUiXml()
+	{
+		return 'Deliverance/admin/components/Newsletter/schedule.xml';
 	}
 
 	// }}}
