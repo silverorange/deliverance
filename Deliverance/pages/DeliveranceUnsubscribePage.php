@@ -284,7 +284,6 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	}
 
 	// }}}
-
 }
 
 ?>
