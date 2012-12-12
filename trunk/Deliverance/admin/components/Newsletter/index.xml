@@ -1,0 +1,37 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE swatml SYSTEM "http://swat.silverorange.com/swatml1.dtd">
+<swatml>
+	<widget class="SwatMessageDisplay" id="message_display" />
+	<widget class="SwatFrame" id="index_frame">
+		<property name="title" translatable="yes">Newsletters</property>
+		<widget class="SwatToolbar" id="index_toolbar">
+			<widget class="SwatToolLink">
+				<property name="title" translatable="yes">New Newsletter</property>
+				<property name="link">Newsletter/Edit</property>
+				<property name="stock_id">create</property>
+			</widget>
+		</widget>
+		<widget class="SwatForm" id="index_form">
+			<widget class="SwatTableView" id="index_view">
+				<object class="SwatTableViewColumn" id="id">
+					<property name="title" translatable="yes">Subject</property>
+					<object class="AdminTitleLinkCellRenderer">
+						<property name="link">Newsletter/Details?id=%s</property>
+						<property name="link_value" type="data">id</property>
+						<property name="text" type="data">title</property>
+					</object>
+				</object>
+				<object class="SwatTableViewColumn" id="status">
+					<property name="title" translatable="yes">Status</property>
+					<object class="SwatTextCellRenderer">
+						<property name="text" type="data">status</property>
+					</object>
+				</object>
+			</widget>
+			<widget class="AdminPagination" id="pager">
+				<property name="link" translatable="yes">Newsletter</property>
+				<property name="page_size" type="integer">50</property>
+			</widget>
+		</widget>
+	</widget>
+</swatml>
