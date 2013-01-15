@@ -12,8 +12,9 @@ require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
  * Edit page for episodes
  *
  * @package   Deliverance
- * @copyright 2011-2012 silverorange
+ * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
+ * @todo      Better enforcing of instance.
  */
 class DeliveranceNewsletterEdit extends AdminDBEdit
 {
@@ -24,11 +25,6 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	 */
 	protected $newsletter;
 
-	/**
-	 * @var string
-	 */
-	protected $ui_xml = 'Deliverance/admin/components/Newsletter/edit.xml';
-
 	// }}}
 
 	// init phase
@@ -38,10 +34,18 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	{
 		parent::initInternal();
 
-		$this->ui->loadFromXML($this->ui_xml);
+		$this->ui->loadFromXML($this->getUiXml());
 
 		$this->initNewsletter();
 		$this->initCampaignSegments();
+	}
+
+	// }}}
+	// {{{ protected function getUiXml()
+
+	protected function getUiXml()
+	{
+		return 'Deliverance/admin/components/Newsletter/edit.xml';
 	}
 
 	// }}}
@@ -70,16 +74,45 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function initCampaignSegments()
 	{
-		$sql = 'select * from MailingListCampaignSegment order by displayorder';
+		$sql = 'select * from MailingListCampaignSegment
+			where %s
+			order by instance, displayorder';
 
-		$segments = SwatDB::query($this->app->db, $sql,
-			SwatDBClassMap::get('DeliveranceCampaignSegmentWrapper'));
+		$sql = sprintf(
+			$sql,
+			($this->app->getInstanceId() === null) ?
+				'1 = 1' :
+				$this->app->db->quote($instance_id, 'integer')
+		);
+
+		$segments = SwatDB::query(
+			$this->app->db,
+			$sql,
+			SwatDBClassMap::get('DeliveranceCampaignSegmentWrapper')
+		);
 
 		if (count($segments)) {
 			$segment_widget = $this->ui->getWidget('campaign_segment');
 			$segment_widget->parent->visible = true;
 			$locale = SwatI18NLocale::get();
+
+			$last_instance_title = null;
 			foreach ($segments as $segment) {
+				if ($this->app->hasModule('SiteMultipleInstanceModule') &&
+					$this->app->getInstance() === null &&
+					$segment->instance instanceof SiteInstance &&
+					$last_instance_title != $segment->instance->title) {
+					$last_instance_title = $segment->instance->title;
+
+					$segment_widget->addDivider(
+						sprintf(
+							'<span class="instance-header">%s</span>',
+							$last_instance_title
+						),
+						'text/xml'
+					);
+				}
+
 				if ($segment->cached_segment_size > 0) {
 					$subscribers = sprintf(Deliverance::ngettext(
 						'One subscriber',
@@ -274,6 +307,24 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$this->ui->setValues(get_object_vars($this->newsletter));
 		$this->ui->getWidget('campaign_segment')->value =
 			$this->newsletter->getInternalValue('campaign_segment');
+	}
+
+	// }}}
+
+	// finalize phase
+	// {{{ public function finalize()
+
+	public function finalize()
+	{
+		parent::finalize();
+
+		$this->layout->addHtmlHeadEntry(
+			new SwatStyleSheetHtmlHeadEntry(
+				'packages/deliverance/admin/styles/'.
+					'deliverance-newsletter-details.css',
+				Deliverance::PACKAGE_ID
+			)
+		);
 	}
 
 	// }}}
