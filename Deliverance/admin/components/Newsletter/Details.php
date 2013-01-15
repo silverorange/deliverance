@@ -167,7 +167,7 @@ class DeliveranceNewsletterDetails extends AdminIndex
 		} else {
 			// todo: line below work with non-multiple-instance admins.
 			$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
-				$this->current_instance->shortname : null;
+				$this->newsletter->instance->shortname : null;
 
 			$campaign = DeliveranceCampaignFactory::get(
 				$this->app,
