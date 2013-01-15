@@ -29,12 +29,19 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 	 * newsletter details page when exceptions are thrown. Defaults to true to
 	 * match normal AdminDBDelete behaviour.
 	 *
-	 * @var boolean.
+	 * @var boolean
 	 *
 	 * @see DeliveranceNewsletterDelete::relocate()
 	 * @todo would this behaviour work in AdminDBDelete
 	 */
 	protected $success = true;
+
+	/**
+	 * Array of DeliveranceLists
+	 *
+	 * @var array
+	 */
+	protected $lists = array();
 
 	// }}}
 
@@ -50,16 +57,16 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 		$count    = $this->getItemCount();
 
 		try {
-			// TODO: delete won't work across two lists.
-			$list = $this->getList();
-
 			$newsletters = $this->getNewsletters();
 			foreach ($newsletters as $newsletter) {
-				// TODO: Clean up for non-multiple instance admin.
-				$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
-					$this->newsletter->instance->shortname : null;
+				// TODO: delete won't work across two lists.
+				$list = $this->getList($newsletter);
 
-				$campaign = $this->newsletter->getCampaign(
+				// TODO: Clean up for non-multiple instance admin.
+				$campaign_type = ($newsletter->instance instanceof SiteInstance) ?
+					$newsletter->instance->shortname : null;
+
+				$campaign = $newsletter->getCampaign(
 					$this->app,
 					$campaign_type
 				);
@@ -140,19 +147,24 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 	// }}}
 	// {{{ protected function initList()
 
-	protected function getList()
+	protected function getList(DeliveranceNewsletter $newsletter)
 	{
-		$list = DeliveranceListFactory::get(
-			$this->app,
-			'default',
-			$this->getDefaultList()
-		);
+		$key = $newsletter->instance->id;
+		if (!isset($this->lists[$key])) {
+			$list = DeliveranceListFactory::get(
+				$this->app,
+				'default',
+				$this->getDefaultList()
+			);
 
-		$list->setTimeout(
-			$this->app->config->deliverance->list_admin_connection_timeout
-		);
+			$list->setTimeout(
+				$this->app->config->deliverance->list_admin_connection_timeout
+			);
 
-		return $list;
+			$this->lists[$key] = $list;
+		}
+
+		return $this->lists[$key];
 	}
 
 	// }}}

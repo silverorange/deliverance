@@ -143,7 +143,7 @@ class DeliveranceNewsletterPreview extends AdminEdit
 			// changes
 			$this->list->saveCampaign($campaign);
 			// save/update campaign resources.
-			Campaign::uploadResources($this->app, $campaign);
+			DeliveranceCampaign::uploadResources($this->app, $campaign);
 
 			$this->list->sendCampaignTest($campaign, array($email));
 

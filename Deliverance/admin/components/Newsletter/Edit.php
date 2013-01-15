@@ -302,7 +302,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$campaign_id = $list->saveCampaign($campaign, $lookup_id_by_title);
 
 		// save/update campaign resources.
-		Campaign::uploadResources($this->app, $campaign);
+		DeliveranceCampaign::uploadResources($this->app, $campaign);
 
 		return $campaign_id;
 	}
@@ -350,8 +350,12 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function relocate()
 	{
-		$this->app->relocate(sprintf('Newsletter/Details?id=%s',
-			$this->newsletter->id));
+		$this->app->relocate(
+			sprintf(
+				'Newsletter/Details?id=%s',
+				$this->newsletter->id
+			)
+		);
 	}
 
 	// }}}

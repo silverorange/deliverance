@@ -221,7 +221,7 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 			$this->list->saveCampaign($campaign, false);
 
 			// save/update campaign resources.
-			Campaign::uploadResources($this->app, $campaign);
+			DeliveranceCampaign::uploadResources($this->app, $campaign);
 
 			if ($schedule) {
 				$this->list->scheduleCampaign($campaign);
