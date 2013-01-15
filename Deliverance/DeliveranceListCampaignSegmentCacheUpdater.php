@@ -4,6 +4,7 @@ require_once 'SwatDB/SwatDB.php';
 require_once 'Site/SiteCommandLineApplication.php';
 require_once 'Site/SiteDatabaseModule.php';
 require_once 'Site/SiteCommandLineConfigModule.php';
+require_once 'Site/SiteMultipleInstanceModule.php';
 require_once 'Deliverance/Deliverance.php';
 require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
@@ -12,7 +13,7 @@ require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
  * Cron job application to update local segment count caches.
  *
  * @package   Deliverance
- * @copyright 2009-2010 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceListCampaignSegmentCacheUpdater
@@ -29,12 +30,31 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater
 	{
 		parent::__construct($id, $filename, $title, $documentation);
 
+		$instance = new SiteCommandLineArgument(array('-i', '--instance'),
+			'setInstance', 'Optional. Sets the site instance for which to '.
+			'run this application.');
+
+		$instance->addParameter('string',
+			'instance name must be specified.');
+
+		$this->addCommandLineArgument($instance);
+
 		$dry_run = new SiteCommandLineArgument(
 			array('--dry-run'),
 			'setDryRun',
 			Deliverance::_('No data is actually modified.'));
 
 		$this->addCommandLineArgument($dry_run);
+	}
+
+	// }}}
+	// {{{ public function setInstance()
+
+	public function setInstance($shortname)
+	{
+		putenv(sprintf('instance=%s', $shortname));
+		$this->instance->init();
+		$this->config->init();
 	}
 
 	// }}}
@@ -76,7 +96,8 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater
 	{
 		$list = DeliveranceListFactory::get($this, 'default');
 		$list->setTimeout(
-			$this->config->deliverance->list_script_connection_timeout);
+			$this->config->deliverance->list_script_connection_timeout
+		);
 
 		return $list;
 	}
@@ -86,10 +107,18 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater
 
 	protected function getSegments()
 	{
-		$sql = 'select * from MailingListCampaignSegment';
+		$sql = 'select * from MailingListCampaignSegment where instance = %s';
 
-		return SwatDB::query($this->db, $sql,
-			SwatDBClassMap::get('DeliveranceCampaignSegmentWrapper'));
+		$sql = sprintf(
+			$sql,
+			$this->db->quote($this->getInstanceId(), 'integer')
+		);
+
+		return SwatDB::query(
+			$this->db,
+			$sql,
+			SwatDBClassMap::get('DeliveranceCampaignSegmentWrapper')
+		);
 	}
 
 	// }}}
@@ -117,6 +146,7 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater
 		$list = parent::getDefaultModuleList();
 		$list['config']   = 'SiteCommandLineConfigModule';
 		$list['database'] = 'SiteDatabaseModule';
+		$list['instance'] = 'SiteMultipleInstanceModule';
 
 		return $list;
 	}
