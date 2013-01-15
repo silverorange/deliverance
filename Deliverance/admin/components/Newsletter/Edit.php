@@ -290,7 +290,15 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$lookup_id_by_title = true;
 		}
 
-		$campaign = $this->newsletter->getCampaign($this->app);
+		// TODO: Clean up for non-multiple instance admin.
+		$campaign_type = ($this->current_instance instanceof SiteInstance) ?
+			$this->current_instance->shortname : null;
+
+		$campaign = $this->newsletter->getCampaign(
+			$this->app,
+			null
+		);
+
 		$campaign_id = $list->saveCampaign($campaign, $lookup_id_by_title);
 
 		// save/update campaign resources.
