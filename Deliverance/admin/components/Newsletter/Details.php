@@ -11,7 +11,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  * Details page for newsletters
  *
  * @package   Deliverance
- * @copyright 2011-2012 silverorange
+ * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceNewsletterDetails extends AdminIndex
@@ -109,6 +109,12 @@ class DeliveranceNewsletterDetails extends AdminIndex
 		$view->data = $this->getDetailsStore();
 		if ($this->newsletter->campaign_segment == null) {
 			$view->getField('campaign_segment_field')->visible = false;
+		}
+
+		if ($view->hasField('instance_field')) {
+			$view->getField('instance_field')->visible =
+				($this->app->hasModule('SiteMultipleInstanceModule') &&
+				$this->app->getInstance() === null);
 		}
 	}
 

@@ -38,24 +38,58 @@ class DeliveranceNewsletterIndex extends AdminIndex
 	{
 		parent::initInternal();
 
-		$this->ui->loadFromXML(dirname(__FILE__).'/index.xml');
+		$this->ui->loadFromXML($this->getUiXml());
+	}
+
+	// }}}
+	// {{{ protected function getUiXml()
+
+	protected function getUiXml()
+	{
+		return dirname(__FILE__).'/index.xml';
 	}
 
 	// }}}
 
 	// build phase
+	// {{{ protected function buildInternal()
+
+	protected function buildInternal()
+	{
+		parent::buildInternal();
+
+		$view = $this->ui->getWidget('index_view');
+
+		if ($view->hasColumn('instance')) {
+			$view->getColumn('instance')->visible =
+				($this->app->hasModule('SiteMultipleInstanceModule') &&
+				$this->app->getInstance() === null);
+		}
+	}
+
+	// }}}
 	// {{{ protected function getTableModel()
 
 	protected function getTableModel(SwatView $view)
 	{
-		$sql = sprintf('select Newsletter.* from Newsletter order by %s',
-			$this->getOrderByClause($view,
-				'send_date desc nulls first, createdate desc'));
+		$sql = sprintf(
+			'select *
+			from Newsletter
+			where %s order by %s',
+			$this->getWhereClause(),
+			$this->getOrderByClause(
+				$view,
+				'send_date desc nulls first, createdate desc'
+			)
+		);
 
 		$pager = $this->ui->getWidget('pager');
 		$this->app->db->setLimit($pager->page_size, $pager->current_record);
-		$newsletters = SwatDB::query($this->app->db, $sql,
-			SwatDBClassMap::get('DeliveranceNewsletterWrapper'));
+		$newsletters = SwatDB::query(
+			$this->app->db,
+			$sql,
+			SwatDBClassMap::get('DeliveranceNewsletterWrapper')
+		);
 
 		$store = new SwatTableStore();
 		foreach ($newsletters as $newsletter) {
@@ -67,6 +101,24 @@ class DeliveranceNewsletterIndex extends AdminIndex
 		}
 
 		return $store;
+	}
+
+	// }}}
+	// {{{ protected function getWhereClause()
+
+	protected function getWhereClause()
+	{
+		$where = '1 = 1';
+
+		$instance_id = $this->app->getInstanceId();
+		if ($instance_id !== null) {
+			$where.= sprintf(
+				' and instance = %s',
+				$this->app->db->quote($instance_id, 'integer')
+			);
+		}
+
+		return $where;
 	}
 
 	// }}}

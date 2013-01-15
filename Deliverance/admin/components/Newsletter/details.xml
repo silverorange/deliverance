@@ -47,6 +47,13 @@
 					<property name="text" type="data">subject</property>
 				</object>
 			</object>
+			<object class="SwatDetailsViewField" id="instance_field">
+				<property name="title" translatable="yes">Instance</property>
+				<property name="visible" type="boolean">false</property>
+				<object class="SwatTextCellRenderer">
+					<property name="text" type="data">instance.title</property>
+				</object>
+			</object>
 			<object class="SwatDetailsViewField">
 				<property name="title" translatable="yes">Status</property>
 				<object class="SwatTextCellRenderer">
