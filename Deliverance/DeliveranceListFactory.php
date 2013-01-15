@@ -45,6 +45,8 @@ class DeliveranceListFactory extends SwatObject
 	 * @param SiteApplication $app the application in which to get the list.
 	 * @param string $type the type of list to get. There must be a list class
 	 *                      registered for this type.
+	 * @param string $shortname the shortname of the list to call the
+	 *                           constructor with.
 	 *
 	 * @return DeliveranceList the list of the specified type. The list will be
 	 *                          an instance of whatever class was registered for
@@ -53,7 +55,7 @@ class DeliveranceListFactory extends SwatObject
 	 * @throws InvalidArgumentException if there is no list registered for the
 	 *                                  requested <i>$type</i>.
 	 */
-	public static function get(SiteApplication $app, $type)
+	public static function get(SiteApplication $app, $type, $shortname = null)
 	{
 		$type = strval($type);
 		if (!array_key_exists($type, self::$list_class_names_by_type)) {
@@ -65,7 +67,7 @@ class DeliveranceListFactory extends SwatObject
 		$list_class_name = self::$list_class_names_by_type[$type];
 		self::loadListClass($list_class_name);
 
-		return new $list_class_name($app);
+		return new $list_class_name($app, $shortname);
 	}
 
 	// }}}
