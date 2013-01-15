@@ -291,12 +291,12 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		}
 
 		// TODO: Clean up for non-multiple instance admin.
-		$campaign_type = ($this->current_instance instanceof SiteInstance) ?
-			$this->current_instance->shortname : null;
+		$campaign_type = ($this->getCurrentInstance() instanceof SiteInstance) ?
+			$this->getCurrentInstance()->shortname : null;
 
 		$campaign = $this->newsletter->getCampaign(
 			$this->app,
-			null
+			$campaign_type
 		);
 
 		$campaign_id = $list->saveCampaign($campaign, $lookup_id_by_title);
@@ -312,24 +312,37 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function getDefaultList()
 	{
+		$instance = $this->getCurrentInstance();
+
 		// TODO: make sure this method returns null for non-instanced admins.
-		// All code below only makes sense for multiple instance admin.
-
-		if ($this->current_instance == null) {
-			$this->current_instance =
-				$this->newsletter->campaign_segment->instance;
-		}
-
+		// All code below only makes sense for multiple instance admin. Is
+		// repeated in Edit and Details. Refactor.
 		$sql = 'select value from InstanceConfigSetting
 			where name = %s and instance = %s';
 
 		$sql = sprintf(
 			$sql,
 			$this->app->db->quote('mail_chimp.default_list', 'text'),
-			$this->app->db->quote($this->current_instance->id, 'integer')
+			$this->app->db->quote($instance->id, 'integer')
 		);
 
 		return SwatDB::queryOne($this->app->db, $sql);
+	}
+
+	// }}}
+	// {{{ protected function getCurrentInstance()
+
+	protected function getCurrentInstance()
+	{
+		// TODO: make sure this method returns null for non-instanced admins.
+		// All code below only makes sense for multiple instance admin. Is
+		// repeated in Edit and Details. Refactor.
+		if ($this->current_instance == null) {
+			$this->current_instance =
+				$this->newsletter->campaign_segment->instance;
+		}
+
+		return $this->current_instance;
 	}
 
 	// }}}
