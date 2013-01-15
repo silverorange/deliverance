@@ -7,6 +7,8 @@ create table MailingListCampaignSegment (
 	segment_options text,
 	cached_segment_size int,
 
+	instance integer references Instance(id) on delete cascade,
+
 	primary key (id)
 );
 

@@ -3,10 +3,11 @@
 require_once 'SwatDB/SwatDBDataObject.php';
 require_once 'Deliverance/DeliveranceCampaignFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceCampaignSegment.php';
+require_once 'Site/dataobjects/SiteInstance.php';
 
 /**
  * @package   Deliverance
- * @copyright 2011-2012 silverorange
+ * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceNewsletter extends SwatDBDataObject
@@ -157,9 +158,11 @@ class DeliveranceNewsletter extends SwatDBDataObject
 
 	public function getCampaignTitle()
 	{
-		$title = sprintf('%s: %s',
+		$title = sprintf(
+			'%s: %s',
 			$this->getCampaignShortname(),
-			$this->subject);
+			$this->subject
+		);
 
 		if ($this->campaign_segment != null) {
 			$title.= ' - '.$this->campaign_segment->shortname;
@@ -178,8 +181,15 @@ class DeliveranceNewsletter extends SwatDBDataObject
 		$this->table = 'Newsletter';
 		$this->id_field = 'integer:id';
 
-		$this->registerInternalProperty('campaign_segment',
-			SwatDBClassMap::get('DeliveranceCampaignSegment'));
+		$this->registerInternalProperty(
+			'campaign_segment',
+			SwatDBClassMap::get('DeliveranceCampaignSegment')
+		);
+
+		$this->registerInternalProperty(
+			'instance',
+			SwatDBClassMap::get('SiteInstance')
+		);
 
 		$this->registerDateProperty('send_date');
 		$this->registerDateProperty('createdate');

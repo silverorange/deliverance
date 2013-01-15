@@ -12,5 +12,7 @@ create table Newsletter (
 	send_date timestamp,
 	createdate timestamp,
 
+	instance integer references Instance(id) on delete cascade,
+
 	primary key (id)
 );

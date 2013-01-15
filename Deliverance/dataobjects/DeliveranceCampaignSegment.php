@@ -1,6 +1,7 @@
 <?php
 
 require_once 'SwatDB/SwatDBDataObject.php';
+require_once 'Site/dataobjects/SiteInstance.php';
 
 /**
  * A dataobject representing a segment of subscribers to send a campaign to.
@@ -67,6 +68,11 @@ class DeliveranceCampaignSegment extends SwatDBDataObject
 	protected function init()
 	{
 		parent::init();
+
+		$this->registerInternalProperty(
+			'instance',
+			SwatDBClassMap::get('SiteInstance')
+		);
 
 		$this->table = 'MailingListCampaignSegment';
 		$this->id_field = 'integer:id';
