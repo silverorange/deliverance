@@ -11,7 +11,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletterWrapper.php';
  * Delete confirmation page for Newsletters
  *
  * @package   Deliverance
- * @copyright 2011-2012 silverorange
+ * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      If the API connection drops midway through deleting a group of
  *            newsletters, the database entries for the successful deletes won't
@@ -50,13 +50,21 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 		$count    = $this->getItemCount();
 
 		try {
-			$list = DeliveranceListFactory::get($this->app, 'default');
-			$list->setTimeout(
-				$this->app->config->deliverance->list_admin_connection_timeout);
+			// TODO: delete won't work across two lists.
+			$list = $this->getList();
 
 			$newsletters = $this->getNewsletters();
 			foreach ($newsletters as $newsletter) {
-				$list->deleteCampaign($newsletter->getCampaign($this->app));
+				// TODO: Clean up for non-multiple instance admin.
+				$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
+					$this->newsletter->instance->shortname : null;
+
+				$campaign = $this->newsletter->getCampaign(
+					$this->app,
+					$campaign_type
+				);
+
+				$list->deleteCampaign($campaign);
 			}
 
 			$sql = 'delete from Newsletter where id in (%s);';
@@ -127,6 +135,46 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 		}
 
 		return $relocate;
+	}
+
+	// }}}
+	// {{{ protected function initList()
+
+	protected function getList()
+	{
+		$list = DeliveranceListFactory::get(
+			$this->app,
+			'default',
+			$this->getDefaultList()
+		);
+
+		$list->setTimeout(
+			$this->app->config->deliverance->list_admin_connection_timeout
+		);
+
+		return $list;
+	}
+
+	// }}}
+	// {{{ protected function getDefaultList()
+
+	protected function getDefaultList()
+	{
+		$instance = $this->newsletter->instance;
+
+		// TODO: make sure this method returns null for non-instanced admins.
+		// All code below only makes sense for multiple instance admin. Is
+		// repeated in Edit and Details. Refactor.
+		$sql = 'select value from InstanceConfigSetting
+			where name = %s and instance = %s';
+
+		$sql = sprintf(
+			$sql,
+			$this->app->db->quote('mail_chimp.default_list', 'text'),
+			$this->app->db->quote($instance->id, 'integer')
+		);
+
+		return SwatDB::queryOne($this->app->db, $sql);
 	}
 
 	// }}}

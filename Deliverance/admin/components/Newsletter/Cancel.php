@@ -8,7 +8,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  * Confirmation page for cancelling a scheduled newsletter.
  *
  * @package   Deliverance
- * @copyright 2011-2012 silverorange
+ * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceNewsletterCancel extends AdminDBEdit
@@ -74,9 +74,37 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function initList()
 	{
-		$this->list = DeliveranceListFactory::get($this->app, 'default');
+		$this->list = DeliveranceListFactory::get(
+			$this->app,
+			'default',
+			$this->getDefaultList()
+		);
+
 		$this->list->setTimeout(
-			$this->app->config->deliverance->list_admin_connection_timeout);
+			$this->app->config->deliverance->list_admin_connection_timeout
+		);
+	}
+
+	// }}}
+	// {{{ protected function getDefaultList()
+
+	protected function getDefaultList()
+	{
+		$instance = $this->newsletter->instance;
+
+		// TODO: make sure this method returns null for non-instanced admins.
+		// All code below only makes sense for multiple instance admin. Is
+		// repeated in Edit and Details. Refactor.
+		$sql = 'select value from InstanceConfigSetting
+			where name = %s and instance = %s';
+
+		$sql = sprintf(
+			$sql,
+			$this->app->db->quote('mail_chimp.default_list', 'text'),
+			$this->app->db->quote($instance->id, 'integer')
+		);
+
+		return SwatDB::queryOne($this->app->db, $sql);
 	}
 
 	// }}}
@@ -100,7 +128,15 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function saveDBData()
 	{
-		$campaign = $this->newsletter->getCampaign($this->app);
+		// TODO: Clean up for non-multiple instance admin.
+		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
+			$this->newsletter->instance->shortname : null;
+
+		$campaign = $this->newsletter->getCampaign(
+			$this->app,
+			$campaign_type
+		);
+
 		$message  = null;
 		$relocate = true;
 		try {
