@@ -14,7 +14,8 @@ require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
  * @package   Deliverance
  * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
- * @todo      Better enforcing of instance.
+ * @todo      Better enforcing of instance. Swap campaigns that are in testing
+ *            between segments across instance and remove the related TODOs.
  */
 class DeliveranceNewsletterEdit extends AdminDBEdit
 {
@@ -24,6 +25,16 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	 * @var DeliveranceNewsletter
 	 */
 	protected $newsletter;
+
+	/**
+	 * @var SiteInstance
+	 */
+	protected $current_instance;
+
+	/**
+	 * @var DeliveranceCampaignSegmentWrapper
+	 */
+	protected $segments;
 
 	// }}}
 
@@ -62,6 +73,10 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 				$this->id));
 		}
 
+		if ($this->newsletter->id !== null) {
+			$this->current_instance = $this->newsletter->instance;
+		}
+
 		// Can't edit a newsletter that has been scheduled. This check will
 		// also cover the case where the newsletter has been sent.
 		if ($this->newsletter->isScheduled()) {
@@ -80,39 +95,25 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 		$sql = sprintf(
 			$sql,
+			// TODO: limit to current_segment? or can we swap between the lists (ideal behaviour)
 			($this->app->getInstanceId() === null) ?
 				'1 = 1' :
 				$this->app->db->quote($instance_id, 'integer')
 		);
 
-		$segments = SwatDB::query(
+		$this->segments = SwatDB::query(
 			$this->app->db,
 			$sql,
 			SwatDBClassMap::get('DeliveranceCampaignSegmentWrapper')
 		);
 
-		if (count($segments)) {
+		if (count($this->segments)) {
 			$segment_widget = $this->ui->getWidget('campaign_segment');
 			$segment_widget->parent->visible = true;
 			$locale = SwatI18NLocale::get();
 
 			$last_instance_title = null;
-			foreach ($segments as $segment) {
-				if ($this->app->hasModule('SiteMultipleInstanceModule') &&
-					$this->app->getInstance() === null &&
-					$segment->instance instanceof SiteInstance &&
-					$last_instance_title != $segment->instance->title) {
-					$last_instance_title = $segment->instance->title;
-
-					$segment_widget->addDivider(
-						sprintf(
-							'<span class="instance-header">%s</span>',
-							$last_instance_title
-						),
-						'text/xml'
-					);
-				}
-
+			foreach ($this->segments as $segment) {
 				if ($segment->cached_segment_size > 0) {
 					$subscribers = sprintf(Deliverance::ngettext(
 						'One subscriber',
@@ -127,12 +128,32 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 					$segment->title,
 					$subscribers);
 
-				if ($segment->cached_segment_size > 0) {
-					$segment_widget->addOption($segment->id, $title,
-						'text/xml');
-				} else {
-					// TODO, use a real option and disable it.
-					$segment_widget->addDivider($title, 'text/xml');
+				// TODO: first if block is to disable segments outside the
+				// newsletters instance. this can hopefully be removed.
+				if ($this->newsletter->id === null ||
+					$segment->instance->id == $this->newsletter->instance->id) {
+					if ($this->app->hasModule('SiteMultipleInstanceModule') &&
+						$this->app->getInstance() === null &&
+						$segment->instance instanceof SiteInstance &&
+						$last_instance_title != $segment->instance->title) {
+						$last_instance_title = $segment->instance->title;
+
+						$segment_widget->addDivider(
+							sprintf(
+								'<span class="instance-header">%s</span>',
+								$last_instance_title
+							),
+							'text/xml'
+						);
+					}
+
+					if ($segment->cached_segment_size > 0 ) {
+						$segment_widget->addOption($segment->id, $title,
+							'text/xml');
+					} else {
+						// TODO, use a real option and disable it.
+						$segment_widget->addDivider($title, 'text/xml');
+					}
 				}
 			}
 		}
@@ -241,6 +262,8 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$this->newsletter->campaign_segment = $values['campaign_segment'];
 		$this->newsletter->html_content     = $values['html_content'];
 		$this->newsletter->text_content     = $values['text_content'];
+		$this->newsletter->instance         =
+			$this->newsletter->campaign_segment->instance;
 	}
 
 	// }}}
@@ -248,10 +271,16 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function saveMailChimpCampaign()
 	{
+		$list = DeliveranceListFactory::get(
+			$this->app,
+			'default',
+			$this->getDefaultList($this->newsletter)
+		);
+
 		// Set a long timeout on mailchimp calls as we're in the admin & patient
-		$list = DeliveranceListFactory::get($this->app, 'default');
 		$list->setTimeout(
-			$this->app->config->deliverance->list_admin_connection_timeout);
+			$this->app->config->deliverance->list_admin_connection_timeout
+		);
 
 		$lookup_id_by_title = false;
 		if ($this->newsletter->id !== null &&
@@ -268,6 +297,31 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		Campaign::uploadResources($this->app, $campaign);
 
 		return $campaign_id;
+	}
+
+	// }}}
+	// {{{ protected function getDefaultList()
+
+	protected function getDefaultList()
+	{
+		// TODO: make sure this method returns null for non-instanced admins.
+		// All code below only makes sense for multiple instance admin.
+
+		if ($this->current_instance == null) {
+			$this->current_instance =
+				$this->newsletter->campaign_segment->instance;
+		}
+
+		$sql = 'select value from InstanceConfigSetting
+			where name = %s and instance = %s';
+
+		$sql = sprintf(
+			$sql,
+			$this->app->db->quote('mail_chimp.default_list', 'text'),
+			$this->app->db->quote($this->current_instance->id, 'integer')
+		);
+
+		return SwatDB::queryOne($this->app->db, $sql);
 	}
 
 	// }}}
