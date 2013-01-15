@@ -85,10 +85,11 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	// }}}
 	// {{{ public function getCampaign()
 
-	public function getCampaign(SiteApplication $app)
+	public function getCampaign(SiteApplication $app,
+		$campaign_type = 'default')
 	{
 		// TODO: allow loading different types of campaigns based on segment.
-		$campaign = DeliveranceCampaignFactory::get($app, 'default');
+		$campaign = DeliveranceCampaignFactory::get($app, $campaign_type);
 
 		$campaign->setId($this->getCampaignId());
 		$campaign->setShortname($this->getCampaignShortname());
