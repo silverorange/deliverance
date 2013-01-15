@@ -74,7 +74,12 @@ class DeliveranceNewsletterDetails extends AdminIndex
 		// the campaign but it hasn't been saved yet.
 		if ($this->newsletter->isSent() &&
 			$this->newsletter->campaign_report_url === null) {
-			$list = DeliveranceListFactory::get($this->app, 'default');
+			$list = DeliveranceListFactory::get(
+				$this->app,
+				'default',
+				$this->getDefaultList()
+			);
+
 			$list->setTimeout(
 				$this->app->config->deliverance->list_admin_connection_timeout);
 
@@ -88,6 +93,28 @@ class DeliveranceNewsletterDetails extends AdminIndex
 				$e->processAndContinue();
 			}
 		}
+	}
+
+	// }}}
+	// {{{ protected function getDefaultList()
+
+	protected function getDefaultList()
+	{
+		$instance = $this->newsletter->instance;
+
+		// TODO: make sure this method returns null for non-instanced admins.
+		// All code below only makes sense for multiple instance admin. Is
+		// repeated in Edit and Details. Refactor.
+		$sql = 'select value from InstanceConfigSetting
+			where name = %s and instance = %s';
+
+		$sql = sprintf(
+			$sql,
+			$this->app->db->quote('mail_chimp.default_list', 'text'),
+			$this->app->db->quote($instance->id, 'integer')
+		);
+
+		return SwatDB::queryOne($this->app->db, $sql);
 	}
 
 	// }}}
@@ -138,7 +165,15 @@ class DeliveranceNewsletterDetails extends AdminIndex
 				'issues with the email service provider. Edit the newsletter '.
 				'to enable the preview.');
 		} else {
-			$campaign = DeliveranceCampaignFactory::get($this->app, 'default');
+			// todo: line below work with non-multiple-instance admins.
+			$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
+				$this->current_instance->shortname : null;
+
+			$campaign = DeliveranceCampaignFactory::get(
+				$this->app,
+				$campaign_type
+			);
+
 			$this->ui->getWidget('preview_link')->link = call_user_func_array(
 				array(
 					$campaign,
