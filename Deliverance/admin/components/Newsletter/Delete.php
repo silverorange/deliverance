@@ -98,6 +98,8 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 
 				$transaction = new SwatDBTransaction($this->app->db);
 				try {
+					DeliveranceCampaign::removeResources($this->app, $campaign);
+
 					$list->deleteCampaign($campaign);
 
 					$sql = 'delete from Newsletter where id = %s';
@@ -181,12 +183,14 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 
 	protected function getList(DeliveranceNewsletter $newsletter)
 	{
-		$key = $newsletter->instance->id;
+		$key = ($newsletter->instance instanceof SiteInstance) ?
+			$newsletter->instance->id : null;
+
 		if (!isset($this->lists[$key])) {
 			$list = DeliveranceListFactory::get(
 				$this->app,
 				'default',
-				$this->newsletter->getDefaultList($this->app)
+				$newsletter->getDefaultList($this->app)
 			);
 
 			$list->setTimeout(
