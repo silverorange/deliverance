@@ -110,7 +110,6 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 
 					$transaction->commit();
 				} catch (DeliveranceAPIConnectionException $e) {
-					// TODO: build message for these failures.
 					$transaction->rollback();
 					$e->processAndContinue();
 					$error_count++;
