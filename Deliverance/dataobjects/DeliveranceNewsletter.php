@@ -55,6 +55,30 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	public $createdate;
 
 	// }}}
+	// {{{ public static function getDefaultList()
+
+	public function getDefaultList(SiteApplication $app)
+	{
+		$default_list = $app->config->mail_chimp->default_list;
+
+		if ($app->hasModule('SiteMultipleInstanceModule') &&
+			$app->getInstance() === null) {
+			$sql = 'select value from InstanceConfigSetting
+				where name = %s and instance = %s';
+
+			$sql = sprintf(
+				$sql,
+				$app->db->quote('mail_chimp.default_list', 'text'),
+				$app->db->quote($this->instance->id, 'integer')
+			);
+
+			$default_list = SwatDB::queryOne($app->db, $sql);
+		}
+
+		return $default_list;
+	}
+
+	// }}}
 	// {{{ public function isSent()
 
 	public function isSent()
