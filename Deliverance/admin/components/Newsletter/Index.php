@@ -26,7 +26,7 @@ class DeliveranceNewsletterIndex extends AdminIndex
 		$pager->total_records = SwatDB::queryOne(
 			$this->app->db,
 			sprintf(
-				'select count(id) from Newsletter %s',
+				'select count(id) from Newsletter where %s',
 				$this->getWhereClause()
 			)
 		);
