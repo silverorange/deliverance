@@ -55,7 +55,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	public $createdate;
 
 	// }}}
-	// {{{ public static function getDefaultList()
+	// {{{ public function getDefaultList()
 
 	public function getDefaultList(SiteApplication $app)
 	{
