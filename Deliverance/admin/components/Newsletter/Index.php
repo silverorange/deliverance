@@ -15,27 +15,6 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletterWrapper.php';
  */
 class DeliveranceNewsletterIndex extends AdminIndex
 {
-	// process phase
-	// {{{ protected function processInternal()
-
-	protected function processInternal()
-	{
-		parent::processInternal();
-
-		$pager = $this->ui->getWidget('pager');
-		$pager->total_records = SwatDB::queryOne(
-			$this->app->db,
-			sprintf(
-				'select count(id) from Newsletter where %s',
-				$this->getWhereClause()
-			)
-		);
-
-		$pager->process();
-	}
-
-	// }}}
-
 	// init phase
 	// {{{ protected function initInternal()
 
@@ -52,6 +31,43 @@ class DeliveranceNewsletterIndex extends AdminIndex
 	protected function getUiXml()
 	{
 		return dirname(__FILE__).'/index.xml';
+	}
+
+	// }}}
+
+
+	// process phase
+	// {{{ protected function processActions()
+
+	protected function processActions(SwatTableView $view, SwatActions $actions)
+	{
+		$num = count($view->getSelection());
+
+		switch ($actions->selected->id) {
+		case 'delete':
+			$this->app->replacePage('Newsletter/Delete');
+			$this->app->getPage()->setItems($view->getSelection());
+			break;
+		}
+	}
+
+	// }}}
+	// {{{ protected function processInternal()
+
+	protected function processInternal()
+	{
+		parent::processInternal();
+
+		$pager = $this->ui->getWidget('pager');
+		$pager->total_records = SwatDB::queryOne(
+			$this->app->db,
+			sprintf(
+				'select count(id) from Newsletter where %s',
+				$this->getWhereClause()
+			)
+		);
+
+		$pager->process();
 	}
 
 	// }}}
