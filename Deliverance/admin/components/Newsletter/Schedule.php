@@ -181,13 +181,23 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 			'estimates. Full statistics will be available once the newsletter '.
 			'has been sent.');
 
+		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
+			$this->newsletter->instance->shortname : null;
+
+		// grab campaign with old send date to clear out the resources.
+		$campaign = $this->newsletter->getCampaign(
+			$this->app,
+			$campaign_type
+		);
+
+		// remove the resources first in case they came from an old directory
+		DeliveranceCampaign::removeResources($this->app, $campaign);
+
 		// Finally set the date with the local timezone.
 		// As DeliveranceMailChimpList expects.
 		$this->newsletter->send_date = $send_date;
 
-		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
-			$this->newsletter->instance->shortname : null;
-
+		// re-grab the campaign with the new send_date;
 		$campaign = $this->newsletter->getCampaign(
 			$this->app,
 			$campaign_type

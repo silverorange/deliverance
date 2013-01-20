@@ -117,6 +117,8 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 		$message  = null;
 		$relocate = true;
 		try {
+			DeliveranceCampaign::removeResources($this->app, $campaign);
+
 			$this->list->unscheduleCampaign($campaign);
 
 			$this->newsletter->send_date = null;

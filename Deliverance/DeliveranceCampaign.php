@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceList.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2011 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceCampaign
@@ -125,6 +125,23 @@ class DeliveranceCampaign
 		foreach ($resource_files as $destination => $source) {
 			$app->cdn->copyFile($destination, $source, $http_headers, 'public');
 		}
+	}
+
+	// }}}
+	// {{{ public static function removeResources()
+
+	public static function removeResources(SiteApplication $app,
+		Campaign $campaign)
+	{
+		$resource_files = $campaign->getResources();
+
+		// remove them from s3
+		foreach ($resource_files as $destination => $source) {
+			$app->cdn->removeFile($destination);
+		}
+
+		// also remove the parent directory
+		$app->cdn->removeFile($campaign->getResourcesDestinationDirectory());
 	}
 
 	// }}}
