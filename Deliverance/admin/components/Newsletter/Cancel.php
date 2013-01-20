@@ -77,34 +77,12 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 		$this->list = DeliveranceListFactory::get(
 			$this->app,
 			'default',
-			$this->getDefaultList()
+			$this->newsletter->getDefaultList($this->app)
 		);
 
 		$this->list->setTimeout(
 			$this->app->config->deliverance->list_admin_connection_timeout
 		);
-	}
-
-	// }}}
-	// {{{ protected function getDefaultList()
-
-	protected function getDefaultList()
-	{
-		$instance = $this->newsletter->instance;
-
-		// TODO: make sure this method returns null for non-instanced admins.
-		// All code below only makes sense for multiple instance admin. Is
-		// repeated in Edit and Details. Refactor.
-		$sql = 'select value from InstanceConfigSetting
-			where name = %s and instance = %s';
-
-		$sql = sprintf(
-			$sql,
-			$this->app->db->quote('mail_chimp.default_list', 'text'),
-			$this->app->db->quote($instance->id, 'integer')
-		);
-
-		return SwatDB::queryOne($this->app->db, $sql);
 	}
 
 	// }}}
@@ -128,7 +106,6 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function saveDBData()
 	{
-		// TODO: Clean up for non-multiple instance admin.
 		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
 			$this->newsletter->instance->shortname : null;
 

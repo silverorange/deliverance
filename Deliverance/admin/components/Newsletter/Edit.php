@@ -15,7 +15,7 @@ require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
  * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Better enforcing of instance. Swap campaigns that are in testing
- *            between segments across instance and remove the related TODOs.
+ *            between segments across instance.
  */
 class DeliveranceNewsletterEdit extends AdminDBEdit
 {
@@ -95,7 +95,6 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 		$sql = sprintf(
 			$sql,
-			// TODO: limit to current_segment? or can we swap between the lists (ideal behaviour)
 			($this->app->getInstanceId() === null) ?
 				'1 = 1' :
 				$this->app->db->quote($instance_id, 'integer')
@@ -274,7 +273,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$list = DeliveranceListFactory::get(
 			$this->app,
 			'default',
-			$this->getDefaultList($this->newsletter)
+			$this->newsletter->getDefaultList($this->app)
 		);
 
 		// Set a long timeout on mailchimp calls as we're in the admin & patient
@@ -290,9 +289,8 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$lookup_id_by_title = true;
 		}
 
-		// TODO: Clean up for non-multiple instance admin.
-		$campaign_type = ($this->getCurrentInstance() instanceof SiteInstance) ?
-			$this->getCurrentInstance()->shortname : null;
+		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
+			$this->newsletter->instance->shortname : null;
 
 		$campaign = $this->newsletter->getCampaign(
 			$this->app,
@@ -305,44 +303,6 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		DeliveranceCampaign::uploadResources($this->app, $campaign);
 
 		return $campaign_id;
-	}
-
-	// }}}
-	// {{{ protected function getDefaultList()
-
-	protected function getDefaultList()
-	{
-		$instance = $this->getCurrentInstance();
-
-		// TODO: make sure this method returns null for non-instanced admins.
-		// All code below only makes sense for multiple instance admin. Is
-		// repeated in Edit and Details. Refactor.
-		$sql = 'select value from InstanceConfigSetting
-			where name = %s and instance = %s';
-
-		$sql = sprintf(
-			$sql,
-			$this->app->db->quote('mail_chimp.default_list', 'text'),
-			$this->app->db->quote($instance->id, 'integer')
-		);
-
-		return SwatDB::queryOne($this->app->db, $sql);
-	}
-
-	// }}}
-	// {{{ protected function getCurrentInstance()
-
-	protected function getCurrentInstance()
-	{
-		// TODO: make sure this method returns null for non-instanced admins.
-		// All code below only makes sense for multiple instance admin. Is
-		// repeated in Edit and Details. Refactor.
-		if ($this->current_instance == null) {
-			$this->current_instance =
-				$this->newsletter->campaign_segment->instance;
-		}
-
-		return $this->current_instance;
 	}
 
 	// }}}
