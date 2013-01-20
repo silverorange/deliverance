@@ -14,7 +14,7 @@ require_once 'Swat/exceptions/SwatClassNotFoundException.php';
  * {@link DeliveranceListFactory::removePath()} methods.
  *
  * @package   Deliverance
- * @copyright 2012 silverorange
+ * @copyright 2012-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @see       DeliveranceList
  */
@@ -55,8 +55,13 @@ class DeliveranceListFactory extends SwatObject
 	 * @throws InvalidArgumentException if there is no list registered for the
 	 *                                  requested <i>$type</i>.
 	 */
-	public static function get(SiteApplication $app, $type, $shortname = null)
+	public static function get(SiteApplication $app, $type = 'default',
+		$shortname = null)
 	{
+		if ($type === null) {
+			$type = 'default';
+		}
+
 		$type = strval($type);
 		if (!array_key_exists($type, self::$list_class_names_by_type)) {
 			throw new InvalidArgumentException(sprintf(
