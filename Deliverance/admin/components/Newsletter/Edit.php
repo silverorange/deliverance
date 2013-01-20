@@ -127,12 +127,17 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 					$segment->title,
 					$subscribers);
 
+				$multi_instance =
+					($this->app->hasModule('SiteMultipleInstanceModule') &&
+					$this->app->getInstance() === null);
+
 				// TODO: first if block is to disable segments outside the
-				// newsletters instance. this can hopefully be removed.
-				if ($this->newsletter->id === null ||
+				// newsletters instance. this can hopefully be removed once
+				// newsletters can be updated between lists.
+				if (!$multi_instance ||
+					$this->newsletter->id === null ||
 					$segment->instance->id == $this->newsletter->instance->id) {
-					if ($this->app->hasModule('SiteMultipleInstanceModule') &&
-						$this->app->getInstance() === null &&
+					if ($multi_instance &&
 						$segment->instance instanceof SiteInstance &&
 						$last_instance_title != $segment->instance->title) {
 						$last_instance_title = $segment->instance->title;
