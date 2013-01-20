@@ -32,12 +32,20 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function initInternal()
 	{
-		$this->ui->loadFromXML(dirname(__FILE__).'/cancel.xml');
+		$this->ui->loadFromXML($this->getUiXml());
 
 		parent::initInternal();
 
 		$this->initNewsletter();
 		$this->initList();
+	}
+
+	// }}}
+	// {{{ protected function getUiXml()
+
+	protected function getUiXml()
+	{
+		return 'Deliverance/admin/components/Newsletter/cancel.xml';
 	}
 
 	// }}}

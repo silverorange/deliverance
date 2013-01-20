@@ -28,11 +28,6 @@ class DeliveranceNewsletterDetails extends AdminIndex
 	 */
 	protected $newsletter;
 
-	/**
-	 * @var string
-	 */
-	protected $ui_xml = 'Deliverance/admin/components/Newsletter/details.xml';
-
 	// }}}
 
 	// init phase
@@ -42,9 +37,17 @@ class DeliveranceNewsletterDetails extends AdminIndex
 	{
 		parent::initInternal();
 		$this->id = SiteApplication::initVar('id');
-		$this->ui->loadFromXML($this->ui_xml);
+		$this->ui->loadFromXML($this->getUiXml());
 		$this->initNewsletter();
 		$this->updateNewsletterStats();
+	}
+
+	// }}}
+	// {{{ protected function getUiXml()
+
+	protected function getUiXml()
+	{
+		return 'Deliverance/admin/components/Newsletter/details.xml';
 	}
 
 	// }}}
