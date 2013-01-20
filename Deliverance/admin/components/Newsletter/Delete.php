@@ -13,10 +13,6 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletterWrapper.php';
  * @package   Deliverance
  * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
- * @todo      If the API connection drops midway through deleting a group of
- *            newsletters, the database entries for the successful deletes won't
- *            be removed, causing further errors. Delete entries as each api
- *            call succeeds, and build better messages reflecting this.
  */
 class DeliveranceNewsletterDelete extends AdminDBDelete
 {
@@ -37,7 +33,7 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 	protected $success = true;
 
 	/**
-	 * Array of DeliveranceLists
+	 * Array of DeliveranceList objects
 	 *
 	 * @var array
 	 */
@@ -46,67 +42,125 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 	// }}}
 
 	// process phase
+	// {{{ protected function processResponse()
+
+	protected function processResponse()
+	{
+		// override AdminDBConfirmation::processResponse to allow wrapping
+		// each delete in a transaction instead of wrapping all of
+		// processDBData() in a single transaction
+		$form = $this->ui->getWidget('confirmation_form');
+		$relocate = true;
+
+		if ($this->ui->getWidget('yes_button')->hasBeenClicked()) {
+			try {
+				$relocate = $this->processDBData();
+			} catch (SwatException $e) {
+				$this->generateMessage($e);
+				$e->processAndContinue();
+			}
+		}
+
+		return $relocate;
+	}
+
+	// }}}
 	// {{{ protected function processDBData()
 
 	protected function processDBData()
 	{
 		parent::processDBData();
 
-		$relocate = true;
-		$message  = null;
-		$count    = $this->getItemCount();
+		$locale       = SwatI18NLocale::get();
+		$relocate     = true;
+		$message      = null;
+		$delete_count = 0;
+		$error_count  = 0;
 
-		try {
-			$newsletters = $this->getNewsletters();
-			foreach ($newsletters as $newsletter) {
-				// TODO: delete won't work across two lists.
+		$newsletters = $this->getNewsletters();
+		foreach ($newsletters as $newsletter) {
+			// only allow deleting unsent newsletters. There is nothing
+			// technically stopping us from deleting ones that have been sent,
+			// but do this for the sake of stats until deleting sent newsletters
+			// is required.
+			if ($newsletter->isSent() == false) {
 				$list = $this->getList($newsletter);
 
-				// TODO: Clean up for non-multiple instance admin.
-				$campaign_type = ($newsletter->instance instanceof SiteInstance) ?
-					$newsletter->instance->shortname : null;
+				$campaign_type =
+					($newsletter->instance instanceof SiteInstance) ?
+						$newsletter->instance->shortname :
+						null;
 
 				$campaign = $newsletter->getCampaign(
 					$this->app,
 					$campaign_type
 				);
 
-				$list->deleteCampaign($campaign);
+				$transaction = new SwatDBTransaction($this->app->db);
+				try {
+					$list->deleteCampaign($campaign);
+
+					$sql = 'delete from Newsletter where id = %s';
+					$sql = sprintf(
+						$sql,
+						$this->app->db->quote($newsletter->id, 'integer')
+					);
+
+					$delete_count+= SwatDB::exec($this->app->db, $sql);
+
+					$transaction->commit();
+				} catch (DeliveranceAPIConnectionException $e) {
+					// TODO: build message for these failures.
+					$transaction->rollback();
+					$e->processAndContinue();
+					$error_count++;
+					$relocate = false;
+				} catch (Exception $e) {
+					$transaction->rollback();
+					$e = new DeliveranceException($e);
+					$e->processAndContinue();
+					$error_count++;
+					$relocate = false;
+				}
 			}
+		}
 
-			$sql = 'delete from Newsletter where id in (%s);';
-
-			$item_list = $this->getItemList('integer');
-			$sql = sprintf($sql, $item_list);
-			$count = SwatDB::exec($this->app->db, $sql);
-
-			$locale = SwatI18NLocale::get();
-			$message = new SwatMessage(sprintf(
-				Deliverance::ngettext(
-					'One newsletter has been deleted.',
-					'%s newsletters have been deleted.', $count),
-				$locale->formatNumber($count)),
-				'notice');
-		} catch (DeliveranceAPIConnectionException $e) {
-			$relocate = false;
-
-			// log api connection exceptions in the admin to keep a track of how
-			// frequent they are.
-			$e->processAndContinue();
-
+		if ($delete_count > 0) {
 			$message = new SwatMessage(
-				Deliverance::_('There was an issue connecting to the email '.
-					'service provider.'),
+				sprintf(
+					Deliverance::ngettext(
+						'One newsletter has been deleted.',
+						'%s newsletters have been deleted.',
+						$delete_count
+					),
+					$locale->formatNumber($delete_count)
+				),
+				'notice'
+			);
+
+			$this->app->messages->add($message);
+		}
+
+		if ($error_count > 0) {
+			$message = new SwatMessage(
+				Deliverance::_(
+					'There was an issue connecting to the email service '.
+					'provider.'
+				),
 				'error'
 			);
 
 			$message->content_type = 'text/xml';
 			$message->secondary_content = sprintf(
 				'<strong>%s</strong><br />%s',
-				Deliverance::ngettext(
-					'The newsletter has not been deleted.',
-					'The newsletters have not been deleted.',
-					$count),
+				sprintf(
+					Deliverance::ngettext(
+						'One newsletter has not been deleted.',
+						'%s newsletters have not been deleted.',
+						$error_count
+					),
+					$locale->formatNumber($error_count)
+				),
 				Deliverance::ngettext(
 					'Connection issues are typically short-lived and '.
 						'attempting to delete the newsletter again after a '.
@@ -114,31 +168,10 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 					'Connection issues are typically short-lived and '.
 						'attempting to delete the newsletters again after a '.
 						'delay will usually be successful.',
-					$count)
-				);
-		} catch (Exception $e) {
-			// mimic the behaviour of other admin deletes and relocate on errors
-			// that aren't the mailing list api timing out.
-			$relocate = true;
-			$this->success = false;
-
-			$e = new DeliveranceException($e);
-			$e->processAndContinue();
-
-			$locale = SwatI18NLocale::get();
-			$message = new SwatMessage(
-				Deliverance::ngettext(
-					'An error has occurred. The newsletter has not been '.
-						'deleted.',
-					'An error has occurred. The newsletters have not been '.
-						'deleted.',
-					$count),
-				'system-error'
+					$error_count
+				)
 			);
-		}
 
-		if ($message !== null) {
-			$this->app->messages->add($message);
 		}
 
 		return $relocate;
@@ -154,7 +187,7 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 			$list = DeliveranceListFactory::get(
 				$this->app,
 				'default',
-				$this->getDefaultList()
+				$this->newsletter->getDefaultList($this->app)
 			);
 
 			$list->setTimeout(
@@ -165,28 +198,6 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 		}
 
 		return $this->lists[$key];
-	}
-
-	// }}}
-	// {{{ protected function getDefaultList()
-
-	protected function getDefaultList()
-	{
-		$instance = $this->newsletter->instance;
-
-		// TODO: make sure this method returns null for non-instanced admins.
-		// All code below only makes sense for multiple instance admin. Is
-		// repeated in Edit and Details. Refactor.
-		$sql = 'select value from InstanceConfigSetting
-			where name = %s and instance = %s';
-
-		$sql = sprintf(
-			$sql,
-			$this->app->db->quote('mail_chimp.default_list', 'text'),
-			$this->app->db->quote($instance->id, 'integer')
-		);
-
-		return SwatDB::queryOne($this->app->db, $sql);
 	}
 
 	// }}}
