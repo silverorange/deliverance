@@ -101,56 +101,6 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$sql,
 			SwatDBClassMap::get('DeliveranceCampaignSegmentWrapper')
 		);
-
-		if (count($this->segments)) {
-			$segment_widget = $this->ui->getWidget('campaign_segment');
-			$segment_widget->parent->visible = true;
-			$locale = SwatI18NLocale::get();
-
-			$last_instance_title = null;
-			foreach ($this->segments as $segment) {
-				if ($this->app->isMultipleInstanceAdmin() &&
-					$segment->instance instanceof SiteInstance &&
-					$last_instance_title != $segment->instance->title) {
-					$last_instance_title = $segment->instance->title;
-
-					$segment_widget->addDivider(
-						sprintf(
-							'<span class="instance-header">%s</span>',
-							$last_instance_title
-						),
-						'text/xml'
-					);
-				}
-
-				if ($segment->cached_segment_size > 0) {
-					$subscribers = sprintf(
-						Deliverance::ngettext(
-							'One subscriber',
-							'%s subscribers',
-							$segment->cached_segment_size
-						),
-						$locale->formatNumber($segment->cached_segment_size)
-					);
-				} else {
-					$subscribers = Deliverance::_('No subscribers');
-				}
-
-				$title = sprintf(
-					'%s <span class="swat-note">(%s)</span>',
-					$segment->title,
-					$subscribers
-				);
-
-				if ($segment->cached_segment_size > 0 ) {
-					$segment_widget->addOption($segment->id, $title,
-						'text/xml');
-				} else {
-					// TODO, use a real option and disable it.
-					$segment_widget->addDivider($title, 'text/xml');
-				}
-			}
-		}
 	}
 
 	// }}}
@@ -361,6 +311,72 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	// }}}
 
 	// build phase
+	// {{{ protected function buildInternal()
+
+	protected function buildInternal()
+	{
+		parent::buildInternal();
+
+		$this->buildSegments();
+	}
+
+	// }}}
+	// {{{ protected function buildSegments()
+
+	protected function buildSegments()
+	{
+		if (count($this->segments)) {
+			$segment_widget = $this->ui->getWidget('campaign_segment');
+			$segment_widget->parent->visible = true;
+			$locale = SwatI18NLocale::get();
+
+			$last_instance_title = null;
+			foreach ($this->segments as $segment) {
+				if ($this->app->isMultipleInstanceAdmin() &&
+					$segment->instance instanceof SiteInstance &&
+					$last_instance_title != $segment->instance->title) {
+					$last_instance_title = $segment->instance->title;
+
+					$segment_widget->addDivider(
+						sprintf(
+							'<span class="instance-header">%s</span>',
+							$last_instance_title
+						),
+						'text/xml'
+					);
+				}
+
+				if ($segment->cached_segment_size > 0) {
+					$subscribers = sprintf(
+						Deliverance::ngettext(
+							'One subscriber',
+							'%s subscribers',
+							$segment->cached_segment_size
+						),
+						$locale->formatNumber($segment->cached_segment_size)
+					);
+				} else {
+					$subscribers = Deliverance::_('No subscribers');
+				}
+
+				$title = sprintf(
+					'%s <span class="swat-note">(%s)</span>',
+					$segment->title,
+					$subscribers
+				);
+
+				if ($segment->cached_segment_size > 0 ) {
+					$segment_widget->addOption($segment->id, $title,
+						'text/xml');
+				} else {
+					// TODO, use a real option and disable it.
+					$segment_widget->addDivider($title, 'text/xml');
+				}
+			}
+		}
+	}
+
+	// }}}
 	// {{{ protected function buildNavBar()
 
 	protected function buildNavBar()
