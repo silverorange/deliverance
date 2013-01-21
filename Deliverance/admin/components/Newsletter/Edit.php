@@ -293,15 +293,16 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			)
 		);
 
+		// look up the segment and its instance from the segement wrapper
+		// loaded in init otherwise they don't get saved correctly.
+		$segment = $this->segments->getByIndex($values['campaign_segment']);
+		$this->newsletter->campaign_segment = $segment;
+		$this->newsletter->instance = $segment->getInternalValue('instance');
+
 		$this->newsletter->subject          = $values['subject'];
 		$this->newsletter->campaign_segment = $values['campaign_segment'];
 		$this->newsletter->html_content     = $values['html_content'];
 		$this->newsletter->text_content     = $values['text_content'];
-
-		// look up the instance from the segement wrapper loaded in init
-		//otherwise its instance doesn't get loaded correctly.
-		$segment = $this->segments->getByIndex($values['campaign_segment']);
-		$this->newsletter->instance = $segment->getInternalValue('instance');
 	}
 
 	// }}}
