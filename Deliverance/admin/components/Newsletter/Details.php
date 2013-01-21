@@ -80,11 +80,15 @@ class DeliveranceNewsletterDetails extends AdminIndex
 			$list = DeliveranceListFactory::get(
 				$this->app,
 				'default',
-				$this->newsletter->getDefaultList($this->app)
+				DeliveranceNewsletter::getDefaultList(
+					$this->app,
+					$this->newsletter->instance
+				)
 			);
 
 			$list->setTimeout(
-				$this->app->config->deliverance->list_admin_connection_timeout);
+				$this->app->config->deliverance->list_admin_connection_timeout
+			);
 
 			try {
  				$this->newsletter->campaign_report_url =

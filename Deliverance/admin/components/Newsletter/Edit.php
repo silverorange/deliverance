@@ -7,6 +7,7 @@ require_once 'Swat/SwatMessage.php';
 require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
 require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
+require_once 'Deliverance/exceptions/DeliveranceException.php';
 
 /**
  * Edit page for episodes
@@ -115,33 +116,40 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$message  = null;
 
 		try {
-			// List, campaign_type, old_instance and old_campaign all have to happen
-			// before we modify the newsletter dataobject so they correctly use the
-			// old values.
-			$list = DeliveranceListFactory::get(
-				$this->app,
-				'default',
-				$this->newsletter->getDefaultList($this->app)
-			);
+			if ($this->app->isMultipleInstanceAdmin()) {
+				// List, campaign_type, old_instance and old_campaign all have
+				// to happen before we modify the newsletter dataobject so they
+				// correctly use the old values.
+				$list = DeliveranceListFactory::get(
+					$this->app,
+					'default',
+					DeliveranceNewsletter::getDefaultList(
+						$this->app,
+						$this->newsletter->instance
+					)
+				);
 
-			$campaign_type =
-				($this->newsletter->instance instanceof SiteInstance) ?
-					$this->newsletter->instance->shortname :
-					null;
+				$campaign_type =
+					($this->newsletter->instance instanceof SiteInstance) ?
+						$this->newsletter->instance->shortname :
+						null;
 
-			$old_instance = $this->newsletter->getInternalValue('instance');
-			$old_campaign = $this->newsletter->getCampaign(
-				$this->app,
-				$campaign_type
-			);
+				$old_instance = $this->newsletter->getInternalValue('instance');
+				$old_campaign = $this->newsletter->getCampaign(
+					$this->app,
+					$campaign_type
+				);
+			}
 
 			$this->updateNewsletter();
 
 			// if instance has changed, delete the old campaign details.
-			if ($old_instance !=
-				$this->newsletter->getInternalValue('instance')) {
+			if ($this->app->isMultipleInstanceAdmin() &&
+				$old_instance !=
+					$this->newsletter->getInternalValue('instance')) {
+
 				// If not a draft, remove the resources
-				if ($newsletter->send_date instanceof SwatDate) {
+				if ($this->newsletter->isScheduled()) {
 					DeliveranceCampaign::removeResources($this->app, $campaign);
 				}
 
@@ -247,7 +255,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		// loaded in init otherwise they don't get saved correctly.
 		$segment = $this->segments->getByIndex($values['campaign_segment']);
 		$this->newsletter->campaign_segment = $segment;
-		$this->newsletter->instance = $segment->getInternalValue('instance');
+		$this->newsletter->instance = $segment->instance;
 
 		$this->newsletter->subject          = $values['subject'];
 		$this->newsletter->campaign_segment = $values['campaign_segment'];
@@ -263,7 +271,10 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$list = DeliveranceListFactory::get(
 			$this->app,
 			'default',
-			$this->newsletter->getDefaultList($this->app)
+			DeliveranceNewsletter::getDefaultList(
+				$this->app,
+				$this->newsletter->instance
+			)
 		);
 
 		// Set a long timeout on mailchimp calls as we're in the admin & patient

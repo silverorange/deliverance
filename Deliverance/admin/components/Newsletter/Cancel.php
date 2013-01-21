@@ -85,7 +85,10 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 		$this->list = DeliveranceListFactory::get(
 			$this->app,
 			'default',
-			$this->newsletter->getDefaultList($this->app)
+			DeliveranceNewsletter::getDefaultList(
+				$this->app,
+				$this->newsletter->instance
+			)
 		);
 
 		$this->list->setTimeout(

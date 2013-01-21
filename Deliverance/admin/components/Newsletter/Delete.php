@@ -196,7 +196,10 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 			$list = DeliveranceListFactory::get(
 				$this->app,
 				'default',
-				$newsletter->getDefaultList($this->app)
+				DeliveranceNewsletter::getDefaultList(
+					$this->app,
+					$newsletter->instance
+				)
 			);
 
 			$list->setTimeout(

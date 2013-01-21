@@ -55,21 +55,26 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	public $createdate;
 
 	// }}}
-	// {{{ public function getDefaultList()
+	// {{{ public static function getDefaultList()
 
-	public function getDefaultList(SiteApplication $app)
+	public static function getDefaultList(SiteApplication $app,
+		SiteInstance $instance = null)
 	{
 		$default_list = $app->config->mail_chimp->default_list;
 
 		if ($app->hasModule('SiteMultipleInstanceModule') &&
 			$app->getInstance() === null) {
+			if ($instance === null) {
+				throw new DeliveranceException('Instance must be set.');
+			}
+
 			$sql = 'select value from InstanceConfigSetting
 				where name = %s and instance = %s';
 
 			$sql = sprintf(
 				$sql,
 				$app->db->quote('mail_chimp.default_list', 'text'),
-				$app->db->quote($this->instance->id, 'integer')
+				$app->db->quote($instance->id, 'integer')
 			);
 
 			$default_list = SwatDB::queryOne($app->db, $sql);
