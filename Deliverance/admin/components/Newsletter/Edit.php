@@ -188,8 +188,13 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$this->updateNewsletter();
 
 			// if instance has changed, delete the old campaign details.
-			if ($old_instance != $this->newsletter->getInternalValue('instance')) {
-				DeliveranceCampaign::removeResources($this->app, $old_campaign);
+			if ($old_instance !=
+				$this->newsletter->getInternalValue('instance')) {
+				// If not a draft, remove the resources
+				if ($newsletter->send_date instanceof SwatDate) {
+					DeliveranceCampaign::removeResources($this->app, $campaign);
+				}
+
 				$list->deleteCampaign($old_campaign);
 				$this->newsletter->campaign_id = null;
 			}
@@ -217,15 +222,21 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$message->content_type = 'text/xml';
 			$message->secondary_content = sprintf(
 				'<strong>%s</strong><br />%s',
-				sprintf(Deliverance::_(
-					'“%s” has been saved locally so that your work is not '.
-					'lost. You must edit the newsletter again before sending '.
-					'to have your changes reflected in the sent newsletter.'),
-					$this->newsletter->subject),
-				Deliverance::_('Connection issues are typically short-lived '.
+				sprintf(
+					Deliverance::_(
+						'“%s” has been saved locally so that your work is not '.
+						'lost. You must edit the newsletter again before '.
+						'sending to have your changes reflected in the sent '.
+						'newsletter.'
+					),
+					$this->newsletter->subject
+				),
+				Deliverance::_(
+					'Connection issues are typically short-lived '.
 					'and editing the newsletter again after a delay will '.
-					'usually be successful.')
-				);
+					'usually be successful.'
+				)
+			);
 		} catch (Exception $e) {
 			$relocate = false;
 			$save     = false;
@@ -234,8 +245,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$e->processAndContinue();
 
 			$message = new SwatMessage(
-				Deliverance::_('An error has occurred. The newsletter has not '.
-					'been saved.'),
+				Deliverance::_(
+					'An error has occurred. The newsletter has not been saved.'
+				),
 				'system-error'
 			);
 		}

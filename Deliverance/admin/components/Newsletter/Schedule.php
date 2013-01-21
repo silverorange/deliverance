@@ -190,8 +190,11 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 			$campaign_type
 		);
 
-		// remove the resources first in case they came from an old directory
-		DeliveranceCampaign::removeResources($this->app, $campaign);
+		// If not a draft, remove the resources first in case they came from an
+		// old directory
+		if ($newsletter->isScheduled()) {
+			DeliveranceCampaign::removeResources($this->app, $campaign);
+		}
 
 		// Finally set the date with the local timezone.
 		// As DeliveranceMailChimpList expects.
