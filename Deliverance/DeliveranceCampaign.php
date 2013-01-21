@@ -76,11 +76,8 @@ class DeliveranceCampaign
 
 	/**
 	 * @var array
-	 * @todo move the segment_include_addresses into the ini or a table
 	 */
-	protected $segment_include_addresses = array(
-		'isaac@silverorange.com',
-	);
+	protected $segment_include_addresses;
 
 	// }}}
 	// {{{ public function __construct()
@@ -101,6 +98,9 @@ class DeliveranceCampaign
 
 		$this->setShortname($shortname);
 		$this->setDirectory($directory);
+		$this->setSegmentIncludeAddresses(
+			$app->config->deliverance->segment_include_addresses
+		);
 	}
 
 	// }}}
@@ -142,6 +142,21 @@ class DeliveranceCampaign
 
 		// also remove the parent directory
 		$app->cdn->removeFile($campaign->getResourcesDestinationDirectory());
+	}
+
+	// }}}
+	// {{{ public function setSegmentIncludeAddresses()
+
+	public function setSegmentIncludeAddresses($addresses)
+	{
+		if (!is_array($addresses)) {
+			$addresses = explode(';',$addresses);
+		}
+
+		$this->segment_include_addresses = array_merge(
+			$this->segment_include_addresses,
+			$addresses
+		);
 	}
 
 	// }}}
@@ -347,7 +362,6 @@ class DeliveranceCampaign
 
 			// always include these addresses so that we get a copy of all
 			// emails, even if we don't belong in the segment.
-			// TODO - move the segment_include_addresses into the ini or a table
 			if (count($this->segment_include_addresses)) {
 				foreach ($this->segment_include_addresses as $email) {
 					$segment_options['conditions'][] = array(

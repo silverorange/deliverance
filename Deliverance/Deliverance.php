@@ -4,7 +4,7 @@
  * Container for package wide static methods
  *
  * @package   Deliverance
- * @copyright 2010-2012 silverorange
+ * @copyright 2010-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class Deliverance
@@ -128,6 +128,7 @@ class Deliverance
 			// Deliverance Campaigns
 			'deliverance.campaign_from_name'    => null,
 			'deliverance.campaign_from_address' => null,
+			'deliverance.segment_include_addresses' => null,
 
 			// allow setting a custom cdn base for campaigns. As campaigns are
 			// cannot be edited once set, ideally use a CNAME for the CDN base
