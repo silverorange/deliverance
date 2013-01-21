@@ -80,6 +80,7 @@ $package->addPackageDepWithChannel('required', 'Mail', 'pear.php.net', '1.1.10')
 $package->addPackageDepWithChannel('required', 'Mail_Mime', 'pear.silverorange.com', '1.5.2so3');
 $package->addPackageDepWithChannel('required', 'Net_SMTP', 'pear.php.net', '1.2.8');
 $package->addPackageDepWithChannel('optional', 'MailChimpAPI', 'pear.silverorange.com', '1.3.1');
+$package->addPackageDepWithChannel('optional', 'Admin', 'pear.silverorange.com', '1.3.70');
 $package->generateContents();
 
 if (isset($_GET['make']) || (isset($_SERVER['argv']) && @$_SERVER['argv'][1] == 'make')) {
