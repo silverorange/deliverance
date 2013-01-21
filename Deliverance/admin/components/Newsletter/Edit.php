@@ -169,7 +169,34 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$message  = null;
 
 		try {
+			// List, campaign_type, old_instance and old_campaign all have to happen
+			// before we modify the newsletter dataobject so they correctly use the
+			// old values.
+			$list = DeliveranceListFactory::get(
+				$this->app,
+				'default',
+				$this->newsletter->getDefaultList($this->app)
+			);
+
+			$campaign_type =
+				($this->newsletter->instance instanceof SiteInstance) ?
+					$this->newsletter->instance->shortname :
+					null;
+
+			$old_instance = $this->newsletter->getInternalValue('instance');
+			$old_campaign = $this->newsletter->getCampaign(
+				$this->app,
+				$campaign_type
+			);
+
 			$this->updateNewsletter();
+
+			// if instance has changed, delete the old campaign details.
+			if ($old_instance != $this->newsletter->getInternalValue('instance')) {
+				DeliveranceCampaign::removeResources($this->app, $old_campaign);
+				$list->deleteCampaign($old_campaign);
+				$this->newsletter->campaign_id = null;
+			}
 
 			// save/update on MailChimp.
 			$campaign_id = $this->saveMailChimpCampaign();
@@ -249,24 +276,6 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function updateNewsletter()
 	{
-		// List, campaign_type, old_instance and old_campaign all have to happen
-		// before we modify the newsletter dataobject so they correctly use the
-		// old values.
-		$list = DeliveranceListFactory::get(
-			$this->app,
-			'default',
-			$this->newsletter->getDefaultList($this->app)
-		);
-
-		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
-			$this->newsletter->instance->shortname : null;
-
-		$old_instance = $this->newsletter->getInternalValue('instance');
-		$old_campaign = $this->newsletter->getCampaign(
-			$this->app,
-			$campaign_type
-		);
-
 		$values = $this->ui->getValues(
 			array(
 				'subject',
@@ -280,15 +289,11 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$this->newsletter->campaign_segment = $values['campaign_segment'];
 		$this->newsletter->html_content     = $values['html_content'];
 		$this->newsletter->text_content     = $values['text_content'];
-		$this->newsletter->instance         =
-			$this->segments->getByIndex($values['campaign_segment'])->instance;
 
-		// if instance has changed, delete the old campaign details.
-		if ($old_instance != $this->newsletter->getInternalValue('instance')) {
-			DeliveranceCampaign::removeResources($this->app, $old_campaign);
-			$list->deleteCampaign($old_campaign);
-			$this->newsletter->campaign_id = null;
-		}
+		// look up the instance from the segement wrapper loaded in init
+		//otherwise its instance doesn't get loaded correctly.
+		$segment = $this->segments->getByIndex($values['campaign_segment']);
+		$this->newsletter->instance = $segment->getInternalValue('instance');
 	}
 
 	// }}}
