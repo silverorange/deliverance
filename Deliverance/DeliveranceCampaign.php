@@ -77,7 +77,7 @@ class DeliveranceCampaign
 	/**
 	 * @var array
 	 */
-	protected $segment_include_addresses;
+	protected $segment_include_addresses = array();
 
 	// }}}
 	// {{{ public function __construct()
@@ -150,13 +150,17 @@ class DeliveranceCampaign
 	public function setSegmentIncludeAddresses($addresses)
 	{
 		if (!is_array($addresses)) {
-			$addresses = explode(';',$addresses);
+			$addresses = ($addresses != '') ?
+				explode(';', $addresses) :
+				array();
 		}
 
-		$this->segment_include_addresses = array_merge(
-			$this->segment_include_addresses,
-			$addresses
-		);
+		if (count($addresses)) {
+			$this->segment_include_addresses = array_merge(
+				$this->segment_include_addresses,
+				$addresses
+			);
+		}
 	}
 
 	// }}}
@@ -364,11 +368,14 @@ class DeliveranceCampaign
 			// emails, even if we don't belong in the segment.
 			if (count($this->segment_include_addresses)) {
 				foreach ($this->segment_include_addresses as $email) {
-					$segment_options['conditions'][] = array(
-						'field' => 'EMAIL',
-						'op'    => 'eq',
-						'value' => $email,
-					);
+					$email = trim($email);
+					if ($email != '') {
+						$segment_options['conditions'][] = array(
+							'field' => 'EMAIL',
+							'op'    => 'eq',
+							'value' => $email,
+						);
+					}
 				}
 			}
 		}
