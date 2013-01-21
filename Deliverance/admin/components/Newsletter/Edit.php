@@ -14,8 +14,7 @@ require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
  * @package   Deliverance
  * @copyright 2011-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
- * @todo      Better enforcing of instance. Swap campaigns that are in testing
- *            between segments across instance.
+ * @todo      Better enforcing of instance.
  */
 class DeliveranceNewsletterEdit extends AdminDBEdit
 {
@@ -25,11 +24,6 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	 * @var DeliveranceNewsletter
 	 */
 	protected $newsletter;
-
-	/**
-	 * @var SiteInstance
-	 */
-	protected $current_instance;
 
 	/**
 	 * @var DeliveranceCampaignSegmentWrapper
@@ -73,10 +67,6 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 				$this->id));
 		}
 
-		if ($this->newsletter->id !== null) {
-			$this->current_instance = $this->newsletter->instance;
-		}
-
 		// Can't edit a newsletter that has been scheduled. This check will
 		// also cover the case where the newsletter has been sent.
 		if ($this->newsletter->isScheduled()) {
@@ -89,9 +79,15 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function initCampaignSegments()
 	{
-		$sql = 'select * from MailingListCampaignSegment
+		$sql = 'select MailingListCampaignSegment.*,
+				Instance.title as instance_title
+			from MailingListCampaignSegment
+			left outer join Instance
+				on MailingListCampaignSegment.instance = Instance.id
 			where %s
-			order by instance, displayorder';
+			order by instance_title nulls first,
+				MailingListCampaignSegment.displayorder,
+				MailingListCampaignSegment.title';
 
 		$sql = sprintf(
 			$sql,
@@ -112,52 +108,50 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$locale = SwatI18NLocale::get();
 
 			$last_instance_title = null;
+			$multi_instance =
+				($this->app->hasModule('SiteMultipleInstanceModule') &&
+				$this->app->getInstance() === null);
+
 			foreach ($this->segments as $segment) {
+				if ($multi_instance &&
+					$segment->instance instanceof SiteInstance &&
+					$last_instance_title != $segment->instance->title) {
+					$last_instance_title = $segment->instance->title;
+
+					$segment_widget->addDivider(
+						sprintf(
+							'<span class="instance-header">%s</span>',
+							$last_instance_title
+						),
+						'text/xml'
+					);
+				}
+
 				if ($segment->cached_segment_size > 0) {
-					$subscribers = sprintf(Deliverance::ngettext(
-						'One subscriber',
-						'%s subscribers',
-						$segment->cached_segment_size),
-						$locale->formatNumber($segment->cached_segment_size));
+					$subscribers = sprintf(
+						Deliverance::ngettext(
+							'One subscriber',
+							'%s subscribers',
+							$segment->cached_segment_size
+						),
+						$locale->formatNumber($segment->cached_segment_size)
+					);
 				} else {
 					$subscribers = Deliverance::_('No subscribers');
 				}
 
-				$title = sprintf('%s <span class="swat-note">(%s)</span>',
+				$title = sprintf(
+					'%s <span class="swat-note">(%s)</span>',
 					$segment->title,
-					$subscribers);
+					$subscribers
+				);
 
-				$multi_instance =
-					($this->app->hasModule('SiteMultipleInstanceModule') &&
-					$this->app->getInstance() === null);
-
-				// TODO: first if block is to disable segments outside the
-				// newsletters instance. this can hopefully be removed once
-				// newsletters can be updated between lists.
-				if (!$multi_instance ||
-					$this->newsletter->id === null ||
-					$segment->instance->id == $this->newsletter->instance->id) {
-					if ($multi_instance &&
-						$segment->instance instanceof SiteInstance &&
-						$last_instance_title != $segment->instance->title) {
-						$last_instance_title = $segment->instance->title;
-
-						$segment_widget->addDivider(
-							sprintf(
-								'<span class="instance-header">%s</span>',
-								$last_instance_title
-							),
-							'text/xml'
-						);
-					}
-
-					if ($segment->cached_segment_size > 0 ) {
-						$segment_widget->addOption($segment->id, $title,
-							'text/xml');
-					} else {
-						// TODO, use a real option and disable it.
-						$segment_widget->addDivider($title, 'text/xml');
-					}
+				if ($segment->cached_segment_size > 0 ) {
+					$segment_widget->addOption($segment->id, $title,
+						'text/xml');
+				} else {
+					// TODO, use a real option and disable it.
+					$segment_widget->addDivider($title, 'text/xml');
 				}
 			}
 		}
@@ -174,9 +168,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$save     = true;
 		$message  = null;
 
-		$this->updateNewsletter();
-
 		try {
+			$this->updateNewsletter();
+
 			// save/update on MailChimp.
 			$campaign_id = $this->saveMailChimpCampaign();
 		} catch (DeliveranceAPIConnectionException $e) {
@@ -255,19 +249,46 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function updateNewsletter()
 	{
-		$values = $this->ui->getValues(array(
-			'subject',
-			'campaign_segment',
-			'html_content',
-			'text_content',
-			));
+		// List, campaign_type, old_instance and old_campaign all have to happen
+		// before we modify the newsletter dataobject so they correctly use the
+		// old values.
+		$list = DeliveranceListFactory::get(
+			$this->app,
+			'default',
+			$this->newsletter->getDefaultList($this->app)
+		);
+
+		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
+			$this->newsletter->instance->shortname : null;
+
+		$old_instance = $this->newsletter->getInternalValue('instance');
+		$old_campaign = $this->newsletter->getCampaign(
+			$this->app,
+			$campaign_type
+		);
+
+		$values = $this->ui->getValues(
+			array(
+				'subject',
+				'campaign_segment',
+				'html_content',
+				'text_content',
+			)
+		);
 
 		$this->newsletter->subject          = $values['subject'];
 		$this->newsletter->campaign_segment = $values['campaign_segment'];
 		$this->newsletter->html_content     = $values['html_content'];
 		$this->newsletter->text_content     = $values['text_content'];
 		$this->newsletter->instance         =
-			$this->newsletter->campaign_segment->instance;
+			$this->segments->getByIndex($values['campaign_segment'])->instance;
+
+		// if instance has changed, delete the old campaign details.
+		if ($old_instance != $this->newsletter->getInternalValue('instance')) {
+			DeliveranceCampaign::removeResources($this->app, $old_campaign);
+			$list->deleteCampaign($old_campaign);
+			$this->newsletter->campaign_id = null;
+		}
 	}
 
 	// }}}
