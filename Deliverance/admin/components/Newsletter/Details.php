@@ -121,8 +121,7 @@ class DeliveranceNewsletterDetails extends AdminIndex
 
 		if ($view->hasField('instance_field')) {
 			$view->getField('instance_field')->visible =
-				($this->app->hasModule('SiteMultipleInstanceModule') &&
-				$this->app->getInstance() === null);
+				$this->app->isMultipleInstanceAdmin();
 		}
 	}
 

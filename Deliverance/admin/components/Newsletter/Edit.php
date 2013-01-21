@@ -108,12 +108,8 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$locale = SwatI18NLocale::get();
 
 			$last_instance_title = null;
-			$multi_instance =
-				($this->app->hasModule('SiteMultipleInstanceModule') &&
-				$this->app->getInstance() === null);
-
 			foreach ($this->segments as $segment) {
-				if ($multi_instance &&
+				if ($this->app->isMultipleInstanceAdmin() &&
 					$segment->instance instanceof SiteInstance &&
 					$last_instance_title != $segment->instance->title) {
 					$last_instance_title = $segment->instance->title;

@@ -83,8 +83,7 @@ class DeliveranceNewsletterIndex extends AdminIndex
 
 		if ($view->hasGroup('instance_group')) {
 			$view->getGroup('instance_group')->visible =
-				($this->app->hasModule('SiteMultipleInstanceModule') &&
-				$this->app->getInstance() === null);
+				$this->app->isMultipleInstanceAdmin();
 		}
 	}
 
