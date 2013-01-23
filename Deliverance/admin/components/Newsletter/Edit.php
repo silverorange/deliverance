@@ -376,7 +376,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 					$subscribers
 				);
 
-				if ($segment->cached_segment_size > 0 ) {
+				if ($segment->cached_segment_size > 0) {
 					$segment_widget->addOption($segment->id, $title,
 						'text/xml');
 				} else {
