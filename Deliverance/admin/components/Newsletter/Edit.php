@@ -148,7 +148,8 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 				$old_instance !=
 					$this->newsletter->getInternalValue('instance')) {
 
-				// If not a draft, remove the resources
+				// If not a draft, remove the resources. Don't delete draft
+				// newsletter resources as they are shared across all drafts.
 				if ($this->newsletter->isScheduled()) {
 					DeliveranceCampaign::removeResources($this->app, $campaign);
 				}

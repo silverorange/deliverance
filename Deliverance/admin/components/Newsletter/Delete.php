@@ -98,7 +98,9 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 
 				$transaction = new SwatDBTransaction($this->app->db);
 				try {
-					// If not a draft, remove the resources
+					// If not a draft, remove the resources. Don't delete draft
+					// newsletter resources as they are shared across all
+					// drafts.
 					if ($newsletter->isScheduled()) {
 						DeliveranceCampaign::removeResources(
 							$this->app,

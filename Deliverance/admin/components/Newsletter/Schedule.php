@@ -194,8 +194,9 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 		);
 
 		// If not a draft, remove the resources first in case they came from an
-		// old directory
-		if ($newsletter->isScheduled()) {
+		// old directory. Don't delete draft newsletter resources as they are
+		// shared across all drafts.
+		if ($this->newsletter->isScheduled()) {
 			DeliveranceCampaign::removeResources($this->app, $campaign);
 		}
 
