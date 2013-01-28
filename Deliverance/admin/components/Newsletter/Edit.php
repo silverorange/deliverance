@@ -337,7 +337,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function buildSegments()
 	{
-		if (count($this->segments)) {
+		if (count($this->segments) > 0) {
 			$segment_widget = $this->ui->getWidget('campaign_segment');
 			$segment_widget->parent->visible = true;
 			$locale = SwatI18NLocale::get();
