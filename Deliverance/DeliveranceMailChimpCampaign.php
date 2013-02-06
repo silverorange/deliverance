@@ -5,7 +5,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2012 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpCampaign extends DeliveranceCampaign
