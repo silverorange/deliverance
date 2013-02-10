@@ -116,7 +116,8 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$message  = null;
 
 		try {
-			if ($this->app->isMultipleInstanceAdmin()) {
+			if ($this->app->isMultipleInstanceAdmin() &&
+				$this->newsletter->id !== null) {
 				// List, campaign_type, old_instance and old_campaign all have
 				// to happen before we modify the newsletter dataobject so they
 				// correctly use the old values.
@@ -145,13 +146,17 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 			// if instance has changed, delete the old campaign details.
 			if ($this->app->isMultipleInstanceAdmin() &&
+				$this->newsletter->id !== null &&
 				$old_instance !=
 					$this->newsletter->getInternalValue('instance')) {
 
 				// If not a draft, remove the resources. Don't delete draft
 				// newsletter resources as they are shared across all drafts.
 				if ($this->newsletter->isScheduled()) {
-					DeliveranceCampaign::removeResources($this->app, $campaign);
+					DeliveranceCampaign::removeResources(
+						$this->app,
+						$old_campaign
+					);
 				}
 
 				$list->deleteCampaign($old_campaign);
