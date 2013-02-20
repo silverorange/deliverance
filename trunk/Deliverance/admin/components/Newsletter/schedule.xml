@@ -1,0 +1,24 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE swatml SYSTEM "http://swat.silverorange.com/swatml1.dtd">
+<swatml>
+	<widget class="SwatMessageDisplay" id="message_display" />
+	<widget class="SwatFrame" id="edit_frame">
+		<widget class="SwatForm" id="edit_form">
+			<widget class="SwatDisplayableContainer">
+				<widget class="SwatContentBlock" id="confirmation_message" />
+				<widget class="SwatFormField" id="send_date_field">
+					<property name="title" translatable="yes">Delivery Date</property>
+					<widget class="SwatDateEntry" id="send_date">
+						<property name="display_parts" type="constant">YEAR|MONTH|DAY|TIME|CALENDAR</property>
+					</widget>
+				</widget>
+			</widget>
+			<widget class="SwatFooterFormField">
+				<widget class="SwatButton" id="submit_button" />
+				<widget class="SwatButton" id="cancel_button">
+					<property name="stock_id">cancel</property>
+				</widget>
+			</widget>
+		</widget>
+	</widget>
+</swatml>
