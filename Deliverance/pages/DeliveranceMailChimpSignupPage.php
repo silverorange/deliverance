@@ -5,7 +5,7 @@ require_once 'Deliverance/pages/DeliveranceSignupPage.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2012 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
@@ -16,7 +16,7 @@ class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
 	protected function getSubscriberInfo()
 	{
 		$info = array(
-			'user_ip' => $_SERVER['REMOTE_ADDR'],
+			'user_ip' => $this->app->getRemoteIP(),
 		);
 
 		// add to all interests by default

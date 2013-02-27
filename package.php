@@ -68,7 +68,7 @@ $package->addPackageDepWithChannel(
 	'required',
 	'Site',
 	'pear.silverorange.com',
-	'1.5.49');
+	'1.6.8');
 
 $package->addPackageDepWithChannel(
 	'required',
