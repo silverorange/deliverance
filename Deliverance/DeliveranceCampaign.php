@@ -52,6 +52,11 @@ class DeliveranceCampaign
 	/**
 	 * @var string
 	 */
+	protected $preheader;
+
+	/**
+	 * @var string
+	 */
 	protected $text_content;
 
 	/**
@@ -253,6 +258,14 @@ class DeliveranceCampaign
 	}
 
 	// }}}
+	// {{{ public function setPreheader()
+
+	public function setPreheader($preheader)
+	{
+		$this->preheader = $preheader;
+	}
+
+	// }}}
 	// {{{ public function setSubject()
 
 	public function setSubject($subject)
@@ -435,7 +448,9 @@ class DeliveranceCampaign
 			$document = $this->getDOMDocument($content);
 			$this->transformXhtml($document);
 			$content = $document->saveXML(
-				$document->documentElement, LIBXML_NOXMLDECL);
+				$document->documentElement,
+				LIBXML_NOXMLDECL
+			);
 
 			break;
 
@@ -473,8 +488,13 @@ class DeliveranceCampaign
 			$style->setAttribute('type', 'text/css');
 			$style->setAttribute('media', 'all');
 
-			$style->appendChild($document->createTextNode(file_get_contents(
-				$style_sheet)));
+			$style->appendChild(
+				$document->createTextNode(
+					file_get_contents(
+						$style_sheet
+					)
+				)
+			);
 
 			$head->appendChild($style);
 		}
@@ -512,8 +532,11 @@ class DeliveranceCampaign
 	protected function transformText($text)
 	{
 		// prepend uris with base href
-		$text = preg_replace('/:uri:(.*?)(\s)/',
-			$this->getBaseHref().'\1\2', $text);
+		$text = preg_replace(
+			'/:uri:(.*?)(\s)/',
+			$this->getBaseHref().'\1\2',
+			$text
+		);
 
 		if (mb_detect_encoding($text, 'UTF-8', true) !== 'UTF-8')
 			throw new SiteException('Text output is not valid UTF-8');
@@ -545,16 +568,20 @@ class DeliveranceCampaign
 			$xml_errors = libxml_get_errors();
 			$message = '';
 			foreach ($xml_errors as $error)
-				$message.= sprintf("%s in %s, line %d\n",
+				$message.= sprintf(
+					"%s in %s, line %d\n",
 					trim($error->message),
 					$error->file,
-					$error->line);
+					$error->line
+			);
 
 			libxml_clear_errors();
 			libxml_use_internal_errors($internal_errors);
 
-			$e = new Exception("Generated XHTML is not valid:\n".
-				$message);
+			$e = new Exception(
+				"Generated XHTML is not valid:\n".
+				$message
+			);
 
 			throw $e;
 		}
@@ -672,8 +699,10 @@ class DeliveranceCampaign
 
 	private final function getXhtmlReplacementMarkerTextByMatches($matches)
 	{
-		return $this->getReplacementMarkerTextByMatches($matches,
-			self::FORMAT_XHTML);
+		return $this->getReplacementMarkerTextByMatches(
+			$matches,
+			self::FORMAT_XHTML
+		);
 	}
 
 	// }}}
@@ -681,8 +710,10 @@ class DeliveranceCampaign
 
 	private final function getTextReplacementMarkerTextByMatches($matches)
 	{
-		return $this->getReplacementMarkerTextByMatches($matches,
-			self::FORMAT_TEXT);
+		return $this->getReplacementMarkerTextByMatches(
+			$matches,
+			self::FORMAT_TEXT
+		);
 	}
 
 	// }}}
@@ -700,8 +731,9 @@ class DeliveranceCampaign
 	 */
 	private final function getReplacementMarkerTextByMatches($matches, $format)
 	{
-		if (isset($matches[1]))
+		if (isset($matches[1])) {
 			return $this->getReplacementMarkerText($matches[1], $format);
+		}
 
 		return '';
 	}

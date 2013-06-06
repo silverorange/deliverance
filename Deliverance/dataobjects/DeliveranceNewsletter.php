@@ -27,6 +27,11 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	/**
 	 * @var string
 	 */
+	public $preheader;
+
+	/**
+	 * @var string
+	 */
 	public $html_content;
 
 	/**
@@ -123,6 +128,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 		$campaign->setId($this->getCampaignId());
 		$campaign->setShortname($this->getCampaignShortname());
 		$campaign->setSubject($this->subject);
+		$campaign->setPreheader($this->preheader);
 		$campaign->setCampaignSegment($this->campaign_segment);
 		$campaign->setHtmlContent($this->html_content);
 		$campaign->setTextContent($this->text_content);

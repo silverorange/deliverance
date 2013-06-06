@@ -17,14 +17,27 @@
 					<property name="show_blank" type="boolean">true</property>
 				</widget>
 			</widget>
-			<widget class="SwatFormField" id="publish_date_field">
+			<widget class="SwatFormField" id="subject_field">
 				<property name="title" translatable="yes">Subject</property>
 				<widget class="SwatEntry" id="subject">
 					<property name="required" type="boolean">true</property>
 					<property name="maxlength" type="integer">255</property>
 				</widget>
 			</widget>
-			<widget class="SwatFormField">
+			<widget class="SwatFormField" id="preheader_field">
+				<property name="title" translatable="yes">Preheader</property>
+				<property name="note" translatable="yes">
+					A short meaningful 70-80 character summary of the email
+					content for users with email clients that show a one or two
+					line preview to go along side the subject. Examples are
+					highlighting your main call to action, or a general overview
+					of topics covered. Do not repeat the subject.
+				</property>
+				<widget class="SwatEntry" id="preheader">
+					<property name="maxlength" type="integer">80</property>
+				</widget>
+			</widget>
+			<widget class="SwatFormField" id="html_content_field">
 				<property name="title" translatable="yes">HTML Content</property>
 				<widget class="SwatTextareaEditor" id="html_content">
 					<property name="required" type="boolean">true</property>
@@ -32,7 +45,7 @@
 					<property name="width">100%</property>
 				</widget>
 			</widget>
-			<widget class="SwatFormField">
+			<widget class="SwatFormField" id="text_content_field">
 				<property name="title" translatable="yes">Text Content</property>
 				<widget class="SwatTextarea" id="text_content">
 					<property name="rows" type="integer">20</property>

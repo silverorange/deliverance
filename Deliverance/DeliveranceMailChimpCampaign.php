@@ -67,11 +67,14 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 
 	public static function getPreviewUrl(SiteApplication $app, $campaign_id)
 	{
-		return sprintf($app->config->mail_chimp->preview_url,
+		return sprintf(
+			$app->config->mail_chimp->preview_url,
 			DeliveranceMailChimpList::getDataCenter(
-				$app->config->mail_chimp->api_key),
+				$app->config->mail_chimp->api_key
+			),
 			$app->config->mail_chimp->user_id,
-			$campaign_id);
+			$campaign_id
+		);
 	}
 
 	// }}}
@@ -80,6 +83,7 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	protected function getDOMDocument($xhtml)
 	{
 		$document = parent::getDOMDocument($xhtml);
+
 		// MailChimp alters the head for its archive page, and breaks when there
 		// isn't whitespace between the head elements. Use formatOutput to
 		// ensure whitespace between the head elements.

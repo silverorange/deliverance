@@ -1,6 +1,7 @@
 create table Newsletter (
 	id serial,
 
+	preheader varchar(100),
 	subject varchar(255),
 	html_content text,
 	text_content text,
