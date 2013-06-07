@@ -41,13 +41,13 @@
 
 		<!-- {{{ Details -->
 		<widget class="SwatDetailsView" id="details_view">
-			<object class="SwatDetailsViewField">
+			<object class="SwatDetailsViewField" id="subject_field">
 				<property name="title" translatable="yes">Subject</property>
 				<object class="SwatTextCellRenderer">
 					<property name="text" type="data">subject</property>
 				</object>
 			</object>
-			<object class="SwatDetailsViewField">
+			<object class="SwatDetailsViewField" id="preheader_field">
 				<property name="title" translatable="yes">Preheader</property>
 				<object class="SwatTextCellRenderer">
 					<property name="text" type="data">preheader</property>
@@ -60,7 +60,7 @@
 					<property name="text" type="data">instance.title</property>
 				</object>
 			</object>
-			<object class="SwatDetailsViewField">
+			<object class="SwatDetailsViewField" id="status_field">
 				<property name="title" translatable="yes">Status</property>
 				<object class="SwatTextCellRenderer">
 					<property name="text" type="data">newsletter_status</property>
