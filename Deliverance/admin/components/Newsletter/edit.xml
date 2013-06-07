@@ -32,7 +32,9 @@
 					content for users with email clients that show a one or two
 					line preview to go along side the subject. Examples are
 					highlighting your main call to action, or a general overview
-					of topics covered. Do not repeat the subject.
+					of topics covered. Do not repeat the subject. Preheader is
+					only shown in email clients, and not in the web archive or
+					preview.
 				</property>
 				<widget class="SwatEntry" id="preheader">
 					<property name="size" type="integer">80</property>

@@ -75,6 +75,11 @@ class DeliveranceCampaign
 	protected $send_date;
 
 	/**
+	 * @var SiteInstance
+	 */
+	protected $instance;
+
+	/**
 	 * @var array
 	 */
 	protected $segment_options;
@@ -169,6 +174,14 @@ class DeliveranceCampaign
 	}
 
 	// }}}
+	// {{{ public function setInstance()
+
+	public function setInstance(SiteInstance $instance = null)
+	{
+		$this->instance = $instance;
+	}
+
+	// }}}
 	// {{{ public function getResources()
 
 	public function getResources()
@@ -200,7 +213,15 @@ class DeliveranceCampaign
 
 	protected function getResourcesDestinationDirectory()
 	{
-		return 'newsletter/resources/'.$this->shortname;
+		return sprintf(
+			'newsletter/resources/%s%s',
+			($this->instance instanceof SiteInstance) ?
+				$this->instance->shortname.'/':
+				null,
+			$this->shortname
+		);
+
+		return $dir;
 	}
 
 	// }}}
@@ -538,8 +559,9 @@ class DeliveranceCampaign
 			$text
 		);
 
-		if (mb_detect_encoding($text, 'UTF-8', true) !== 'UTF-8')
+		if (mb_detect_encoding($text, 'UTF-8', true) !== 'UTF-8') {
 			throw new SiteException('Text output is not valid UTF-8');
+		}
 
 		$text = SwatString::stripXHTMLTags($text);
 		$text = html_entity_decode($text);
@@ -553,7 +575,10 @@ class DeliveranceCampaign
 
 	protected function getBaseHref()
 	{
-		return $this->app->config->uri->absolute_base;
+		return $this->app->getConfigSetting(
+			'uri.absolute_base',
+			$this->instance
+		);
 	}
 
 	// }}}
