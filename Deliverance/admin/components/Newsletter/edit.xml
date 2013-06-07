@@ -21,6 +21,7 @@
 				<property name="title" translatable="yes">Subject</property>
 				<widget class="SwatEntry" id="subject">
 					<property name="required" type="boolean">true</property>
+					<property name="size" type="integer">80</property>
 					<property name="maxlength" type="integer">255</property>
 				</widget>
 			</widget>
@@ -34,6 +35,7 @@
 					of topics covered. Do not repeat the subject.
 				</property>
 				<widget class="SwatEntry" id="preheader">
+					<property name="size" type="integer">80</property>
 					<property name="maxlength" type="integer">80</property>
 				</widget>
 			</widget>
@@ -49,7 +51,7 @@
 				<property name="title" translatable="yes">Text Content</property>
 				<widget class="SwatTextarea" id="text_content">
 					<property name="rows" type="integer">20</property>
-					<property name="cols" type="integer">100</property>
+					<property name="cols" type="integer">120</property>
 				</widget>
 			</widget>
 			<widget class="SwatFooterFormField">

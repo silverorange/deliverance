@@ -5,3 +5,11 @@
 	margin-top: -5px;
 	margin-bottom: -15px;
 }
+
+#text_content_field .swat-textarea-container {
+	margin-right: 15px;
+}
+
+#text_content_field textarea {
+	width: 100%
+}

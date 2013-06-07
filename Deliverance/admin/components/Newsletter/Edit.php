@@ -433,11 +433,8 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		parent::finalize();
 
 		$this->layout->addHtmlHeadEntry(
-			new SwatStyleSheetHtmlHeadEntry(
-				'packages/deliverance/admin/styles/'.
-					'deliverance-newsletter-details.css',
-				Deliverance::PACKAGE_ID
-			)
+			'packages/deliverance/admin/styles/deliverance-newsletter-edit.css',
+			Deliverance::PACKAGE_ID
 		);
 	}
 
