@@ -80,6 +80,11 @@ class DeliveranceCampaign
 	protected $instance;
 
 	/**
+	 * @var string
+	 */
+	protected $template;
+
+	/**
 	 * @var array
 	 */
 	protected $segment_options;
@@ -179,6 +184,18 @@ class DeliveranceCampaign
 	public function setInstance(SiteInstance $instance = null)
 	{
 		$this->instance = $instance;
+	}
+
+	// }}}
+	// {{{ public function setTemplate()
+
+	public function setTemplate($template)
+	{
+		if ($template === null) {
+			$template = 'default';
+		}
+
+		$this->template = $template;
 	}
 
 	// }}}
@@ -654,7 +671,24 @@ class DeliveranceCampaign
 
 	protected function getSourceDirectory()
 	{
-		return 'bogus';
+		return sprintf(
+			'%s/../newsletter/%s%s',
+			$this->getSourceBaseDirectory(),
+			($this->instance instanceof SiteInstance) ?
+				$this->instance->shortname.'/':
+				'',
+			$this->template
+		);
+	}
+
+	// }}}
+	// {{{ protected function getSourceBaseDirectory()
+
+	protected function getSourceBaseDirectory()
+	{
+		$reflector = new ReflectionClass(get_class($this));
+
+		return dirname($reflector->getFileName());
 	}
 
 	// }}}

@@ -50,6 +50,11 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	public $campaign_report_url;
 
 	/**
+	 * @var string
+	 */
+	public $template;
+
+	/**
 	 * @var SwatDate
 	 */
 	public $send_date;
@@ -134,6 +139,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 		$campaign->setTextContent($this->text_content);
 		$campaign->setTitle($this->getCampaignTitle());
 		$campaign->setInstance($this->instance);
+		$campaign->setTemplate($this->template);
 
 		if ($this->send_date instanceof SwatDate) {
 			$campaign->setSendDate($this->send_date);
