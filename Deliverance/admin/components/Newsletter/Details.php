@@ -119,12 +119,15 @@ class DeliveranceNewsletterDetails extends AdminIndex
 
 		$view = $this->ui->getWidget('details_view');
 		$view->data = $this->getDetailsStore();
-		if ($this->newsletter->preheader == null) {
-			$view->getField('preheader_field')->visible = false;
+
+		if ($view->hasField('preheader_field')) {
+			$view->getField('preheader_field')->visible =
+				($this->newsletter->preheader != null);
 		}
 
-		if ($this->newsletter->campaign_segment == null) {
-			$view->getField('campaign_segment_field')->visible = false;
+		if ($view->hasField('campaign_segment_field')) {
+			$view->getField('campaign_segment_field')->visible =
+				($this->newsletter->campaign_segment != null);
 		}
 
 		if ($view->hasField('instance_field')) {
