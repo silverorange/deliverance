@@ -686,6 +686,8 @@ class DeliveranceCampaign
 
 	protected function getSourceBaseDirectory()
 	{
+		// use a reflector so that subclassed objects can look up their
+		// own source directory.
 		$reflector = new ReflectionClass(get_class($this));
 
 		return dirname($reflector->getFileName());
