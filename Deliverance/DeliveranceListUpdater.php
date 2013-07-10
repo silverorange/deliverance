@@ -328,7 +328,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
-echo $sql;
+
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
 			$address          = unserialize($row->info);
@@ -356,7 +356,7 @@ echo $sql;
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
-echo $sql;
+
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
 			$address          = unserialize($row->info);
@@ -384,7 +384,7 @@ echo $sql;
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
-echo $sql;
+
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
 			$addresses[] = $row->email;
@@ -411,7 +411,7 @@ echo $sql;
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
-echo $sql;
+
 		$delete_count = SwatDB::exec($this->db, $sql);
 
 		$this->debug(
@@ -442,7 +442,7 @@ echo $sql;
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
-echo $sql;
+
 		$delete_count = SwatDB::exec($this->db, $sql);
 
 		$this->debug(
@@ -473,7 +473,7 @@ echo $sql;
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
-echo $sql;
+
 		$delete_count = SwatDB::exec($this->db, $sql);
 
 		$this->debug(
