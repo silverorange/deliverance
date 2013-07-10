@@ -1,9 +1,7 @@
 <?php
 
 require_once 'Swat/SwatString.php';
-require_once 'SwatDB/SwatDB.php';
-require_once 'Site/SiteCommandLineApplication.php';
-require_once 'Deliverance/Deliverance.php';
+require_once 'Deliverance/DeliveranceCommandLineApplication.php';
 require_once 'Deliverance/DeliveranceMailChimpList.php';
 
 /**
@@ -20,17 +18,17 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  * Queue must manually be cleared (or left to the cron).
  *
  * @package   Deliverance
- * @copyright 2009-2012 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Don't queue updates when the field already exists. Make sure
  *            queued subscribes haven't unsubscribed? Now that getting the
  *            member list respects segment options, we can make this much
  *            smarter, and only grab subsets of members that haven't been
- *            updated.
+ *            updated. Update to fully support instances.
  */
 
 abstract class DeliveranceMailChimpListMemberUpdater
-	extends SiteCommandLineApplication
+	extends DeliveranceCommandLineApplication
 {
 	// {{{ class constants
 
@@ -137,9 +135,13 @@ abstract class DeliveranceMailChimpListMemberUpdater
 		$this->verbosity = self::VERBOSITY_ALL;
 
 		$incremental = new SiteCommandLineArgument(
-			array('-i', '--incremental'),
+			array('--incremental'),
 			'setIncremental',
-			Deliverance::_('Sets whether to only use resources from s3.'));
+			Deliverance::_(
+				'When set only updates members of the list that have not been '.
+				'updated.'
+			)
+		);
 
 		$this->addCommandLineArgument($incremental);
 
@@ -220,10 +222,7 @@ abstract class DeliveranceMailChimpListMemberUpdater
 
 	protected function initList()
 	{
-		// long custom timeout
-		$this->list = DeliveranceListFactory::get($this, 'default');
-		$this->list->setTimeout(
-			$this->config->deliverance->list_script_connection_timeout);
+		$this->list = $this->getList();
 	}
 
 	// }}}
