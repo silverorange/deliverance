@@ -7,6 +7,8 @@ create table MailingListInterest (
 	displayorder integer not null default 0,
 	visible boolean not null default true,
 
+	instance integer references Instance(id) on delete cascade,
+
 	primary key (id)
 );
 

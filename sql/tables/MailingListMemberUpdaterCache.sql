@@ -4,6 +4,9 @@ create table MailingListMemberUpdaterCache (
 	rating int,
 	field varchar(255),
 	value varchar(500),
+
+	instance integer references Instance(id) on delete cascade,
+
 	primary key (id)
 );
 
