@@ -44,12 +44,10 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater
 	{
 		$sql = 'select * from MailingListCampaignSegment where instance %s %s';
 
-		$instance_id = $this->getInstanceId();
-
 		$sql = sprintf(
 			$sql,
-			SwatDB::equalityOperator($instance_id),
-			$this->db->quote($instance_id, 'integer')
+			SwatDB::equalityOperator($this->getInstanceId()),
+			$this->db->quote($this->getInstanceId(), 'integer')
 		);
 
 		return SwatDB::query(

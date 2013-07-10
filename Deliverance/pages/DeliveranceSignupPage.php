@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceListFactory.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2012 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceSignupPage extends SiteEditPage
@@ -175,11 +175,24 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 			$this->interests = array();
 
 			if ($this->app->hasModule('SiteDatabaseModule')) {
-				$sql = 'select id, shortname from MailingListInterest
+				$sql = 'select id, shortname
+					from MailingListInterest
+					where instance %s %s
 					order by displayorder';
 
-				$rs = SwatDB::query($this->app->db, $sql, null,
-					array('integer', 'text'));
+				$sql = sprintf(
+					$sql,
+					$this->app->db->quote(true, 'boolean'),
+					SwatDB::equalityOperator($this->getInstanceId()),
+					$this->db->quote($this->getInstanceId(), 'integer')
+				);
+
+				$rs = SwatDB::query(
+					$this->app->db,
+					$sql,
+					null,
+					array('integer', 'text')
+				);
 
 				while ($row = $rs->fetchRow(MDB2_FETCHMODE_OBJECT)) {
 					$this->interests[] = $row->shortname;

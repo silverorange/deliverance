@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceListFactory.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2012 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Members with both non-visible and visible interests will lose all
  *            non-visible interests when updating their subscription. This
@@ -40,11 +40,15 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 			if ($this->app->hasModule('SiteDatabaseModule')) {
 				$sql = 'select id, title, shortname
 					from MailingListInterest
-					where visible = %s
+					where visible = %s and instance %s %s
 					order by displayorder';
 
-				$sql = sprintf($sql,
-					$this->app->db->quote(true, 'boolean'));
+				$sql = sprintf(
+					$sql,
+					$this->app->db->quote(true, 'boolean'),
+					SwatDB::equalityOperator($this->getInstanceId()),
+					$this->db->quote($this->getInstanceId(), 'integer')
+				);
 
 				$rs = SwatDB::query($this->app->db, $sql, null,
 					array('integer', 'text'));
