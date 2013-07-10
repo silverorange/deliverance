@@ -118,8 +118,11 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 
 		if ($this->dry_run === false) {
-			$result = $list->batchSubscribe($addresses, true,
-				$this->getArrayMap());
+			$result = $list->batchSubscribe(
+				$addresses,
+				true,
+				$this->getArrayMap()
+			);
 
 			$clear_queued = $this->handleResult(
 				$result,
@@ -403,10 +406,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 
 		$sql = sprintf(
 			$sql,
-			$this->app->db->datatype->implodeArray(
-				$addresses,
-				'text'
-			),
+			$this->getQuotedEmailAddresses($addresses),
 			$this->db->quote($with_welcome, 'boolean'),
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
@@ -435,10 +435,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 
 		$sql = sprintf(
 			$sql,
-			$this->app->db->datatype->implodeArray(
-				$addresses,
-				'text'
-			),
+			$this->getQuotedEmailAddresses($addresses),
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
@@ -466,10 +463,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 
 		$sql = sprintf(
 			$sql,
-			$this->app->db->datatype->implodeArray(
-				$addresses,
-				'text'
-			),
+			$this->getQuotedEmailAddresses($addresses),
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
@@ -485,6 +479,23 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 				count($addresses)
 			)
 		);
+	}
+
+	// }}}
+	// {{{ protected function getQuotedEmailAddresses()
+
+	protected function getQuotedEmailAddresses(array $addresses)
+	{
+		$quoted_address_array = array();
+
+		foreach ($addresses as $address) {
+			$quoted_address_array[] = $this->db->quote(
+				$address['email'],
+				'text'
+			);
+		}
+
+		return implode(',', $quoted_address_array);
 	}
 
 	// }}}
