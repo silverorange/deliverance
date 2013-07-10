@@ -1,21 +1,18 @@
 <?php
 
-require_once 'Site/SiteDatabaseModule.php';
-require_once 'Site/SiteMultipleInstanceModule.php';
-require_once 'Site/SiteCommandLineApplication.php';
-require_once 'Site/SiteCommandLineConfigModule.php';
 require_once 'Site/SiteAmazonCdnModule.php';
-require_once 'Deliverance/Deliverance.php';
 require_once 'Deliverance/DeliveranceCampaign.php';
+require_once 'Deliverance/DeliveranceCommandLineApplication.php';
 
 /**
  * Builds a campaign from a provided shortname
  *
  * @package   Deliverance
- * @copyright 2010-2012 silverorange
+ * @copyright 2010-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
+abstract class DeliveranceCampaignBuilder
+	extends DeliveranceCommandLineApplication
 {
 	// {{{ protected properties
 
@@ -58,16 +55,6 @@ abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
 
 		$this->verbosity = self::VERBOSITY_ALL;
 
-		$instance = new SiteCommandLineArgument(array('-i', '--instance'),
-			'setInstance', 'Optional. Sets the site instance for which to '.
-			'run this application. If no instance is specified, the default '.
-			'site instance is used.');
-
-		$instance->addParameter('string',
-			'instance name must be specified when --instance is used.');
-
-		$this->addCommandLineArgument($instance);
-
 		$campaign = new SiteCommandLineArgument(array('-c', '--campaign'),
 			'setCampaignShortname', 'Sets the campaign shortname of '.
 			'the campaign to build.');
@@ -76,16 +63,6 @@ abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
 			'--campaign expects a single paramater.');
 
 		$this->addCommandLineArgument($campaign);
-	}
-
-	// }}}
-	// {{{ public function setInstance()
-
-	public function setInstance($shortname)
-	{
-		putenv(sprintf('instance=%s', $shortname));
-		$this->instance->init();
-		$this->config->init();
 	}
 
 	// }}}
@@ -120,16 +97,6 @@ abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
 		}
 
 		$this->build();
-	}
-
-	// }}}
-	// {{{ protected function getList()
-
-	protected function getList()
-	{
-		$list = DeliveranceListFactory::get($this->app, 'default');
-		$list->setTimeout(
-			$this->config->deliverance->list_script_connection_timeout);
 	}
 
 	// }}}
@@ -214,12 +181,11 @@ abstract class DeliveranceCampaignBuilder extends SiteCommandLineApplication
 
 	protected function getDefaultModuleList()
 	{
-		return array(
-			'database' => 'SiteDatabaseModule',
-			'config'   => 'SiteCommandLineConfigModule',
-			'instance' => 'SiteMultipleInstanceModule',
-			'cdn'      => 'SiteAmazonCdnModule',
-		);
+		$list = parent::getDefaultModuleList();
+
+		$list['cdn'] = 'SiteMultipleInstanceModule';
+
+		return $list;
 	}
 
 	// }}}

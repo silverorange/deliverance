@@ -1,50 +1,17 @@
 <?php
 
-require_once 'SwatDB/SwatDB.php';
-require_once 'Site/SiteCommandLineApplication.php';
-require_once 'Site/SiteDatabaseModule.php';
-require_once 'Site/SiteCommandLineConfigModule.php';
-require_once 'Deliverance/Deliverance.php';
-require_once 'Deliverance/DeliveranceList.php';
+require_once 'Deliverance/DeliveranceCommandLineApplication.php';
 
 /**
  * Cron job application to update mailing list with new and queued subscriber
  * requests.
  *
  * @package   Deliverance
- * @copyright 2009-2012 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-abstract class DeliveranceListUpdater extends SiteCommandLineApplication
+abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 {
-	// {{{ protected properties
-
-	protected $dry_run = false;
-
-	// }}}
-	// {{{ public function __construct()
-
-	public function __construct($id, $filename, $title, $documentation)
-	{
-		parent::__construct($id, $filename, $title, $documentation);
-
-		$dry_run = new SiteCommandLineArgument(
-			array('--dry-run'),
-			'setDryRun',
-			Deliverance::_('No data is actually modified.'));
-
-		$this->addCommandLineArgument($dry_run);
-	}
-
-	// }}}
-	// {{{ public function setDryRun()
-
-	public function setDryRun($dry_run)
-	{
-		$this->dry_run = (boolean)$dry_run;
-	}
-
-	// }}}
 	// {{{ public function run()
 
 	public function run()
@@ -70,18 +37,6 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 		$this->debug(Deliverance::_('Done unsubscribing.')."\n\n");
 
 		$this->debug(Deliverance::_('All Done.')."\n", true);
-	}
-
-	// }}}
-	// {{{ protected function getList()
-
-	protected function getList()
-	{
-		$list = DeliveranceListFactory::get($this, 'default');
-		$list->setTimeout(
-			$this->config->deliverance->list_script_connection_timeout);
-
-		return $list;
 	}
 
 	// }}}
@@ -363,12 +318,17 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 	{
 		$addresses = array();
 
-		$sql = 'select email, info from MailingListSubscribeQueue
-			where send_welcome = %s';
+		$sql = 'select email, info
+			from MailingListSubscribeQueue
+			where send_welcome = %s and instance %s %s';
 
-		$sql = sprintf($sql,
-			$this->db->quote($with_welcome, 'boolean'));
-
+		$sql = sprintf(
+			$sql,
+			$this->db->quote($with_welcome, 'boolean'),
+			SwatDB::equalityOperator($this->getInstanceId()),
+			$this->db->quote($this->getInstanceId(), 'integer')
+		);
+echo $sql;
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
 			$address          = unserialize($row->info);
@@ -387,8 +347,16 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 	{
 		$addresses = array();
 
-		$sql = 'select email, info from MailingListUpdateQueue';
+		$sql = 'select email, info
+			from MailingListUpdateQueue
+			where instance %s %s';
 
+		$sql = sprintf(
+			$sql,
+			SwatDB::equalityOperator($this->getInstanceId()),
+			$this->db->quote($this->getInstanceId(), 'integer')
+		);
+echo $sql;
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
 			$address          = unserialize($row->info);
@@ -407,8 +375,16 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 	{
 		$addresses = array();
 
-		$sql = 'select email from MailingListUnsubscribeQueue';
+		$sql = 'select email
+			from MailingListUnsubscribeQueue
+			where instance %s %s';
 
+		$sql = sprintf(
+			$sql,
+			SwatDB::equalityOperator($this->getInstanceId()),
+			$this->db->quote($this->getInstanceId(), 'integer')
+		);
+echo $sql;
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
 			$addresses[] = $row->email;
@@ -423,18 +399,19 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 	protected function clearQueuedSubscribes(array $addresses, $with_welcome)
 	{
 		$sql = 'delete from MailingListSubscribeQueue
-			where email in (%s) and send_welcome = %s';
+			where email in (%s) and send_welcome = %s and instance %s %s';
 
-		$quoted_address_array = array();
-		foreach ($addresses as $address) {
-			$quoted_address_array[] = $this->db->quote($address['email'],
-				'text');
-		}
-
-		$sql = sprintf($sql,
-			implode(',', $quoted_address_array),
-			$this->db->quote($with_welcome, 'boolean'));
-
+		$sql = sprintf(
+			$sql,
+			$this->app->db->datatype->implodeArray(
+				$addresses,
+				'text'
+			),
+			$this->db->quote($with_welcome, 'boolean'),
+			SwatDB::equalityOperator($this->getInstanceId()),
+			$this->db->quote($this->getInstanceId(), 'integer')
+		);
+echo $sql;
 		$delete_count = SwatDB::exec($this->db, $sql);
 
 		$this->debug(
@@ -453,16 +430,19 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 
 	protected function clearQueuedUpdates(array $addresses)
 	{
-		$sql = 'delete from MailingListUpdateQueue where email in (%s)';
+		$sql = 'delete from MailingListUpdateQueue
+			where email in (%s) and instance %s %s';
 
-		$quoted_address_array = array();
-		foreach ($addresses as $address) {
-			$quoted_address_array[] = $this->db->quote($address['email'],
-				'text');
-		}
-
-		$sql = sprintf($sql, implode(',', $quoted_address_array));
-
+		$sql = sprintf(
+			$sql,
+			$this->app->db->datatype->implodeArray(
+				$addresses,
+				'text'
+			),
+			SwatDB::equalityOperator($this->getInstanceId()),
+			$this->db->quote($this->getInstanceId(), 'integer')
+		);
+echo $sql;
 		$delete_count = SwatDB::exec($this->db, $sql);
 
 		$this->debug(
@@ -481,16 +461,19 @@ abstract class DeliveranceListUpdater extends SiteCommandLineApplication
 
 	protected function clearQueuedUnsubscribes(array $addresses)
 	{
-		$sql = 'delete from MailingListUnsubscribeQueue where email in (%s)';
+		$sql = 'delete from MailingListUnsubscribeQueue
+			where email in (%s) and instance %s %s';
 
-		$quoted_address_array = array();
-		foreach ($addresses as $address) {
-			$quoted_address_array[] = $this->db->quote($address, 'text');
-		}
-
-		$sql = sprintf($sql,
-			implode(',', $quoted_address_array));
-
+		$sql = sprintf(
+			$sql,
+			$this->app->db->datatype->implodeArray(
+				$addresses,
+				'text'
+			),
+			SwatDB::equalityOperator($this->getInstanceId()),
+			$this->db->quote($this->getInstanceId(), 'integer')
+		);
+echo $sql;
 		$delete_count = SwatDB::exec($this->db, $sql);
 
 		$this->debug(
