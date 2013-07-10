@@ -5,7 +5,7 @@ require_once 'SwatDB/SwatDB.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2011 silverorange
+ * @copyright 2009-2013 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceList
@@ -323,12 +323,14 @@ abstract class DeliveranceList
 	public function queueSubscribe($address, array $info, $send_welcome = false)
 	{
 		$sql = 'insert into MailingListSubscribeQueue
-			(email, info, send_welcome) values (%s, %s, %s)';
+			(email, info, send_welcome, instance) values (%s, %s, %s, %s)';
 
 		$sql = sprintf($sql,
 			$this->app->db->quote($address, 'text'),
 			$this->app->db->quote(serialize($info), 'text'),
-			$this->app->db->quote($send_welcome, 'boolean'));
+			$this->app->db->quote($send_welcome, 'boolean'),
+			$this->app->db->quote($this->app->getInstanceId(), 'integer')
+		);
 
 		SwatDB::exec($this->app->db, $sql);
 
@@ -341,20 +343,23 @@ abstract class DeliveranceList
 	public function queueBatchSubscribe(array $addresses, $send_welcome = false)
 	{
 		$sql = 'insert into MailingListSubscribeQueue
-			(email, info) values %s';
+			(email, info, send_welcome, instance) values %s';
 
 		$values = array();
-		$send_welcome_quoted = $this->app->db->quote($send_welcome, 'boolean');
-
 		foreach ($addresses as $info) {
-			$values[] = sprintf('(%s, %s)',
+			$values[] = sprintf(
+				'(%s, %s, %s, %s)',
 				$this->app->db->quote($info['email'], 'text'),
 				$this->app->db->quote(serialize($info), 'text'),
-				$send_welcome_quoted);
+				$this->app->db->quote($send_welcome, 'boolean'),
+				$this->app->db->quote($this->app->getInstanceId(), 'integer')
+			);
 		}
 
-		$sql = sprintf($sql,
-			implode(',', $values));
+		$sql = sprintf(
+			$sql,
+			implode(',', $values)
+		);
 
 		SwatDB::exec($this->app->db, $sql);
 
@@ -366,9 +371,13 @@ abstract class DeliveranceList
 
 	public function queueUnsubscribe($address)
 	{
-		$sql = 'insert into MailingListUnsubscribeQueue (email) values (%s)';
+		$sql = 'insert into MailingListUnsubscribeQueue
+			(email, instance) values (%s, %s)';
+
 		$sql = sprintf($sql,
-			$this->app->db->quote($address, 'text'));
+			$this->app->db->quote($address, 'text'),
+			$this->app->db->quote($this->app->getInstanceId(), 'integer')
+		);
 
 		SwatDB::exec($this->app->db, $sql);
 
@@ -380,15 +389,22 @@ abstract class DeliveranceList
 
 	public function queueBatchUnsubscribe(array $addresses)
 	{
-		$sql = 'insert into MailingListUnsubscribeQueue (email) values %s';
+		$sql = 'insert into MailingListUnsubscribeQueue
+			(email, instance) values %s';
+
 		$values = array();
 		foreach ($addresses as $address) {
-			$values[] = sprintf('(%s)',
-				$this->app->db->quote($address, 'text'));
+			$values[] = sprintf(
+				'(%s, %s)',
+				$this->app->db->quote($address, 'text'),
+				$this->app->db->quote($this->app->getInstanceId(), 'integer')
+			);
 		}
 
-		$sql = sprintf($sql,
-			implode(',', $values));
+		$sql = sprintf(
+			$sql,
+			implode(',', $values)
+		);
 
 		SwatDB::exec($this->app->db, $sql);
 
@@ -401,11 +417,14 @@ abstract class DeliveranceList
 	public function queueUpdate($address, array $info)
 	{
 		$sql = 'insert into MailingListUpdateQueue
-			(email, info) values (%s, %s)';
+			(email, info, instance) values (%s, %s, %s)';
 
-		$sql = sprintf($sql,
+		$sql = sprintf(
+			$sql,
 			$this->app->db->quote($address, 'text'),
-			$this->app->db->quote(serialize($info), 'text'));
+			$this->app->db->quote(serialize($info), 'text'),
+			$this->app->db->quote($this->app->getInstanceId(), 'integer')
+		);
 
 		SwatDB::exec($this->app->db, $sql);
 
@@ -418,18 +437,23 @@ abstract class DeliveranceList
 	public function queueBatchUpdate(array $addresses)
 	{
 		$sql = 'insert into MailingListUpdateQueue
-			(email, info) values %s';
+			(email, info, instance) values %s';
 
 		$values = array();
 
 		foreach ($addresses as $info) {
-			$values[] = sprintf('(%s, %s)',
+			$values[] = sprintf(
+				'(%s, %s, %s)',
 				$this->app->db->quote($info['email'], 'text'),
-				$this->app->db->quote(serialize($info), 'text'));
+				$this->app->db->quote(serialize($info), 'text'),
+				$this->app->db->quote($this->app->getInstanceId(), 'integer')
+			);
 		}
 
-		$sql = sprintf($sql,
-			implode(',', $values));
+		$sql = sprintf(
+			$sql,
+			implode(',', $values)
+		);
 
 		SwatDB::exec($this->app->db, $sql);
 
