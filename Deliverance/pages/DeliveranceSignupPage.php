@@ -183,8 +183,8 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 				$sql = sprintf(
 					$sql,
 					$this->app->db->quote(true, 'boolean'),
-					SwatDB::equalityOperator($this->getInstanceId()),
-					$this->db->quote($this->getInstanceId(), 'integer')
+					SwatDB::equalityOperator($this->app->getInstanceId()),
+					$this->app->db->quote($this->app->getInstanceId(), 'integer')
 				);
 
 				$rs = SwatDB::query(
