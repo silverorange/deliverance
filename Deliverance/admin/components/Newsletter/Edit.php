@@ -85,13 +85,14 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			from MailingListCampaignSegment
 			left outer join Instance
 				on MailingListCampaignSegment.instance = Instance.id
-			where %s
+			where enabled = %s and %s
 			order by instance_title nulls first,
 				MailingListCampaignSegment.displayorder,
 				MailingListCampaignSegment.title';
 
 		$sql = sprintf(
 			$sql,
+			$this->app->db->quote(true, 'boolean'),
 			($this->app->getInstanceId() === null) ?
 				'1 = 1' :
 				$this->app->db->quote($instance_id, 'integer')
