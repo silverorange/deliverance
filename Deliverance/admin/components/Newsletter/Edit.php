@@ -80,12 +80,20 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function initCampaignSegments()
 	{
+		// select all segments that are visible, plus the current newsletters
+		// segment (which can occasionally be disabled for one-off campaigns).
 		$sql = 'select MailingListCampaignSegment.*,
 				Instance.title as instance_title
 			from MailingListCampaignSegment
 			left outer join Instance
 				on MailingListCampaignSegment.instance = Instance.id
-			where enabled = %s and %s
+			where (
+					MailingListCampaignSegment.enabled = %s
+					or MailingListCampaignSegment.id in (
+						select campaign_segment from Newsletter where id = %s
+					)
+				)
+				and %s
 			order by instance_title nulls first,
 				MailingListCampaignSegment.displayorder,
 				MailingListCampaignSegment.title';
@@ -93,6 +101,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$sql = sprintf(
 			$sql,
 			$this->app->db->quote(true, 'boolean'),
+			$this->app->db->quote($this->newsletter->id, 'integer'),
 			($this->app->getInstanceId() === null) ?
 				'1 = 1' :
 				$this->app->db->quote($instance_id, 'integer')
