@@ -12,6 +12,37 @@ require_once 'Deliverance/DeliveranceCommandLineApplication.php';
 abstract class DeliveranceListCampaignSegmentCacheUpdater
 	extends DeliveranceCommandLineApplication
 {
+	// {{{ protected properties
+
+	protected $force_all = false;
+
+	// }}}
+	// {{{ public function __construct()
+
+	public function __construct($id, $filename, $title, $documentation)
+	{
+		parent::__construct($id, $filename, $title, $documentation);
+
+		$force_all = new SiteCommandLineArgument(
+			array('--force-all'),
+			'setForceAll',
+			Deliverance::_(
+				'Force cache updates on all segments, ignoring enabled field.'
+			)
+		);
+
+		$this->addCommandLineArgument($force_all);
+	}
+
+	// }}}
+	// {{{ public function setInstance()
+
+	public function setForceAll()
+	{
+		$this->force_all = true;
+	}
+
+	// }}}
 	// {{{ public function run()
 
 	public function run()
@@ -43,11 +74,16 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater
 	protected function getSegments()
 	{
 		$sql = 'select * from MailingListCampaignSegment
-			where enabled = %s and instance %s %s';
+			where %s and instance %s %s';
 
 		$sql = sprintf(
 			$sql,
-			$this->db->quote(true, 'boolean'),
+			($this->force_all)
+				? '1 = 1'
+				: sprintf(
+					'enabled = %s',
+					$this->db->quote(true, 'boolean')
+				),
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
