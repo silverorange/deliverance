@@ -13,7 +13,7 @@ require_once 'Deliverance/exceptions/DeliveranceException.php';
  * Edit page for episodes
  *
  * @package   Deliverance
- * @copyright 2011-2013 silverorange
+ * @copyright 2011-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Better enforcing of instance.
  */
@@ -443,8 +443,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		parent::finalize();
 
 		$this->layout->addHtmlHeadEntry(
-			'packages/deliverance/admin/styles/deliverance-newsletter-edit.css',
-			Deliverance::PACKAGE_ID
+			'packages/deliverance/admin/styles/deliverance-newsletter-edit.css'
 		);
 	}
 
