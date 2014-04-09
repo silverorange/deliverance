@@ -4,17 +4,12 @@
  * Container for package wide static methods
  *
  * @package   Deliverance
- * @copyright 2010-2013 silverorange
+ * @copyright 2010-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class Deliverance
 {
 	// {{{ constants
-
-	/**
-	 * The package identifier
-	 */
-	const PACKAGE_ID = 'Deliverance';
 
 	/**
 	 * The gettext domain for Deliverance
