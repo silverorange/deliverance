@@ -839,6 +839,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
+	// {{{ public function isMemberOrHasUnsubscribed()
+
+	public function isMemberOrHasUnsubscribed($address)
+	{
+		return ($this->getMemberInfo($address) !== null);
+	}
+
+	// }}}
 	// {{{ public function getMembers()
 
 	public function getMembers(array $segment_options = array(), $since = '')
@@ -996,6 +1004,14 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		// TODO: do this better somehow
 		return $this->default_address;
+	}
+
+	// }}}
+	// {{{ public function getDefaultInterests()
+
+	public function getDefaultInterests()
+	{
+		return array('general');
 	}
 
 	// }}}
