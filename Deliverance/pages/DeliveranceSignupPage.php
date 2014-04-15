@@ -19,9 +19,9 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	protected $send_welcome = true;
 
 	/**
-	 * @var array
+	 * @var DeliveranceMailingListInterestWrapper
 	 */
-	protected $interests = null;
+	protected $interests;
 
 	// }}}
 	// {{{ protected function getUiXml()
@@ -171,35 +171,25 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 
 	protected function getInterests()
 	{
-		if ($this->interests === null) {
-			$this->interests = array();
+		$class_name = SwatDBClassMap::get(
+			'DeliveranceMailingListInterestWrapper'
+		);
 
-			if ($this->app->hasModule('SiteDatabaseModule')) {
-				$sql = 'select id, shortname
-					from MailingListInterest
-					where instance %s %s
-					order by displayorder';
+		if ($this->app->hasModule('SiteDatabaseModule') &&
+			!($this->interests instanceof $class_name)) {
 
-				$sql = sprintf(
-					$sql,
-					SwatDB::equalityOperator($this->app->getInstanceId()),
-					$this->app->db->quote(
-						$this->app->getInstanceId(),
-						'integer'
-					)
-				);
+			$instance_id = $this->app->getInstanceId();
 
-				$rs = SwatDB::query(
-					$this->app->db,
-					$sql,
-					null,
-					array('integer', 'text')
-				);
-
-				while ($row = $rs->fetchRow(MDB2_FETCHMODE_OBJECT)) {
-					$this->interests[] = $row->shortname;
-				}
-			}
+			$this->interests = SwatDB::query(
+				$this->app->db,
+				sprintf(
+					'select * from MailingListInterest
+						where instance %s %s order by displayorder',
+					SwatDB::equalityOperator($instance_id),
+					$this->app->db->quote($instance_id, 'integer')
+				),
+				$class_name
+			);
 		}
 
 		return $this->interests;
