@@ -1023,9 +1023,9 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
-	// {{{ protected function getInterests()
+	// {{{ public function getInterests()
 
-	protected function getInterests()
+	public function getInterests()
 	{
 		$class_name = SwatDBClassMap::get(
 			'DeliveranceMailingListInterestWrapper'

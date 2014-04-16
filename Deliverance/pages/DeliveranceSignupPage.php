@@ -3,7 +3,6 @@
 require_once 'Swat/SwatMessage.php';
 require_once 'Site/pages/SiteEditPage.php';
 require_once 'Deliverance/DeliveranceListFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceMailingListInterestWrapper.php';
 
 /**
  * @package   Deliverance
@@ -18,11 +17,6 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	 * @var boolean
 	 */
 	protected $send_welcome = true;
-
-	/**
-	 * @var DeliveranceMailingListInterestWrapper
-	 */
-	protected $interests;
 
 	// }}}
 	// {{{ protected function getUiXml()
@@ -170,35 +164,6 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	}
 
 	// }}}
-	// {{{ protected function getInterests()
-
-	protected function getInterests()
-	{
-		$class_name = SwatDBClassMap::get(
-			'DeliveranceMailingListInterestWrapper'
-		);
-
-		if ($this->app->hasModule('SiteDatabaseModule') &&
-			!($this->interests instanceof $class_name)) {
-
-			$instance_id = $this->app->getInstanceId();
-
-			$this->interests = SwatDB::query(
-				$this->app->db,
-				sprintf(
-					'select * from MailingListInterest
-					where instance %s %s order by displayorder',
-					SwatDB::equalityOperator($instance_id),
-					$this->app->db->quote($instance_id, 'integer')
-				),
-				$class_name
-			);
-		}
-
-		return $this->interests;
-	}
-
-	// }}}
 	// {{{ protected function addAppMessage()
 
 	protected function addAppMessage(SwatMessage $message)
@@ -212,12 +177,14 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	protected function sendNotification(DeliveranceList $list)
 	{
 		if (isset($this->app->notifier)) {
+			$interests = $list->getInterests()->getDefaultShortnames();
+
 			$this->app->notifier->send(
 				'newsletter_signup',
 				array(
 					'site'      => $this->app->config->notifier->site,
 					'list'      => $list->getShortname(),
-					'interests' => $this->getInterests(),
+					'interests' => $interests,
 				)
 			);
 
