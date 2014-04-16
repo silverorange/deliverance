@@ -3,6 +3,7 @@
 require_once 'Swat/SwatMessage.php';
 require_once 'Site/pages/SiteEditPage.php';
 require_once 'Deliverance/DeliveranceListFactory.php';
+require_once 'Deliverance/dataobjects/DeliveranceMailingListInterestWrapper.php';
 
 /**
  * @package   Deliverance
