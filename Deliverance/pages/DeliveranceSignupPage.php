@@ -177,14 +177,17 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	protected function sendNotification(DeliveranceList $list)
 	{
 		if (isset($this->app->notifier)) {
-			$interests = $list->getInterests()->getDefaultShortnames();
+			$info = $this->getSubscriberInfo($list);
 
 			$this->app->notifier->send(
 				'newsletter_signup',
 				array(
 					'site'      => $this->app->config->notifier->site,
 					'list'      => $list->getShortname(),
-					'interests' => $interests,
+					'interests' => 
+						(isset($info['interests']))
+							? $info['interests']
+							: array(),
 				)
 			);
 
