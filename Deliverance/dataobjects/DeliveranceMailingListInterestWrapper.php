@@ -50,7 +50,7 @@ class DeliveranceMailingListInterestWrapper extends SwatDBRecordsetWrapper
 		parent::init();
 
 		$this->row_wrapper_class = SwatDBClassMap::get(
-			'DeliveranceMailingListInerest'
+			'DeliveranceMailingListInterest'
 		);
 
 		$this->index_field = 'id';
