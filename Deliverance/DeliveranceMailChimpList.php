@@ -825,17 +825,32 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	public function isMember($address)
 	{
-		$is_member = false;
-
-		$member_info = $this->getMemberInfo($address);
-
 		// Status of subscribed is the only way we can validate a current member
-		if ($member_info !== null &&
-			$member_info['status'] == 'subscribed') {
-			$is_member = true;
-		}
+		return $this->isSubscribedMember($this->getMemberInfo($address));
+	}
 
-		return $is_member;
+	// }}}
+	// {{{ public function isSubscribedMember()
+
+	public function isSubscribedMember($member_info)
+	{
+		return (
+			is_array($member_info) &&
+			isset($member_info) &&
+			$member_info['status'] == 'subscribed'
+		);
+	}
+
+	// }}}
+	// {{{ public function isUnsubscribedMember()
+
+	public function isUnsubscribedMember($member_info)
+	{
+		return (
+			is_array($member_info) &&
+			isset($member_info) &&
+			$member_info['status'] == 'unsubscribed'
+		);
 	}
 
 	// }}}
