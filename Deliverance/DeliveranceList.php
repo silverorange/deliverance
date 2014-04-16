@@ -5,7 +5,7 @@ require_once 'SwatDB/SwatDB.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceList
@@ -295,6 +295,13 @@ abstract class DeliveranceList
 	{
 		return 'about/contact';
 	}
+
+	// }}}
+
+	// interest methods
+	// {{{ abstract public function getDefaultSubscriberInfo()
+
+	abstract public function getDefaultSubscriberInfo();
 
 	// }}}
 

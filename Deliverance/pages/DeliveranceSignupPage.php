@@ -7,7 +7,7 @@ require_once 'Deliverance/dataobjects/DeliveranceMailingListInterestWrapper.php'
 
 /**
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceSignupPage extends SiteEditPage
@@ -56,8 +56,10 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 
 	protected function subscribe(DeliveranceList $list)
 	{
+		$default_info = $list->getDefaultSubscriberInfo();
+
 		$email     = $this->getEmail();
-		$info      = $this->getSubscriberInfo();
+		$info      = $this->getSubscriberInfo($default_info);
 		$array_map = $this->getArrayMap();
 
 		$this->checkMember($list, $email);
@@ -96,7 +98,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	// }}}
 	// {{{ abstract protected function getSubscriberInfo();
 
-	abstract protected function getSubscriberInfo();
+	abstract protected function getSubscriberInfo(array $default_info);
 
 	// }}}
 	// {{{ protected function getArrayMap()

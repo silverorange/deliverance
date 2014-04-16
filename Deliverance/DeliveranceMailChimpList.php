@@ -7,10 +7,11 @@ require_once 'Deliverance/DeliveranceMailChimpCampaign.php';
 require_once 'Deliverance/exceptions/DeliveranceException.php';
 require_once 'Deliverance/exceptions/DeliveranceAPIConnectionException.php';
 require_once 'Deliverance/exceptions/DeliveranceCampaignException.php';
+require_once 'Deliverance/dataobjects/DeliveranceMailingListInterestWrapper.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2012 silverorange
+ * @copyright 2009-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Handle addresses somehow magically, perhaps add type checking on
  *            merge vars, and allow zip to be passed into an address field by
@@ -191,6 +192,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 * @var string
 	 */
 	protected $email_type = self::EMAIL_TYPE_HTML;
+
+	/**
+	 * @var DeliveranceMailingListInterestWrapper
+	 */
+	protected $interests;
 
 	// }}}
 	// {{{ private properties
@@ -996,6 +1002,53 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		// TODO: do this better somehow
 		return $this->default_address;
+	}
+
+	// }}}
+
+	// interest methods
+	// {{{ public function getDefaultSubscriberInfo()
+
+	public function getDefaultSubscriberInfo()
+	{
+		$info = parent::getDefaultSubscriberInfo();
+		$info['user_ip'] = $this->app->getRemoteIP();
+
+		$interests = $this->getInterests()->getDefaultShortnames();
+		if (count($interests) > 0) {
+			$info['interests'] = $interests;
+		}
+
+		return $info;
+	}
+
+	// }}}
+	// {{{ protected function getInterests()
+
+	protected function getInterests()
+	{
+		$class_name = SwatDBClassMap::get(
+			'DeliveranceMailingListInterestWrapper'
+		);
+
+		if ($this->app->hasModule('SiteDatabaseModule') &&
+			!($this->interests instanceof $class_name)) {
+
+			$instance_id = $this->app->getInstanceId();
+
+			$this->interests = SwatDB::query(
+				$this->app->db,
+				sprintf(
+					'select * from MailingListInterest
+					where instance %s %s order by displayorder',
+					SwatDB::equalityOperator($instance_id),
+					$this->app->db->quote($instance_id, 'integer')
+				),
+				$class_name
+			);
+		}
+
+		return $this->interests;
 	}
 
 	// }}}

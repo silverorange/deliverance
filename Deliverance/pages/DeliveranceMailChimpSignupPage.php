@@ -13,18 +13,9 @@ class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
 	// process phase
 	// {{{ protected getSubscriberInfo()
 
-	protected function getSubscriberInfo()
+	protected function getSubscriberInfo(array $default_info)
 	{
-		$info = array(
-			'user_ip' => $this->app->getRemoteIP(),
-		);
-
-		$interests = $this->getInterests()->getDefaultShortnames();
-		if (count($interests) > 0) {
-			$info['interests'] = $interests;
-		}
-
-		return $info;
+		return $default_info;
 	}
 
 	// }}}
