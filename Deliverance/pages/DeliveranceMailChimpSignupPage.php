@@ -13,9 +13,9 @@ class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
 	// process phase
 	// {{{ protected getSubscriberInfo()
 
-	protected function getSubscriberInfo(array $default_info)
+	protected function getSubscriberInfo(DeliveranceList $list)
 	{
-		return $default_info;
+		return $list->getDefaultSubscriberInfo();
 	}
 
 	// }}}

@@ -53,7 +53,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 		$default_info = $list->getDefaultSubscriberInfo();
 
 		$email     = $this->getEmail();
-		$info      = $this->getSubscriberInfo($default_info);
+		$info      = $this->getSubscriberInfo($list);
 		$array_map = $this->getArrayMap();
 
 		$this->checkMember($list, $email);
@@ -92,7 +92,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	// }}}
 	// {{{ abstract protected function getSubscriberInfo();
 
-	abstract protected function getSubscriberInfo(array $default_info);
+	abstract protected function getSubscriberInfo(DeliveranceList $list);
 
 	// }}}
 	// {{{ protected function getArrayMap()
