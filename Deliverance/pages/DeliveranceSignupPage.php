@@ -185,7 +185,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 				$this->app->db,
 				sprintf(
 					'select * from MailingListInterest
-						where instance %s %s order by displayorder',
+					where instance %s %s order by displayorder',
 					SwatDB::equalityOperator($instance_id),
 					$this->app->db->quote($instance_id, 'integer')
 				),

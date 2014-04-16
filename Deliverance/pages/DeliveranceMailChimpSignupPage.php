@@ -19,9 +19,9 @@ class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
 			'user_ip' => $this->app->getRemoteIP(),
 		);
 
-		$shortnames = $this->getInterests()->getDefaultShortnames();
-		if (count($shortnames) > 0) {
-			$info['interests'] = $shortnames;
+		$interests = $this->getInterests()->getDefaultShortnames();
+		if (count($interests) > 0) {
+			$info['interests'] = $interests;
 		}
 
 		return $info;
