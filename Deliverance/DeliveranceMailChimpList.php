@@ -1011,8 +1011,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	public function getDefaultSubscriberInfo()
 	{
-		$info = parent::getDefaultSubscriberInfo();
-		$info['user_ip'] = $this->app->getRemoteIP();
+		$info = array('user_ip' => $this->app->getRemoteIP());
 
 		$interests = $this->getInterests()->getDefaultShortnames();
 		if (count($interests) > 0) {
