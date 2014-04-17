@@ -1665,9 +1665,9 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
-	// {{{ public function getInterests()
+	// {{{ public function getInterestGroupings()
 
-	public function getInterests()
+	public function getInterestGroupings()
 	{
 		$interest_groups = null;
 		$parameters = array(
