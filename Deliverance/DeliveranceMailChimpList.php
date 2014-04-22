@@ -830,26 +830,23 @@ class DeliveranceMailChimpList extends DeliveranceList
 	}
 
 	// }}}
-	// {{{ public function isSubscribedMember()
+	// {{{ public function wasMember()
 
-	public function isSubscribedMember($member_info)
+	public function wasMember($address)
 	{
-		return (
-			is_array($member_info) &&
-			isset($member_info) &&
-			$member_info['status'] == 'subscribed'
-		);
+		return $this->isUnsubscribedMember($this->getMemberInfo($address));
 	}
 
 	// }}}
-	// {{{ public function isUnsubscribedMember()
+	// {{{ public function hasEverBeenMember()
 
-	public function isUnsubscribedMember($member_info)
+	public function hasEverBeenMember($address)
 	{
+		$info = $this->getMemberInfo($address);
+
 		return (
-			is_array($member_info) &&
-			isset($member_info) &&
-			$member_info['status'] == 'unsubscribed'
+			$this->isSubscribedMember($info) ||
+			$this->isUnsubscribedMember($info)
 		);
 	}
 
@@ -1011,6 +1008,30 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		// TODO: do this better somehow
 		return $this->default_address;
+	}
+
+	// }}}
+	// {{{ protected function isSubscribedMember()
+
+	protected function isSubscribedMember($member_info)
+	{
+		return (
+			is_array($member_info) &&
+			isset($member_info) &&
+			$member_info['status'] == 'subscribed'
+		);
+	}
+
+	// }}}
+	// {{{ protected function isUnsubscribedMember()
+
+	protected function isUnsubscribedMember($member_info)
+	{
+		return (
+			is_array($member_info) &&
+			isset($member_info) &&
+			$member_info['status'] == 'unsubscribed'
+		);
 	}
 
 	// }}}
