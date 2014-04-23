@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceListFactory.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Members with both non-visible and visible interests will lose all
  *            non-visible interests when updating their subscription. This
@@ -96,7 +96,7 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	protected function getDefaultInterestValues()
 	{
 		// default to unsubscribing all interests.
-		return array_flip($this->getInterests());
+		return array_keys($this->getInterests());
 	}
 
 	// }}}
@@ -197,8 +197,8 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 		$new = array();
 
 		// new interests are the difference of available interests and removed
-		// interests. flip so we can compare ids.
-		$interests = array_flip($this->getInterests());
+		// interests.
+		$interests = array_keys($this->getInterests());
 		if (count($interests) > 0) {
 			$new = array_diff($interests, $this->getRemovedInterests());
 		}
