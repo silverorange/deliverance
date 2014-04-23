@@ -5,7 +5,7 @@ require_once 'Deliverance/pages/DeliveranceSignupPage.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
@@ -13,19 +13,9 @@ class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
 	// process phase
 	// {{{ protected getSubscriberInfo()
 
-	protected function getSubscriberInfo()
+	protected function getSubscriberInfo(DeliveranceList $list)
 	{
-		$info = array(
-			'user_ip' => $this->app->getRemoteIP(),
-		);
-
-		// add to all interests by default
-		$interests = $this->getInterests();
-		if (count($interests) > 0) {
-			$info['interests'] = $interests;
-		}
-
-		return $info;
+		return $list->getDefaultSubscriberInfo();
 	}
 
 	// }}}

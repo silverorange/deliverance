@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceListFactory.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceSignupPage extends SiteEditPage
@@ -17,11 +17,6 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	 * @var boolean
 	 */
 	protected $send_welcome = true;
-
-	/**
-	 * @var array
-	 */
-	protected $interests = null;
 
 	// }}}
 	// {{{ protected function getUiXml()
@@ -55,8 +50,10 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 
 	protected function subscribe(DeliveranceList $list)
 	{
+		$default_info = $list->getDefaultSubscriberInfo();
+
 		$email     = $this->getEmail();
-		$info      = $this->getSubscriberInfo();
+		$info      = $this->getSubscriberInfo($list);
 		$array_map = $this->getArrayMap();
 
 		$this->checkMember($list, $email);
@@ -95,7 +92,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	// }}}
 	// {{{ abstract protected function getSubscriberInfo();
 
-	abstract protected function getSubscriberInfo();
+	abstract protected function getSubscriberInfo(DeliveranceList $list);
 
 	// }}}
 	// {{{ protected function getArrayMap()
@@ -167,45 +164,6 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	}
 
 	// }}}
-	// {{{ protected function getInterests()
-
-	protected function getInterests()
-	{
-		if ($this->interests === null) {
-			$this->interests = array();
-
-			if ($this->app->hasModule('SiteDatabaseModule')) {
-				$sql = 'select id, shortname
-					from MailingListInterest
-					where instance %s %s
-					order by displayorder';
-
-				$sql = sprintf(
-					$sql,
-					SwatDB::equalityOperator($this->app->getInstanceId()),
-					$this->app->db->quote(
-						$this->app->getInstanceId(),
-						'integer'
-					)
-				);
-
-				$rs = SwatDB::query(
-					$this->app->db,
-					$sql,
-					null,
-					array('integer', 'text')
-				);
-
-				while ($row = $rs->fetchRow(MDB2_FETCHMODE_OBJECT)) {
-					$this->interests[] = $row->shortname;
-				}
-			}
-		}
-
-		return $this->interests;
-	}
-
-	// }}}
 	// {{{ protected function addAppMessage()
 
 	protected function addAppMessage(SwatMessage $message)
@@ -219,12 +177,17 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	protected function sendNotification(DeliveranceList $list)
 	{
 		if (isset($this->app->notifier)) {
+			$info = $this->getSubscriberInfo($list);
+
 			$this->app->notifier->send(
 				'newsletter_signup',
 				array(
 					'site'      => $this->app->config->notifier->site,
 					'list'      => $list->getShortname(),
-					'interests' => $this->getInterests(),
+					'interests' => 
+						(isset($info['interests']))
+							? $info['interests']
+							: array(),
 				)
 			);
 

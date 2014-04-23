@@ -6,6 +6,7 @@ create table MailingListInterest (
 	title varchar(255) not null,
 	displayorder integer not null default 0,
 	visible boolean not null default true,
+	is_default boolean not null default false,
 
 	instance integer references Instance(id) on delete cascade,
 
