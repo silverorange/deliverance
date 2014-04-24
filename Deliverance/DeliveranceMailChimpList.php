@@ -1017,8 +1017,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		return (
 			is_array($member_info) &&
-			isset($member_info) &&
-			$member_info['status'] == 'subscribed'
+			isset($member_info['status']) &&
+			$member_info['status'] === 'subscribed'
 		);
 	}
 
@@ -1029,8 +1029,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		return (
 			is_array($member_info) &&
-			isset($member_info) &&
-			$member_info['status'] == 'unsubscribed'
+			isset($member_info['status']) &&
+			$member_info['status'] === 'unsubscribed'
 		);
 	}
 
