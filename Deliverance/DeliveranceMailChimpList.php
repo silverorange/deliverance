@@ -831,17 +831,29 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	public function isMember($address)
 	{
-		$is_member = false;
-
-		$member_info = $this->getMemberInfo($address);
-
 		// Status of subscribed is the only way we can validate a current member
-		if ($member_info !== null &&
-			$member_info['status'] == 'subscribed') {
-			$is_member = true;
-		}
+		return $this->isSubscribedMember($this->getMemberInfo($address));
+	}
 
-		return $is_member;
+	// }}}
+	// {{{ public function wasMember()
+
+	public function wasMember($address)
+	{
+		return $this->isUnsubscribedMember($this->getMemberInfo($address));
+	}
+
+	// }}}
+	// {{{ public function hasEverBeenMember()
+
+	public function hasEverBeenMember($address)
+	{
+		$info = $this->getMemberInfo($address);
+
+		return (
+			$this->isSubscribedMember($info) ||
+			$this->isUnsubscribedMember($info)
+		);
 	}
 
 	// }}}
@@ -1002,6 +1014,30 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		// TODO: do this better somehow
 		return $this->default_address;
+	}
+
+	// }}}
+	// {{{ protected function isSubscribedMember()
+
+	protected function isSubscribedMember($member_info)
+	{
+		return (
+			is_array($member_info) &&
+			isset($member_info['status']) &&
+			$member_info['status'] === 'subscribed'
+		);
+	}
+
+	// }}}
+	// {{{ protected function isUnsubscribedMember()
+
+	protected function isUnsubscribedMember($member_info)
+	{
+		return (
+			is_array($member_info) &&
+			isset($member_info['status']) &&
+			$member_info['status'] === 'unsubscribed'
+		);
 	}
 
 	// }}}
