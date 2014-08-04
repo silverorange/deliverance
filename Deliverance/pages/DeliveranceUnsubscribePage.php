@@ -278,15 +278,18 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	// }}}
 
 	// build phase
-	// {{{ protected function buildInternal()
+	// {{{ protected function buildForm()
 
-	protected function buildInternal()
+	protected function buildForm(SwatForm $form)
 	{
-		parent::buildInternal();
+		parent::buildForm($form);
 
 		$email = SiteApplication::initVar('email');
 		if (strlen($email) > 0) {
 			$this->ui->getWidget('email')->value = $email;
+		} elseif (!$form->isProcessed() && $this->app->session->isLoggedIn()) {
+			$this->ui->getWidget('email')->value =
+				$this->app->session->account->email;
 		}
 	}
 

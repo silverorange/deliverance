@@ -195,6 +195,24 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	}
 
 	// }}}
+
+	// build phase
+	// {{{ protected function buildForm()
+
+	protected function buildForm(SwatForm $form)
+	{
+		parent::buildForm($form);
+
+		$email = SiteApplication::initVar('email');
+		if (strlen($email) > 0) {
+			$this->ui->getWidget('email')->value = $email;
+		} elseif (!$form->isProcessed() && $this->app->session->isLoggedIn()) {
+			$this->ui->getWidget('email')->value =
+				$this->app->session->account->email;
+		}
+	}
+
+	// }}}
 }
 
 ?>
