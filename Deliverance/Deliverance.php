@@ -139,6 +139,7 @@ class Deliverance
 			'mail_chimp.default_list'   => null,
 			'mail_chimp.default_folder' => null,
 			'mail_chimp.preview_url'    => 'http://%s.campaign-archive.com/?u=%s&id=%s',
+			'mail_chimp.automatic_analytics_tagging' => false,
 		);
 	}
 

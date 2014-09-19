@@ -1521,12 +1521,6 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		$to_name = $campaign->getToName();
 
-		$analytics = '';
-		$key = $campaign->getAnalyticsKey();
-		if ($key != null) {
-			$analytics = array('google' => $key);
-		}
-
 		$options = array(
 			'list_id'      => $this->shortname,
 			'title'        => $title,
@@ -1535,11 +1529,17 @@ class DeliveranceMailChimpList extends DeliveranceList
 			'from_name'    => $from_name,
 			'to_name'      => $to_name,
 			'authenticate' => 'true',
-			'analytics'    => $analytics,
 			'inline_css'   => true,
 			'timewarp'     => $campaign->timewarp,
 			'ecomm360'     => $campaign->track_orders,
 		);
+
+		if ($this->app->config->mail_chimp->automatic_analytics_tagging) {
+			$key = $campaign->getAnalyticsKey();
+			if ($key != '') {
+				$options['analytics'] = array('google' => $key);
+			}
+		}
 
 		if ($this->app->config->mail_chimp->default_folder != null) {
 			$options['folder_id'] =
