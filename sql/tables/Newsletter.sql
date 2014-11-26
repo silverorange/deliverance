@@ -11,6 +11,8 @@ create table Newsletter (
 	campaign_id varchar(255),
 	campaign_report_url varchar(255),
 
+	google_campaign varchar(30),
+
 	send_date timestamp,
 	createdate timestamp,
 

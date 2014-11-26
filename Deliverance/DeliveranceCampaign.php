@@ -52,6 +52,11 @@ class DeliveranceCampaign
 	/**
 	 * @var string
 	 */
+	protected $google_campaign;
+
+	/**
+	 * @var string
+	 */
 	protected $preheader;
 
 	/**
@@ -309,6 +314,14 @@ class DeliveranceCampaign
 	public function setSubject($subject)
 	{
 		$this->subject = $subject;
+	}
+
+	// }}}
+	// {{{ public function setGoogleCampaign()
+
+	public function setGoogleCampaign($google_campaign)
+	{
+		$this->google_campaign = $google_campaign;
 	}
 
 	// }}}

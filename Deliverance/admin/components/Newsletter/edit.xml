@@ -25,6 +25,23 @@
 					<property name="maxlength" type="integer">255</property>
 				</widget>
 			</widget>
+			<widget class="SwatFormField" id="google_campaign_field">
+				<property name="title" translatable="yes">Google Analytics Campaign</property>
+				<property name="note_content_type">text/xml</property>
+				<property name="note" translatable="yes">
+					<![CDATA[
+					A short 20-30 character unique string used to identify
+					outgoing links from this email for analytics use. This will
+					be used as part of a generated <pre>utm_campaign</pre> for
+					all links in the email. If left blank a shortened version
+					of the subject will be used. <a href="<a href="https://support.google.com/analytics/answer/1033863?hl=en">Learn more about campaign tracking variables.</a>
+					]]>
+				</property>
+				<widget class="SwatEntry" id="google_campaign">
+					<property name="size" type="integer">80</property>
+					<property name="maxlength" type="integer">30</property>
+				</widget>
+			</widget>
 			<widget class="SwatFormField" id="preheader_field">
 				<property name="title" translatable="yes">Preheader</property>
 				<property name="note" translatable="yes">
