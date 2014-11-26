@@ -1534,7 +1534,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			'ecomm360'     => $campaign->track_orders,
 		);
 
-		if ($this->app->config->mail_chimp->automatic_analytics_tagging) {
+		if ($this->app->config->deliverance->automatic_analytics_tagging) {
 			$key = $campaign->getAnalyticsKey();
 			if ($key != '') {
 				$options['analytics'] = array('google' => $key);

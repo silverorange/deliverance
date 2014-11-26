@@ -132,6 +132,12 @@ class Deliverance
 			// drawback to using a CNAME.
 			'deliverance.campaign_cdn_base'     => null,
 
+			// Analytics tracking
+			'deliverance.automatic_analytics_tagging' => false,
+			'deliverance.analytics_utm_source'        => null,
+			'deliverance.analytics_utm_medium'        => 'email',
+			'deliverance.analytics_utm_campaign'      => '%s',
+
 			// mailchimp specific
 			'mail_chimp.double_opt_in'  => false,
 			'mail_chimp.api_key'        => null,
@@ -139,10 +145,6 @@ class Deliverance
 			'mail_chimp.default_list'   => null,
 			'mail_chimp.default_folder' => null,
 			'mail_chimp.preview_url'    => 'http://%s.campaign-archive.com/?u=%s&id=%s',
-			'mail_chimp.automatic_analytics_tagging' => false,
-			'mail_chimp.analytics_utm_source'   => null,
-			'mail_chimp.analytics_utm_medium'   => 'email',
-			'mail_chimp.analytics_utm_campaign' => '%s',
 		);
 	}
 

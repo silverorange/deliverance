@@ -653,16 +653,16 @@ class DeliveranceCampaign
 	{
 		$vars = array();
 
-		$config = $this->app->config;
+		$config = $this->app->config->deliverance;
 
 		// Always require a utm_source as well as no automatic tagging to allow
 		// custom analytics tracking.
-		if (!$config->mail_chimp->automatic_analytics_tagging &&
-			$config->mail_chimp->analytics_utm_source != '') {
-			$vars['utm_source'] = $config->mail_chimp->analytics_utm_source;
+		if (!$config->automatic_analytics_tagging &&
+			$config->analytics_utm_source != '') {
+			$vars['utm_source'] = $config->analytics_utm_source;
 
-			if ($config->mail_chimp->analytics_utm_source != '') {
-				$vars['utm_medium'] = $config->mail_chimp->analytics_utm_medium;
+			if ($config->analytics_utm_source != '') {
+				$vars['utm_medium'] = $config->analytics_utm_medium;
 			}
 
 			$vars['utm_campaign'] = $this->getCustomGoogleCampaign();
@@ -684,7 +684,7 @@ class DeliveranceCampaign
 		}
 
 		$utm_campaign = sprintf(
-			$this->app->config->mail_chimp->analytics_utm_campaign,
+			$this->app->config->deliverance->analytics_utm_campaign,
 			rawurlencode($utm_campaign),
 			$this->shortname
 		);
