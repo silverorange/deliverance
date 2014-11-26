@@ -196,7 +196,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 		if ($this->send_date === null) {
 			$shortname = Deliverance::_('DRAFT');
 		} else {
-			$shortname = $this->send_date->formatLikeIntl('yyyy-MM-dd');
+			$shortname = $this->send_date->formatLikeIntl('yy-MM-dd');
 		}
 
 		return $shortname;
