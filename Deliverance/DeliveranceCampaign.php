@@ -661,7 +661,7 @@ class DeliveranceCampaign
 			$config->analytics_utm_source != '') {
 			$vars['utm_source'] = $config->analytics_utm_source;
 
-			if ($config->analytics_utm_source != '') {
+			if ($config->analytics_utm_medium != '') {
 				$vars['utm_medium'] = $config->analytics_utm_medium;
 			}
 
