@@ -7,7 +7,7 @@ require_once 'Site/dataobjects/SiteInstance.php';
 
 /**
  * @package   Deliverance
- * @copyright 2011-2013 silverorange
+ * @copyright 2011-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceNewsletter extends SwatDBDataObject
@@ -23,6 +23,11 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	 * @var string
 	 */
 	public $subject;
+
+	/**
+	 * @var string
+	 */
+	public $google_campaign;
 
 	/**
 	 * @var string
@@ -140,6 +145,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 		$campaign->setTitle($this->getCampaignTitle());
 		$campaign->setInstance($this->instance);
 		$campaign->setTemplate($this->template);
+		$campaign->setGoogleCampaign($this->google_campaign);
 
 		if ($this->send_date instanceof SwatDate) {
 			$campaign->setSendDate($this->send_date);
@@ -190,7 +196,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 		if ($this->send_date === null) {
 			$shortname = Deliverance::_('DRAFT');
 		} else {
-			$shortname = $this->send_date->formatLikeIntl('yyyy-MM-dd');
+			$shortname = $this->send_date->formatLikeIntl('yy-MM-dd');
 		}
 
 		return $shortname;

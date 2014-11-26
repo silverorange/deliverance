@@ -261,6 +261,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$values = $this->ui->getValues(
 			array(
 				'subject',
+				'google_campaign',
 				'preheader',
 				'campaign_segment',
 				'html_content',
@@ -275,6 +276,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$this->newsletter->instance = $segment->instance;
 
 		$this->newsletter->subject          = $values['subject'];
+		$this->newsletter->google_campaign  = $values['google_campaign'];
 		$this->newsletter->preheader        = $values['preheader'];
 		$this->newsletter->campaign_segment = $values['campaign_segment'];
 		$this->newsletter->html_content     = $values['html_content'];

@@ -132,6 +132,12 @@ class Deliverance
 			// drawback to using a CNAME.
 			'deliverance.campaign_cdn_base'     => null,
 
+			// Analytics tracking
+			'deliverance.automatic_analytics_tagging' => false,
+			'deliverance.analytics_utm_source'        => null,
+			'deliverance.analytics_utm_medium'        => 'email',
+			'deliverance.analytics_utm_campaign'      => '%s',
+
 			// mailchimp specific
 			'mail_chimp.double_opt_in'  => false,
 			'mail_chimp.api_key'        => null,

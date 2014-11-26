@@ -1,3 +1,7 @@
+pre {
+	display: inline;
+}
+
 #campaign_segment .swat-radio-list-divider {
 	font-size: 16px;
 	color: #000;

@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceList.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceCampaign
@@ -48,6 +48,11 @@ class DeliveranceCampaign
 	 * @var string
 	 */
 	protected $title;
+
+	/**
+	 * @var string
+	 */
+	protected $google_campaign;
 
 	/**
 	 * @var string
@@ -309,6 +314,14 @@ class DeliveranceCampaign
 	public function setSubject($subject)
 	{
 		$this->subject = $subject;
+	}
+
+	// }}}
+	// {{{ public function setGoogleCampaign()
+
+	public function setGoogleCampaign($google_campaign)
+	{
+		$this->google_campaign = $google_campaign;
 	}
 
 	// }}}
@@ -640,7 +653,41 @@ class DeliveranceCampaign
 	{
 		$vars = array();
 
+		$config = $this->app->config->deliverance;
+
+		// Always require a utm_source as well as no automatic tagging to allow
+		// custom analytics tracking.
+		if (!$config->automatic_analytics_tagging &&
+			$config->analytics_utm_source != '') {
+			$vars['utm_source'] = $config->analytics_utm_source;
+
+			if ($config->analytics_utm_medium != '') {
+				$vars['utm_medium'] = $config->analytics_utm_medium;
+			}
+
+			$vars['utm_campaign'] = $this->getCustomGoogleCampaign();
+		}
+
 		return $vars;
+	}
+
+	// }}}
+	// {{{ protected function getCustomGoogleCampaign()
+
+	protected function getCustomGoogleCampaign()
+	{
+		$utm_campaign = $this->google_campaign;
+
+		// If no campaign exists, use a shortened version of the subject line.
+		if ($utm_campaign == '') {
+			$utm_campaign = SwatString::ellipsizeRight($this->subject, 10, '');
+		}
+
+		return sprintf(
+			$this->app->config->deliverance->analytics_utm_campaign,
+			rawurlencode($utm_campaign),
+			$this->shortname
+		);
 	}
 
 	// }}}
