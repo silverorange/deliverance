@@ -653,7 +653,7 @@ class DeliveranceCampaign
 	{
 		$vars = array();
 
-		$config =  $this->app->config;
+		$config = $this->app->config;
 
 		// Always require a utm_source as well as no automatic tagging to allow
 		// custom analytics tracking.
@@ -683,7 +683,11 @@ class DeliveranceCampaign
 			$utm_campaing = SwatString::ellipsizeRight($this->subject, 10, '');
 		}
 
-		$utm_campaign = rawurlencode($utm_campaign);
+		$utm_campaign = sprintf(
+			$this->app->config->mail_chimp->analytics_utm_campaign,
+			rawurlencode($utm_campaign),
+			$this->shortname
+		);
 
 		return $utm_campaign;
 	}
