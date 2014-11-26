@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceList.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2014 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceCampaign
@@ -653,7 +653,39 @@ class DeliveranceCampaign
 	{
 		$vars = array();
 
+		$config =  $this->app->config;
+
+		// Always require a utm_source as well as no automatic tagging to allow
+		// custom analytics tracking.
+		if (!$config->mail_chimp->automatic_analytics_tagging &&
+			$config->mail_chimp->analytics_utm_source != '') {
+			$vars['utm_source'] = $config->mail_chimp->analytics_utm_source;
+
+			if ($config->mail_chimp->analytics_utm_source != '') {
+				$vars['utm_medium'] = $config->mail_chimp->analytics_utm_medium;
+			}
+
+			$vars['utm_campaign'] = $this->getCustomGoogleCampaign();
+		}
+
 		return $vars;
+	}
+
+	// }}}
+	// {{{ protected function getCustomGoogleCampaign()
+
+	protected function getCustomGoogleCampaign()
+	{
+		$utm_campaign = $this->google_campaign;
+
+		// If no campaign exists, use a shortened version of the subject line.
+		if ($utm_campaign == '') {
+			$utm_campaing = SwatString::ellipsizeRight($this->subject, 10, '');
+		}
+
+		$utm_campaign = rawurlencode($utm_campaign);
+
+		return $utm_campaign;
 	}
 
 	// }}}
