@@ -680,7 +680,7 @@ class DeliveranceCampaign
 
 		// If no campaign exists, use a shortened version of the subject line.
 		if ($utm_campaign == '') {
-			$utm_campaing = SwatString::ellipsizeRight($this->subject, 10, '');
+			$utm_campaign = SwatString::ellipsizeRight($this->subject, 10, '');
 		}
 
 		$utm_campaign = sprintf(
