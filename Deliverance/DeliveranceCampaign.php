@@ -683,13 +683,11 @@ class DeliveranceCampaign
 			$utm_campaign = SwatString::ellipsizeRight($this->subject, 10, '');
 		}
 
-		$utm_campaign = sprintf(
+		return sprintf(
 			$this->app->config->deliverance->analytics_utm_campaign,
 			rawurlencode($utm_campaign),
 			$this->shortname
 		);
-
-		return $utm_campaign;
 	}
 
 	// }}}
