@@ -75,9 +75,11 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	protected function handleSubscribeResponse(DeliveranceList $list, $response)
 	{
 		$message = $list->handleSubscribeResponse($response);
+		$message_display = $this->getMessageDisplay();
 
-		if ($message instanceof SwatMessage) {
-			$this->ui->getWidget('message_display')->add($message);
+		if ($message_display instanceof SwatMessageDisplay &&
+			$message instanceof SwatMessage) {
+			$message_display->add($message);
 		}
 	}
 
@@ -153,14 +155,25 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 
 	protected function canRelocate(SwatForm $form)
 	{
-		$relocate = true;
+		$can_relocate = true;
 
-		if ($this->ui->hasWidget('message_display')) {
-			$message_display = $this->ui->getWidget('message_display');
-			$relocate = ($message_display->getMessageCount() == 0);
+		$message_display = $this->getMessageDisplay();
+		if ($message_display instanceof SwatMessageDisplay &&
+			$message_display->getMessageCount() > 0) {
+			$can_relocate = false;
 		}
 
-		return $relocate;
+		return $can_relocate;
+	}
+
+	// }}}
+	// {{{ protected function getMessageDisplay()
+
+	protected function getMessageDisplay()
+	{
+		return $this->ui->getRoot()->getFirstDescendant(
+			'SwatMessageDisplay'
+		);
 	}
 
 	// }}}
@@ -184,7 +197,7 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 				array(
 					'site'      => $this->app->config->notifier->site,
 					'list'      => $list->getShortname(),
-					'interests' => 
+					'interests' =>
 						(isset($info['interests']))
 							? $info['interests']
 							: array(),
