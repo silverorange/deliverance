@@ -11,7 +11,7 @@ require_once 'Deliverance/dataobjects/DeliveranceMailingListInterestWrapper.php'
 
 /**
  * @package   Deliverance
- * @copyright 2009-2014 silverorange
+ * @copyright 2009-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Handle addresses somehow magically, perhaps add type checking on
  *            merge vars, and allow zip to be passed into an address field by

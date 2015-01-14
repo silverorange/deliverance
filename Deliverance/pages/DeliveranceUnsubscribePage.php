@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceListFactory.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2014 silverorange
+ * @copyright 2009-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Members with both non-visible and visible interests will lose all
  *            non-visible interests when updating their subscription. This

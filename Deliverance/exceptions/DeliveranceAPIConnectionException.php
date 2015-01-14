@@ -10,7 +10,7 @@ require_once 'Deliverance/exceptions/DeliveranceException.php';
  * results.
  *
  * @package   Deliverance
- * @copyright 2011 silverorange
+ * @copyright 2011-2015 silverorange
  */
 class DeliveranceAPIConnectionException extends DeliveranceException
 {

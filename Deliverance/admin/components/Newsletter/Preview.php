@@ -8,7 +8,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  * Page used to send a preview/test newsletter email
  *
  * @package   Deliverance
- * @copyright 2011-2013 silverorange
+ * @copyright 2011-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceNewsletterPreview extends AdminEdit

@@ -7,7 +7,7 @@ require_once 'Deliverance/exceptions/DeliveranceException.php';
  * subscribing is banned.
  *
  * @package   Deliverance
- * @copyright 2012 silverorange
+ * @copyright 2012-2015 silverorange
  */
 class DeliveranceBannedAddressException extends DeliveranceException
 {
