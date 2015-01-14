@@ -7,7 +7,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  * Builds campaigns from provided shortnames, and sets them up on MailChimp
  *
  * @package   Deliverance
- * @copyright 2010 silverorange
+ * @copyright 2010-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpCampaignBuilder extends

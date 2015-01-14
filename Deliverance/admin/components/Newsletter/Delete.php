@@ -11,7 +11,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletterWrapper.php';
  * Delete confirmation page for Newsletters
  *
  * @package   Deliverance
- * @copyright 2011-2013 silverorange
+ * @copyright 2011-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceNewsletterDelete extends AdminDBDelete

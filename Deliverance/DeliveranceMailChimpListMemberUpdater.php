@@ -18,7 +18,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  * Queue must manually be cleared (or left to the cron).
  *
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Don't queue updates when the field already exists. Make sure
  *            queued subscribes haven't unsubscribed? Now that getting the

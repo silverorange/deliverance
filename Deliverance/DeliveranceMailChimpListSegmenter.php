@@ -7,7 +7,7 @@ require_once 'Deliverance/DeliveranceMailChimpListMemberUpdater.php';
  * Manually segments a MailChimp list into a arbitrary number of groups.
  *
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      flag to force updates, so that we can completely resegment, update
  *            to respect instances.

@@ -8,7 +8,7 @@ require_once 'Swat/exceptions/SwatException.php';
  * Example exception causes are API timeouts, etc.
  *
  * @package   Deliverance
- * @copyright 2011 silverorange
+ * @copyright 2011-2015 silverorange
  */
 class DeliveranceException extends SwatException
 {
