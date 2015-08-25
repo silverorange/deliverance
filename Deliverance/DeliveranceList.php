@@ -340,7 +340,7 @@ abstract class DeliveranceList
 
 			$sql = sprintf(
 				'select count(1) from MailingListSubscribeQueue
-				where address = %s and instance %s %s',
+				where email = %s and instance %s %s',
 				$this->app->db->quote($address, 'text'),
 				SwatDB::equalityOperator($this->app->getInstanceId()),
 				$this->app->db->quote($this->app->getInstanceId(), 'integer')
@@ -363,7 +363,7 @@ abstract class DeliveranceList
 				$sql = sprintf(
 					'update MailingListSubscribeQueue set
 						info = %s, send_welcome = %s
-					where address = %s and instance %s %s',
+					where email = %s and instance %s %s',
 					$this->app->db->quote(serialize($info), 'text'),
 					$this->app->db->quote($send_welcome, 'boolean'),
 					$this->app->db->quote($address, 'text'),
@@ -438,7 +438,7 @@ abstract class DeliveranceList
 
 			$sql = sprintf(
 				'select count(1) from MailingListUnsubscribeQueue
-				where address = %s and instance %s %s',
+				where email = %s and instance %s %s',
 				$this->app->db->quote($address, 'text'),
 				SwatDB::equalityOperator($this->app->getInstanceId()),
 				$this->app->db->quote($this->app->getInstanceId(), 'integer')
@@ -519,7 +519,7 @@ abstract class DeliveranceList
 
 			$sql = sprintf(
 				'select count(1) from MailingListUpdateQueue
-				where address = %s and info = %s and instance %s %s',
+				where email = %s and info = %s and instance %s %s',
 				$this->app->db->quote($address, 'text'),
 				$this->app->db->quote($info, 'text'),
 				SwatDB::equalityOperator($this->app->getInstanceId()),
