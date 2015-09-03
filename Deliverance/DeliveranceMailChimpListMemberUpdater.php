@@ -251,12 +251,10 @@ abstract class DeliveranceMailChimpListMemberUpdater
 	// }}}
 
 	// run phase
-	// {{{ public function run()
+	// {{{ protected function runInternal()
 
-	public function run()
+	protected function runInternal()
 	{
-		$this->lock();
-
 		$this->debug(sprintf("Updating %s list members.\n",
 			($this->incremental) ? 'new' : 'all'));
 

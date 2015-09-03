@@ -65,6 +65,28 @@ abstract class DeliveranceCommandLineApplication
 	}
 
 	// }}}
+	// {{{ public function run()
+
+	public function run()
+	{
+		parent::run();
+
+		$this->lock();
+		$this->runInternal();
+		$this->unlock();
+	}
+
+	// }}}
+	// {{{ protected function runInternal()
+
+	protected function runInternal()
+	{
+		// There are command-line applications that extend
+		// DeliveranceCommandLineApplication and don't have a run() method
+		// defined, so runInternal() cannot be abstract.
+	}
+
+	// }}}
 	// {{{ protected function getList()
 
 	protected function getList()

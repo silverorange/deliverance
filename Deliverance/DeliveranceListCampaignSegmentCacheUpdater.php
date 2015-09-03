@@ -43,11 +43,11 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater
 	}
 
 	// }}}
-	// {{{ public function run()
+	// {{{ protected function runInternal()
 
-	public function run()
+	protected function runInternal()
 	{
-		parent::run();
+		parent::runInternal();
 
 		$list     = $this->getList();
 		$segments = $this->getSegments();

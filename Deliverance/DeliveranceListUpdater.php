@@ -12,11 +12,11 @@ require_once 'Deliverance/DeliveranceCommandLineApplication.php';
  */
 abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 {
-	// {{{ public function run()
+	// {{{ protected function runInternal()
 
-	public function run()
+	protected function runInternal()
 	{
-		parent::run();
+		parent::runInternal();
 
 		$list = $this->getList();
 
