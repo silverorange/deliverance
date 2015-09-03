@@ -81,6 +81,9 @@ abstract class DeliveranceCommandLineApplication
 
 	protected function runInternal()
 	{
+		// There are command-line applications that extend
+		// DeliveranceCommandLineApplication and don't have a run() method
+		// defined, so runInternal() cannot be abstract.
 	}
 
 	// }}}
