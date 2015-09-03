@@ -7,16 +7,16 @@ require_once 'Deliverance/DeliveranceCommandLineApplication.php';
  * requests.
  *
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 {
-	// {{{ public function run()
+	// {{{ protected function runInternal()
 
-	public function run()
+	protected function runInternal()
 	{
-		parent::run();
+		parent::runInternal();
 
 		$list = $this->getList();
 

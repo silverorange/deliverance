@@ -6,7 +6,7 @@ require_once 'Deliverance/DeliveranceCommandLineApplication.php';
  * Cron job application to update local segment count caches.
  *
  * @package   Deliverance
- * @copyright 2009-2013 silverorange
+ * @copyright 2009-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceListCampaignSegmentCacheUpdater
@@ -43,11 +43,11 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater
 	}
 
 	// }}}
-	// {{{ public function run()
+	// {{{ protected function runInternal()
 
-	public function run()
+	protected function runInternal()
 	{
-		parent::run();
+		parent::runInternal();
 
 		$list     = $this->getList();
 		$segments = $this->getSegments();

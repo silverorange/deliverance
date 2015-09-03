@@ -12,7 +12,7 @@ require_once 'Deliverance/DeliveranceListFactory.php';
  * Base class for Deliverance commmand line apps.
  *
  * @package   Deliverance
- * @copyright 2013 silverorange
+ * @copyright 2013-2015 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceCommandLineApplication
@@ -62,6 +62,25 @@ abstract class DeliveranceCommandLineApplication
 	public function setDryRun($dry_run)
 	{
 		$this->dry_run = (boolean)$dry_run;
+	}
+
+	// }}}
+	// {{{ public function run()
+
+	public function run()
+	{
+		parent::run();
+
+		$this->lock();
+		$this->runInternal();
+		$this->unlock();
+	}
+
+	// }}}
+	// {{{ protected function runInternal()
+
+	protected function runInternal()
+	{
 	}
 
 	// }}}
