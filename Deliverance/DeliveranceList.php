@@ -317,29 +317,71 @@ abstract class DeliveranceList
 
 	// }}}
 
-	/*
-	 * Subscriber queue methods
-	 *
-	 * Don't worry about dupes in the list, subscribing someone multiple times
-	 * doesn't break anything. And if it ever does, we'll handle it in the
-	 * code that subscribes the queued requests.
-	 */
-
+	// queue methods
 	// {{{ public function queueSubscribe()
 
+	/**
+	 * Enqueues a subscribe request for this list
+	 *
+	 * If a duplicate address is added to the queue, the info field is updated
+	 * instead of inserting a new row. This prevents the queue from growing
+	 * exponentially if list subscribes are unavailable for a long time.
+	 *
+	 * @param string  $address
+	 * @param array   $info
+	 * @param boolean $send_welcome
+	 *
+	 * @return integer status code for a queued response.
+	 */
 	public function queueSubscribe($address, array $info, $send_welcome = false)
 	{
-		$sql = 'insert into MailingListSubscribeQueue
-			(email, info, send_welcome, instance) values (%s, %s, %s, %s)';
+		$transaction = new SwatDBTransaction($this->app->db);
+		try {
 
-		$sql = sprintf($sql,
-			$this->app->db->quote($address, 'text'),
-			$this->app->db->quote(serialize($info), 'text'),
-			$this->app->db->quote($send_welcome, 'boolean'),
-			$this->app->db->quote($this->app->getInstanceId(), 'integer')
-		);
+			$sql = sprintf(
+				'select count(1) from MailingListSubscribeQueue
+				where email = %s and instance %s %s',
+				$this->app->db->quote($address, 'text'),
+				SwatDB::equalityOperator($this->app->getInstanceId()),
+				$this->app->db->quote($this->app->getInstanceId(), 'integer')
+			);
 
-		SwatDB::exec($this->app->db, $sql);
+			if (SwatDB::queryOne($this->app->db, $sql) === 0) {
+				$sql = sprintf(
+					'insert into MailingListSubscribeQueue (
+						email, info, send_welcome, instance
+					) values (%s, %s, %s, %s)',
+					$this->app->db->quote($address, 'text'),
+					$this->app->db->quote(serialize($info), 'text'),
+					$this->app->db->quote($send_welcome, 'boolean'),
+					$this->app->db->quote(
+						$this->app->getInstanceId(),
+						'integer'
+					)
+				);
+			} else {
+				$sql = sprintf(
+					'update MailingListSubscribeQueue set
+						info = %s, send_welcome = %s
+					where email = %s and instance %s %s',
+					$this->app->db->quote(serialize($info), 'text'),
+					$this->app->db->quote($send_welcome, 'boolean'),
+					$this->app->db->quote($address, 'text'),
+					SwatDB::equalityOperator($this->app->getInstanceId()),
+					$this->app->db->quote(
+						$this->app->getInstanceId(),
+						'integer'
+					)
+				);
+			}
+
+			SwatDB::exec($this->app->db, $sql);
+
+			$transaction->commit();
+		} catch (SwatDBException $e) {
+			$transaction->rollback();
+			throw $e;
+		}
 
 		return DeliveranceList::QUEUED;
 	}
@@ -347,28 +389,30 @@ abstract class DeliveranceList
 	// }}}
 	// {{{ public function queueBatchSubscribe()
 
+	/**
+	 * Enqueues a batch of subscription requests for this list
+	 *
+	 * If a duplicate address is added to the queue, the info field is updated
+	 * instead of inserting a new row. This prevents the queue from growing
+	 * exponentially if list subscribes are unavailable for a long time.
+	 *
+	 * @param array   $addresses
+	 * @param boolean $send_welcome
+	 *
+	 * @return integer status code for a queued response.
+	 */
 	public function queueBatchSubscribe(array $addresses, $send_welcome = false)
 	{
-		$sql = 'insert into MailingListSubscribeQueue
-			(email, info, send_welcome, instance) values %s';
-
-		$values = array();
-		foreach ($addresses as $info) {
-			$values[] = sprintf(
-				'(%s, %s, %s, %s)',
-				$this->app->db->quote($info['email'], 'text'),
-				$this->app->db->quote(serialize($info), 'text'),
-				$this->app->db->quote($send_welcome, 'boolean'),
-				$this->app->db->quote($this->app->getInstanceId(), 'integer')
-			);
+		$transaction = new SwatDBTransaction($this->app->db);
+		try {
+			foreach ($addresses as $info) {
+				$this->queueSubscribe($info['email'], $info, $send_welcome);
+			}
+			$transaction->commit();
+		} catch (SwatDBException $e) {
+			$transaction->rollback();
+			throw $e;
 		}
-
-		$sql = sprintf(
-			$sql,
-			implode(',', $values)
-		);
-
-		SwatDB::exec($this->app->db, $sql);
 
 		return DeliveranceList::QUEUED;
 	}
@@ -376,17 +420,48 @@ abstract class DeliveranceList
 	// }}}
 	// {{{ public function queueUnsubscribe()
 
+	/**
+	 * Enqueues an unsubscribe request for this list
+	 *
+	 * Duplicate address are not added to the queue to prevent the queue from
+	 * growing exponentially if list unsubscribes are unavailable for a long
+	 * time.
+	 *
+	 * @param string $address
+	 *
+	 * @return integer status code for a queued response.
+	 */
 	public function queueUnsubscribe($address)
 	{
-		$sql = 'insert into MailingListUnsubscribeQueue
-			(email, instance) values (%s, %s)';
+		$transaction = new SwatDBTransaction($this->app->db);
+		try {
 
-		$sql = sprintf($sql,
-			$this->app->db->quote($address, 'text'),
-			$this->app->db->quote($this->app->getInstanceId(), 'integer')
-		);
+			$sql = sprintf(
+				'select count(1) from MailingListUnsubscribeQueue
+				where email = %s and instance %s %s',
+				$this->app->db->quote($address, 'text'),
+				SwatDB::equalityOperator($this->app->getInstanceId()),
+				$this->app->db->quote($this->app->getInstanceId(), 'integer')
+			);
 
-		SwatDB::exec($this->app->db, $sql);
+			if (SwatDB::queryOne($this->app->db, $sql) === 0) {
+				$sql = sprintf(
+					'insert into MailingListUnsubscribeQueue
+					(email, instance) values (%s, %s)',
+					$this->app->db->quote($address, 'text'),
+					$this->app->db->quote(
+						$this->app->getInstanceId(),
+						'integer'
+					)
+				);
+				SwatDB::exec($this->app->db, $sql);
+			}
+
+			$transaction->commit();
+		} catch (SwatDBException $e) {
+			$transaction->rollback();
+			throw $e;
+		}
 
 		return DeliveranceList::QUEUED;
 	}
@@ -394,26 +469,29 @@ abstract class DeliveranceList
 	// }}}
 	// {{{ public function queueBatchUnsubscribe()
 
+	/**
+	 * Enqueues a batch of unsubscribe requests for this list
+	 *
+	 * No duplicate addesses are added to the queue. This prevents the queue
+	 * from growing exponentially if list unsubscribes are unavailable for a
+	 * long time.
+	 *
+	 * @param array $addresses
+	 *
+	 * @return integer status code for a queued response.
+	 */
 	public function queueBatchUnsubscribe(array $addresses)
 	{
-		$sql = 'insert into MailingListUnsubscribeQueue
-			(email, instance) values %s';
-
-		$values = array();
-		foreach ($addresses as $address) {
-			$values[] = sprintf(
-				'(%s, %s)',
-				$this->app->db->quote($address, 'text'),
-				$this->app->db->quote($this->app->getInstanceId(), 'integer')
-			);
+		$transaction = new SwatDBTransaction($this->app->db);
+		try {
+			foreach ($addresses as $info) {
+				$this->queueUnsubscribe($info['email']);
+			}
+			$transaction->commit();
+		} catch (SwatDBException $e) {
+			$transaction->rollback();
+			throw $e;
 		}
-
-		$sql = sprintf(
-			$sql,
-			implode(',', $values)
-		);
-
-		SwatDB::exec($this->app->db, $sql);
 
 		return DeliveranceList::QUEUED;
 	}
@@ -421,19 +499,54 @@ abstract class DeliveranceList
 	// }}}
 	// {{{ public function queueUpdate()
 
+	/**
+	 * Enqueues a update subscription request for this list
+	 *
+	 * Duplicate rows are not added to the queue. This prevents the queue from
+	 * growing exponentially if list updates are unavailable for a long time.
+	 *
+	 * @param string $address
+	 * @param array  $info
+	 *
+	 * @return integer status code for a queued response.
+	 */
 	public function queueUpdate($address, array $info)
 	{
-		$sql = 'insert into MailingListUpdateQueue
-			(email, info, instance) values (%s, %s, %s)';
+		$info = serialize($info);
 
-		$sql = sprintf(
-			$sql,
-			$this->app->db->quote($address, 'text'),
-			$this->app->db->quote(serialize($info), 'text'),
-			$this->app->db->quote($this->app->getInstanceId(), 'integer')
-		);
+		$transaction = new SwatDBTransaction($this->app->db);
+		try {
 
-		SwatDB::exec($this->app->db, $sql);
+			$sql = sprintf(
+				'select count(1) from MailingListUpdateQueue
+				where email = %s and info = %s and instance %s %s',
+				$this->app->db->quote($address, 'text'),
+				$this->app->db->quote($info, 'text'),
+				SwatDB::equalityOperator($this->app->getInstanceId()),
+				$this->app->db->quote($this->app->getInstanceId(), 'integer')
+			);
+
+			if (SwatDB::queryOne($this->app->db, $sql) === 0) {
+				$sql = sprintf(
+					'insert into MailingListUpdateQueue (
+						email, info, instance
+					) values (%s, %s, %s)',
+					$this->app->db->quote($address, 'text'),
+					$this->app->db->quote($info, 'text'),
+					$this->app->db->quote(
+						$this->app->getInstanceId(),
+						'integer'
+					)
+				);
+
+				SwatDB::exec($this->app->db, $sql);
+			}
+
+			$transaction->commit();
+		} catch (SwatDBException $e) {
+			$transaction->rollback();
+			throw $e;
+		}
 
 		return DeliveranceList::QUEUED;
 	}
@@ -441,28 +554,29 @@ abstract class DeliveranceList
 	// }}}
 	// {{{ public function queueBatchUpdate()
 
+	/**
+	 * Enqueues a batch of subscription update requests for this list
+	 *
+	 * No duplicate updates are added to the queue. This prevents the queue
+	 * from growing exponentially if list updates are unavailable for a long
+	 * time.
+	 *
+	 * @param array $addresses
+	 *
+	 * @return integer status code for a queued response.
+	 */
 	public function queueBatchUpdate(array $addresses)
 	{
-		$sql = 'insert into MailingListUpdateQueue
-			(email, info, instance) values %s';
-
-		$values = array();
-
-		foreach ($addresses as $info) {
-			$values[] = sprintf(
-				'(%s, %s, %s)',
-				$this->app->db->quote($info['email'], 'text'),
-				$this->app->db->quote(serialize($info), 'text'),
-				$this->app->db->quote($this->app->getInstanceId(), 'integer')
-			);
+		$transaction = new SwatDBTransaction($this->app->db);
+		try {
+			foreach ($addresses as $info) {
+				$this->queueUpdate($info['email'], $info);
+			}
+			$transaction->commit();
+		} catch (SwatDBException $e) {
+			$transaction->rollback();
+			throw $e;
 		}
-
-		$sql = sprintf(
-			$sql,
-			implode(',', $values)
-		);
-
-		SwatDB::exec($this->app->db, $sql);
 
 		return DeliveranceList::QUEUED;
 	}
