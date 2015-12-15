@@ -6,7 +6,8 @@ create table Newsletter (
 	html_content text,
 	text_content text,
 
-	template varchar(50),
+	template integer default null references NewsletterTemplate(id),
+	custom_template varchar(50),
 	campaign_segment integer default null references MailingListCampaignSegment(id),
 	campaign_id varchar(255),
 	campaign_report_url varchar(255),

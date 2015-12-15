@@ -2,6 +2,7 @@
 
 require_once 'SwatDB/SwatDBDataObject.php';
 require_once 'Deliverance/DeliveranceCampaignFactory.php';
+require_once 'Deliverance/dataobjects/DeliveranceNewsletterTemplate.php';
 require_once 'Deliverance/dataobjects/DeliveranceCampaignSegment.php';
 require_once 'Site/dataobjects/SiteInstance.php';
 
@@ -57,7 +58,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	/**
 	 * @var string
 	 */
-	public $template;
+	public $custom_template;
 
 	/**
 	 * @var SwatDate
@@ -144,7 +145,7 @@ class DeliveranceNewsletter extends SwatDBDataObject
 		$campaign->setTextContent($this->text_content);
 		$campaign->setTitle($this->getCampaignTitle());
 		$campaign->setInstance($this->instance);
-		$campaign->setTemplate($this->template);
+		$campaign->setTemplate($this->getTemplateShortname());
 		$campaign->setGoogleCampaign($this->google_campaign);
 
 		if ($this->send_date instanceof SwatDate) {
@@ -221,6 +222,16 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	}
 
 	// }}}
+	// {{{ public function getTemplateShortname()
+
+	public function getTemplateShortname()
+	{
+		return ($this->template instanceof DeliveranceNewsletterTemplate)
+			? $this->template->shortname
+			: $this->custom_template;
+	}
+
+	// }}}
 	// {{{ protected function init()
 
 	protected function init()
@@ -229,6 +240,11 @@ class DeliveranceNewsletter extends SwatDBDataObject
 
 		$this->table = 'Newsletter';
 		$this->id_field = 'integer:id';
+
+		$this->registerInternalProperty(
+			'template',
+			SwatDBClassMap::get('DeliveranceNewsletterTemplate')
+		);
 
 		$this->registerInternalProperty(
 			'campaign_segment',

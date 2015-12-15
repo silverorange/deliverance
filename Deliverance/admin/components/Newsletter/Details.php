@@ -123,6 +123,12 @@ class DeliveranceNewsletterDetails extends AdminIndex
 		if ($view->hasField('preheader_field')) {
 			$view->getField('preheader_field')->visible =
 				($this->newsletter->preheader != null);
+
+		if ($view->hasField('template_field')) {
+			$view->getField('template_field')->visible = (
+				$this->newsletter->template instanceof
+				DeliveranceNewsletterTemplate
+			);
 		}
 
 		if ($view->hasField('campaign_segment_field')) {
