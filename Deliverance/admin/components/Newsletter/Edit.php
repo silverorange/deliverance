@@ -149,7 +149,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$this->app->db->quote(true, 'boolean'),
 			$this->app->db->quote($this->newsletter->id, 'integer'),
 			($this->app->getInstanceId() === null)
-				? '1 = 1' :
+				? '1 = 1'
 				: $this->app->db->quote($instance_id, 'integer')
 		);
 
@@ -188,7 +188,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 				$campaign_type =
 					($this->newsletter->instance instanceof SiteInstance)
-					? $this->newsletter->instance->shortname :
+					? $this->newsletter->instance->shortname
 					: null;
 
 				$old_instance = $this->newsletter->getInternalValue('instance');
