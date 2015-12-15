@@ -132,8 +132,10 @@ class DeliveranceNewsletterDetails extends AdminIndex
 		}
 
 		if ($view->hasField('campaign_segment_field')) {
-			$view->getField('campaign_segment_field')->visible =
-				($this->newsletter->campaign_segment != null);
+			$view->getField('campaign_segment_field')->visible = (
+				$this->newsletter->campaign_segment instanceof
+				DeliveranceCampaignSegment
+			);
 		}
 
 		if ($view->hasField('instance_field')) {
@@ -163,9 +165,9 @@ class DeliveranceNewsletterDetails extends AdminIndex
 				'to enable the preview.');
 		} else {
 			$campaign_type =
-				($this->newsletter->instance instanceof SiteInstance) ?
-					$this->newsletter->instance->shortname :
-					null;
+				($this->newsletter->instance instanceof SiteInstance)
+				? $this->newsletter->instance->shortname
+				: null;
 
 			$campaign_class = DeliveranceCampaignFactory::get(
 				$this->app,

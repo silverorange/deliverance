@@ -148,9 +148,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$sql,
 			$this->app->db->quote(true, 'boolean'),
 			$this->app->db->quote($this->newsletter->id, 'integer'),
-			($this->app->getInstanceId() === null) ?
-				'1 = 1' :
-				$this->app->db->quote($instance_id, 'integer')
+			($this->app->getInstanceId() === null)
+				? '1 = 1' :
+				: $this->app->db->quote($instance_id, 'integer')
 		);
 
 		$this->segments = SwatDB::query(
@@ -187,9 +187,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 				);
 
 				$campaign_type =
-					($this->newsletter->instance instanceof SiteInstance) ?
-						$this->newsletter->instance->shortname :
-						null;
+					($this->newsletter->instance instanceof SiteInstance)
+					? $this->newsletter->instance->shortname :
+					: null;
 
 				$old_instance = $this->newsletter->getInternalValue('instance');
 				$old_campaign = $this->newsletter->getCampaign(
@@ -358,8 +358,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$lookup_id_by_title = true;
 		}
 
-		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
-			$this->newsletter->instance->shortname : null;
+		$campaign_type = ($this->newsletter->instance instanceof SiteInstance)
+			? $this->newsletter->instance->shortname
+			: null;
 
 		$campaign = $this->newsletter->getCampaign(
 			$this->app,
