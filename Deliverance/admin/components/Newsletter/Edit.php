@@ -6,6 +6,7 @@ require_once 'SwatDB/SwatDB.php';
 require_once 'Swat/SwatMessage.php';
 require_once 'Deliverance/DeliveranceListFactory.php';
 require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
+require_once 'Deliverance/dataobjects/DeliveranceNewsletterTemplateWrapper.php';
 require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
 require_once 'Deliverance/exceptions/DeliveranceException.php';
 
@@ -27,6 +28,11 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	protected $newsletter;
 
 	/**
+	 * @var DeliveranceNewsletterTemplateWrapper
+	 */
+	protected $templates;
+
+	/**
 	 * @var DeliveranceCampaignSegmentWrapper
 	 */
 	protected $segments;
@@ -43,6 +49,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$this->ui->loadFromXML($this->getUiXml());
 
 		$this->initNewsletter();
+		$this->initTemplates();
 		$this->initCampaignSegments();
 	}
 
@@ -76,6 +83,45 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	}
 
 	// }}}
+	// {{{ protected function initTemplates()
+
+	protected function initTemplates()
+	{
+		// select all segments that are visible, plus the current newsletters
+		// segment (which can occasionally be disabled for one-off campaigns).
+		$sql = 'select NewsletterTemplate.*,
+				Instance.title as instance_title
+			from NewsletterTemplate
+			left outer join Instance
+				on NewsletterTemplate.instance = Instance.id
+			where (
+					NewsletterTemplate.enabled = %s
+					or NewsletterTemplate.id in (
+						select template from Newsletter where id = %s
+					)
+				)
+				and %s
+			order by instance_title nulls first,
+				NewsletterTemplate.displayorder,
+				NewsletterTemplate.title';
+
+		$sql = sprintf(
+			$sql,
+			$this->app->db->quote(true, 'boolean'),
+			$this->app->db->quote($this->newsletter->id, 'integer'),
+			($this->app->getInstanceId() === null)
+				? '1 = 1'
+				: $this->app->db->quote($instance_id, 'integer')
+		);
+
+		$this->templates = SwatDB::query(
+			$this->app->db,
+			$sql,
+			SwatDBClassMap::get('DeliveranceNewsletterTemplateWrapper')
+		);
+	}
+
+	// }}}
 	// {{{ protected function initCampaignSegments()
 
 	protected function initCampaignSegments()
@@ -102,9 +148,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$sql,
 			$this->app->db->quote(true, 'boolean'),
 			$this->app->db->quote($this->newsletter->id, 'integer'),
-			($this->app->getInstanceId() === null) ?
-				'1 = 1' :
-				$this->app->db->quote($instance_id, 'integer')
+			($this->app->getInstanceId() === null)
+				? '1 = 1'
+				: $this->app->db->quote($instance_id, 'integer')
 		);
 
 		$this->segments = SwatDB::query(
@@ -141,9 +187,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 				);
 
 				$campaign_type =
-					($this->newsletter->instance instanceof SiteInstance) ?
-						$this->newsletter->instance->shortname :
-						null;
+					($this->newsletter->instance instanceof SiteInstance)
+					? $this->newsletter->instance->shortname
+					: null;
 
 				$old_instance = $this->newsletter->getInternalValue('instance');
 				$old_campaign = $this->newsletter->getCampaign(
@@ -263,6 +309,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 				'subject',
 				'google_campaign',
 				'preheader',
+				'template',
 				'campaign_segment',
 				'html_content',
 				'text_content',
@@ -278,6 +325,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		$this->newsletter->subject          = $values['subject'];
 		$this->newsletter->google_campaign  = $values['google_campaign'];
 		$this->newsletter->preheader        = $values['preheader'];
+		$this->newsletter->template         = $values['template'];
 		$this->newsletter->campaign_segment = $values['campaign_segment'];
 		$this->newsletter->html_content     = $values['html_content'];
 		$this->newsletter->text_content     = $values['text_content'];
@@ -310,8 +358,9 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$lookup_id_by_title = true;
 		}
 
-		$campaign_type = ($this->newsletter->instance instanceof SiteInstance) ?
-			$this->newsletter->instance->shortname : null;
+		$campaign_type = ($this->newsletter->instance instanceof SiteInstance)
+			? $this->newsletter->instance->shortname
+			: null;
 
 		$campaign = $this->newsletter->getCampaign(
 			$this->app,
@@ -348,7 +397,38 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	{
 		parent::buildInternal();
 
+		$this->buildTemplates();
 		$this->buildSegments();
+	}
+
+	// }}}
+	// {{{ protected function buildTemplates()
+
+	protected function buildTemplates()
+	{
+		if (count($this->templates) > 0) {
+			$template_widget = $this->ui->getWidget('template');
+			$template_widget->parent->visible = true;
+
+			$last_instance_title = null;
+			foreach ($this->templates as $template) {
+				if ($this->app->isMultipleInstanceAdmin() &&
+					$template->instance instanceof SiteInstance &&
+					$last_instance_title != $template->instance->title) {
+					$last_instance_title = $template->instance->title;
+
+					$template_widget->addDivider(
+						sprintf(
+							'<span class="instance-header">%s</span>',
+							$last_instance_title
+						),
+						'text/xml'
+					);
+				}
+
+				$template_widget->addOption($template->id, $template->title);
+			}
+		}
 	}
 
 	// }}}
@@ -431,6 +511,10 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 	protected function loadDBData()
 	{
 		$this->ui->setValues(get_object_vars($this->newsletter));
+
+		$this->ui->getWidget('template')->value =
+			$this->newsletter->getInternalValue('template');
+
 		$this->ui->getWidget('campaign_segment')->value =
 			$this->newsletter->getInternalValue('campaign_segment');
 	}
