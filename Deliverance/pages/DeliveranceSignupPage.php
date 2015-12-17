@@ -52,14 +52,18 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	{
 		$default_info = $list->getDefaultSubscriberInfo();
 
-		$email     = $this->getEmail();
+		$email = $this->getEmail();
+		$this->checkMember($list, $email);
+
 		$info      = $this->getSubscriberInfo($list);
 		$array_map = $this->getArrayMap();
 
-		$this->checkMember($list, $email);
-
-		$response = $list->subscribe($email, $info, $this->send_welcome,
-			$array_map);
+		$response = $list->subscribe(
+			$email,
+			$info,
+			$this->send_welcome,
+			$array_map
+		);
 
 		$this->handleSubscribeResponse($list, $response);
 
