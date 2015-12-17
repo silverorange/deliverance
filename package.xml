@@ -20,9 +20,9 @@
   <active>yes</active>
  </lead>
  <date>2015-12-17</date>
- <time>11:13:58</time>
+ <time>16:02:06</time>
  <version>
-  <release>0.2.41</release>
+  <release>0.2.42</release>
   <api>0.1.0</api>
  </version>
  <stability>
@@ -168,7 +168,7 @@ No release notes for you!
  <changelog>
   <release>
    <version>
-    <release>0.2.41</release>
+    <release>0.2.42</release>
     <api>0.1.0</api>
    </version>
    <stability>
