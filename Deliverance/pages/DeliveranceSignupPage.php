@@ -52,6 +52,10 @@ abstract class DeliveranceSignupPage extends SiteEditPage
 	{
 		$default_info = $list->getDefaultSubscriberInfo();
 
+		// Check to see if the email address is already a member before doing
+		// anything else. This allows the welcome flag to be set correctly,
+		// and for subscriber info to be based on whether it's a new member or
+		// not.
 		$email = $this->getEmail();
 		$this->checkMember($list, $email);
 
