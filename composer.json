@@ -1,0 +1,45 @@
+{
+	"name": "silverorange/deliverance",
+	"description": "Mailing list framework.",
+	"type": "library",
+	"keywords": [ "mailchimp", "mailinglist", "email", "newsletter" ],
+	"homepage": "https://github.com/silverorange/deliverance",
+	"license": "LGPL-2.1",
+	"authors": [
+		{
+			"name": "Charles Waddell",
+			"email": "charles@silverorange.com"
+		},
+		{
+			"name": "Isaac Grant",
+			"email": "isaac@silverorange.com"
+		},
+		{
+			"name": "Michael Gauthier",
+			"email": "mike@silverorange.com"
+		},
+		{
+			"name": "Nick Burka",
+			"email": "nick@silverorange.com"
+		}
+	],
+	"require": {
+		"php": ">=5.2.1",
+		"pear/mail": "^1.2.0",
+		"pear/mail_mime": "^1.10.0",
+		"pear/net_smtp": "^1.6.3",
+		"silverorange/site": "^2.1.45",
+		"silverorange/swat": "^2.2.10",
+		"silverorange/silverorange_autoloader": "*"
+	},
+	"suggest": {
+		"silverorange/mailchimp_api": "Support for MailChimp mailing lists.",
+		"silverorange/admin": "Admin pages for managing newsletters."
+	},
+	"autoload": {
+		"files": [ "autoload.php" ]
+	},
+	"include-path": [
+		"./"
+	]
+}
