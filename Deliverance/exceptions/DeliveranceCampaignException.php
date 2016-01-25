@@ -8,7 +8,7 @@ require_once 'Deliverance/exceptions/DeliveranceException.php';
  * Example exception causes are API timeouts, etc.
  *
  * @package   Deliverance
- * @copyright 2011-2015 silverorange
+ * @copyright 2011-2016 silverorange
  */
 class DeliveranceCampaignException extends DeliveranceException
 {

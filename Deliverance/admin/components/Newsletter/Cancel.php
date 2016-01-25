@@ -8,7 +8,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
  * Confirmation page for cancelling a scheduled newsletter.
  *
  * @package   Deliverance
- * @copyright 2011-2015 silverorange
+ * @copyright 2011-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceNewsletterCancel extends AdminDBEdit

@@ -7,7 +7,7 @@ require_once 'Site/dataobjects/SiteInstance.php';
  * A dataobject representing a segment of subscribers to send a campaign to.
  *
  * @package   Deliverance
- * @copyright 2012-2015 silverorange
+ * @copyright 2012-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceCampaignSegment extends SwatDBDataObject

@@ -7,7 +7,7 @@ require_once 'Deliverance/dataobjects/DeliveranceNewsletterTemplate.php';
  * A recordset wrapper class for DeliveranceNewsletterTemplate objects
  *
  * @package   Deliverance
- * @copyright 2015 silverorange
+ * @copyright 2015-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @see       DeliveranceNewsletterTemplate
  */

@@ -14,7 +14,7 @@ require_once 'Deliverance/exceptions/DeliveranceException.php';
  * Edit page for episodes
  *
  * @package   Deliverance
- * @copyright 2011-2015 silverorange
+ * @copyright 2011-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  * @todo      Better enforcing of instance.
  */
