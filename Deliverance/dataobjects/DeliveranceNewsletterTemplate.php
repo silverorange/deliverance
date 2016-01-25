@@ -7,7 +7,7 @@ require_once 'Site/dataobjects/SiteInstance.php';
  * A dataobject representing a template to use for a Newsletter
  *
  * @package   Deliverance
- * @copyright 2015 silverorange
+ * @copyright 2015-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceNewsletterTemplate extends SwatDBDataObject
