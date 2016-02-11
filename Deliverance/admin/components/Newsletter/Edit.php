@@ -414,7 +414,10 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$last_instance_title = null;
 			foreach ($this->templates as $template) {
 				if ($first) {
-					$template_widget->value = $template->id;
+					if ($this->isNew()) {
+						$template_widget->value = $template->id;
+					}
+
 					$first = false;
 				}
 
