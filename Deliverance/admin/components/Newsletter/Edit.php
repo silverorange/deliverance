@@ -320,7 +320,10 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 		// loaded in init otherwise they don't get saved correctly.
 		$segment = $this->segments->getByIndex($values['campaign_segment']);
 		$this->newsletter->campaign_segment = $segment;
-		$this->newsletter->instance = $segment->instance;
+		if ($segment instanceof DeliveranceCampaignSegment &&
+			$segment->instance instanceof SiteInstance) {
+			$this->newsletter->instance = $segment->instance;
+		}
 
 		$this->newsletter->subject          = $values['subject'];
 		$this->newsletter->google_campaign  = $values['google_campaign'];
