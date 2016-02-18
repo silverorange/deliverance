@@ -413,8 +413,17 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 			$template_widget = $this->ui->getWidget('template');
 			$template_widget->parent->visible = true;
 
+			$first = true;
 			$last_instance_title = null;
 			foreach ($this->templates as $template) {
+				if ($first) {
+					if ($this->isNew()) {
+						$template_widget->value = $template->id;
+					}
+
+					$first = false;
+				}
+
 				if ($this->app->isMultipleInstanceAdmin() &&
 					$template->instance instanceof SiteInstance &&
 					$last_instance_title != $template->instance->title) {
