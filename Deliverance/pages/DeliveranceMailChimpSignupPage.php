@@ -15,7 +15,16 @@ class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
 
 	protected function getSubscriberInfo(DeliveranceList $list)
 	{
-		return $list->getDefaultSubscriberInfo();
+		$info = $list->getDefaultSubscriberInfo();
+
+		// Send welcome is used to signify a new signup to the list. In that
+		// case set correct site as the source.
+		if ($this->send_welcome &&
+			$this->app->config->mail_chimp->source != '') {
+			$info['source'] = $this->app->config->mail_chimp->source;
+		}
+
+		return $info;
 	}
 
 	// }}}
