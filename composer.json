@@ -29,15 +29,14 @@
 		"pear/mail_mime": "^1.10.0",
 		"pear/net_smtp": "^1.6.3",
 		"silverorange/site": "^2.1.45",
-		"silverorange/swat": "^2.2.10",
-		"silverorange/silverorange_autoloader": "*"
+		"silverorange/swat": "^2.2.10"
 	},
 	"suggest": {
 		"silverorange/mailchimp_api": "Support for MailChimp mailing lists.",
 		"silverorange/admin": "Admin pages for managing newsletters."
 	},
 	"autoload": {
-		"files": [ "autoload.php" ]
+		"classmap": [ "Deliverance/" ]
 	},
 	"include-path": [
 		"./"
