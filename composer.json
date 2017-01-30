@@ -29,7 +29,7 @@
 		"pear/mail_mime": "^1.10.0",
 		"pear/net_smtp": "^1.6.3",
 		"silverorange/site": "^4.0.0",
-		"silverorange/swat": "^2.2.10"
+		"silverorange/swat": "^2.5.0"
 	},
 	"suggest": {
 		"silverorange/mailchimp_api": "Support for MailChimp mailing lists.",
