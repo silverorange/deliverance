@@ -1,14 +1,14 @@
 <?php
 
 require_once 'SwatDB/SwatDB.php';
-require_once 'Deliverance/pages/DeliveranceSignupPage.php';
+require_once 'Deliverance/pages/DeliveranceSignUpPage.php';
 
 /**
  * @package   Deliverance
- * @copyright 2009-2016 silverorange
+ * @copyright 2009-2017 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-class DeliveranceMailChimpSignupPage extends DeliveranceSignupPage
+class DeliveranceMailChimpSignUpPage extends DeliveranceSignUpPage
 {
 	// process phase
 	// {{{ protected getSubscriberInfo()
