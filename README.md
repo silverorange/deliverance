@@ -1,7 +1,7 @@
 Deliverance
 ===========
 Mailing list management tools. Provides a factory for mailing list providers,
-user-interface for mailing list sign up, and admin tools for list management.
+user interface for mailing list sign up, and admin tools for list management.
 
 Although Deliverance is written to be provider agnostic, MailChimp is the
 only supported provider.
