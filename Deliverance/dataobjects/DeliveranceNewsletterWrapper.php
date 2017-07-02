@@ -1,8 +1,5 @@
 <?php
 
-require_once 'SwatDB/SwatDBRecordsetWrapper.php';
-require_once dirname(__FILE__).'/DeliveranceNewsletter.php';
-
 /**
  * A recordset wrapper class for DeliveranceNewsletter objects
  *

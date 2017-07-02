@@ -1,14 +1,5 @@
 <?php
 
-require_once 'MailChimpAPI.php';
-require_once 'Swat/SwatDate.php';
-require_once 'Deliverance/DeliveranceList.php';
-require_once 'Deliverance/DeliveranceMailChimpCampaign.php';
-require_once 'Deliverance/exceptions/DeliveranceException.php';
-require_once 'Deliverance/exceptions/DeliveranceAPIConnectionException.php';
-require_once 'Deliverance/exceptions/DeliveranceCampaignException.php';
-require_once 'Deliverance/dataobjects/DeliveranceMailingListInterestWrapper.php';
-
 /**
  * @package   Deliverance
  * @copyright 2009-2016 silverorange
@@ -398,9 +389,6 @@ class DeliveranceMailChimpList extends DeliveranceList
 					// log these to keep track of how frequent they are. If they
 					// become frequent we should build a better message for the
 					// user.
-					require_once 'Deliverance/exceptions/'.
-						'DeliveranceBannedAddressException.php';
-
 					$e = new DeliveranceBannedAddressException($e);
 					$e->processAndContinue();
 

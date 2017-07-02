@@ -1,7 +1,5 @@
 <?php
 
-require_once 'Deliverance/DeliveranceCommandLineApplication.php';
-
 /**
  * Cron job application to update local segment count caches.
  *

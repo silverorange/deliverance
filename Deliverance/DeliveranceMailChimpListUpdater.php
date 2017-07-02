@@ -1,8 +1,5 @@
 <?php
 
-require_once 'Deliverance/DeliveranceListUpdater.php';
-require_once 'Deliverance/DeliveranceMailChimpList.php';
-
 /**
  * MailChimp specific application to update mailing list with new and queued
  * subscriber requests.

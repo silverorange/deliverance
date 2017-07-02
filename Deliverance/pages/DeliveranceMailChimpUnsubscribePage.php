@@ -1,7 +1,5 @@
 <?php
 
-require_once 'Deliverance/pages/DeliveranceUnsubscribePage.php';
-
 /**
  * @package   Deliverance
  * @copyright 2009-2016 silverorange

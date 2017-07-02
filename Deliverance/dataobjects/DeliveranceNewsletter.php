@@ -1,11 +1,5 @@
 <?php
 
-require_once 'SwatDB/SwatDBDataObject.php';
-require_once 'Deliverance/DeliveranceCampaignFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletterTemplate.php';
-require_once 'Deliverance/dataobjects/DeliveranceCampaignSegment.php';
-require_once 'Site/dataobjects/SiteInstance.php';
-
 /**
  * @package   Deliverance
  * @copyright 2011-2016 silverorange

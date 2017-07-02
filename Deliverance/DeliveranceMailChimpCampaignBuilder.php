@@ -1,8 +1,5 @@
 <?php
 
-require_once 'Deliverance/DeliveranceCampaignBuilder.php';
-require_once 'Deliverance/DeliveranceMailChimpList.php';
-
 /**
  * Builds campaigns from provided shortnames, and sets them up on MailChimp
  *

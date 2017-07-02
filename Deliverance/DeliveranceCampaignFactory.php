@@ -1,8 +1,5 @@
 <?php
 
-require_once 'Swat/SwatObject.php';
-require_once 'Swat/exceptions/SwatClassNotFoundException.php';
-
 /**
  * Factory for creating Deliverance Campaigns
  *
@@ -157,34 +154,6 @@ class DeliveranceCampaignFactory extends SwatObject
 	 */
 	private static function loadCampaignClass($campaign_class_name)
 	{
-		// try to load class definition for $campaign_class_name
-		if (!class_exists($campaign_class_name) &&
-			count(self::$search_paths) > 0) {
-			$include_paths = explode(':', get_include_path());
-			foreach (self::$search_paths as $search_path) {
-				// check if search path is relative
-				if ($search_path[0] == '/') {
-					$filename = sprintf('%s/%s.php',
-						$search_path, $campaign_class_name);
-
-					if (file_exists($filename)) {
-						require_once $filename;
-						break;
-					}
-				} else {
-					foreach ($include_paths as $include_path) {
-						$filename = sprintf('%s/%s/%s.php',
-							$include_path, $search_path, $campaign_class_name);
-
-						if (file_exists($filename)) {
-							require_once $filename;
-							break 2;
-						}
-					}
-				}
-			}
-		}
-
 		if (!class_exists($campaign_class_name)) {
 			throw new SwatClassNotFoundException(sprintf(
 				'Campaign class "%s" does not exist and could not be found in '.

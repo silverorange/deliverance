@@ -1,15 +1,5 @@
 <?php
 
-require_once 'Admin/pages/AdminDBEdit.php';
-require_once 'Admin/exceptions/AdminNotFoundException.php';
-require_once 'SwatDB/SwatDB.php';
-require_once 'Swat/SwatMessage.php';
-require_once 'Deliverance/DeliveranceListFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletterTemplateWrapper.php';
-require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
-require_once 'Deliverance/exceptions/DeliveranceException.php';
-
 /**
  * Edit page for episodes
  *

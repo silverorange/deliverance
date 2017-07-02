@@ -1,13 +1,5 @@
 <?php
 
-require_once 'SwatDB/SwatDB.php';
-require_once 'Site/SiteCommandLineApplication.php';
-require_once 'Site/SiteDatabaseModule.php';
-require_once 'Site/SiteCommandLineConfigModule.php';
-require_once 'Site/SiteMultipleInstanceModule.php';
-require_once 'Deliverance/Deliverance.php';
-require_once 'Deliverance/DeliveranceListFactory.php';
-
 /**
  * Base class for Deliverance commmand line apps.
  *

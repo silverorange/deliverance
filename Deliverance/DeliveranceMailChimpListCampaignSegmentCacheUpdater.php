@@ -1,8 +1,5 @@
 <?php
 
-require_once 'Deliverance/DeliveranceListCampaignSegmentCacheUpdater.php';
-require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
-
 /**
  * MailChimp specific application to update segment counts.
  *

@@ -1,12 +1,5 @@
 <?php
 
-require_once 'Swat/SwatString.php';
-require_once 'Swat/SwatDetailsStore.php';
-require_once 'Admin/pages/AdminIndex.php';
-require_once 'Deliverance/DeliveranceListFactory.php';
-require_once 'Deliverance/DeliveranceCampaignFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
-
 /**
  * Details page for newsletters
  *

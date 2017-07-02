@@ -1,8 +1,5 @@
 <?php
 
-require_once 'Deliverance/DeliveranceCampaign.php';
-require_once 'Deliverance/DeliveranceMailChimpList.php';
-
 /**
  * @package   Deliverance
  * @copyright 2009-2016 silverorange

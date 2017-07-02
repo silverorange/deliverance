@@ -1,9 +1,5 @@
 <?php
 
-require_once 'Admin/pages/AdminEdit.php';
-require_once 'Deliverance/DeliveranceListFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
-
 /**
  * Page used to send a preview/test newsletter email
  *

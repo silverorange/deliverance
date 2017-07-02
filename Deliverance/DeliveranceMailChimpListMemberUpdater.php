@@ -1,9 +1,5 @@
 <?php
 
-require_once 'Swat/SwatString.php';
-require_once 'Deliverance/DeliveranceCommandLineApplication.php';
-require_once 'Deliverance/DeliveranceMailChimpList.php';
-
 /**
  * Updates all members of a list
  *
