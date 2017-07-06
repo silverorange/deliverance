@@ -19,7 +19,7 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/pages/signup.xml';
+		return __DIR__.'/signup.xml';
 	}
 
 	// }}}

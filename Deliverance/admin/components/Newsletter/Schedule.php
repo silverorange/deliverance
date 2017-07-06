@@ -113,7 +113,7 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/admin/components/Newsletter/schedule.xml';
+		return __DIR__.'/schedule.xml';
 	}
 
 	// }}}

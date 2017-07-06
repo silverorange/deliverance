@@ -41,7 +41,7 @@ class DeliveranceNewsletterPreview extends AdminEdit
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/admin/components/Newsletter/preview.xml';
+		return __DIR__.'/preview.xml';
 	}
 
 	// }}}

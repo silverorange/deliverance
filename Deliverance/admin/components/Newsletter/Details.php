@@ -40,7 +40,7 @@ class DeliveranceNewsletterDetails extends AdminIndex
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/admin/components/Newsletter/details.xml';
+		return __DIR__.'/details.xml';
 	}
 
 	// }}}

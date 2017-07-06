@@ -22,7 +22,7 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/pages/unsubscribe.xml';
+		return __DIR__.'/unsubscribe.xml';
 	}
 
 	// }}}

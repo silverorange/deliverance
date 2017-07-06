@@ -48,7 +48,7 @@ class DeliveranceNewsletterEdit extends AdminDBEdit
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/admin/components/Newsletter/edit.xml';
+		return __DIR__.'/edit.xml';
 	}
 
 	// }}}

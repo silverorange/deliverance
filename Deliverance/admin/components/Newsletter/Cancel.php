@@ -41,7 +41,7 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/admin/components/Newsletter/cancel.xml';
+		return __DIR__.'/cancel.xml';
 	}
 
 	// }}}
