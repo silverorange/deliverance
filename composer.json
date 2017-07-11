@@ -24,12 +24,12 @@
 		}
 	],
 	"require": {
-		"php": ">=7.0.0",
+		"php": ">=5.2.1",
 		"pear/mail": "^1.2.0",
 		"pear/mail_mime": "^1.10.0",
 		"pear/net_smtp": "^1.6.3",
-		"silverorange/site": "^5.0.0",
-		"silverorange/swat": "^3.0.0"
+		"silverorange/site": "^4.11.0",
+		"silverorange/swat": "^2.7.0"
 	},
 	"suggest": {
 		"silverorange/mailchimp_api": "Support for MailChimp mailing lists.",
