@@ -45,21 +45,21 @@
 		"silverorange/site": "^4.11.0",
 		"silverorange/swat": "^2.7.0"
 	},
+	"require-dev": {
+		"silverorange/coding-standard": "^0.1.0"
+	},
 	"suggest": {
 		"silverorange/mailchimp_api": "Support for MailChimp mailing lists.",
 		"silverorange/admin": "Admin pages for managing newsletters."
+	},
+	"scripts": {
+		"post-install-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src",
+		"post-update-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src"
 	},
 	"autoload": {
 		"classmap": [ "Deliverance/" ]
 	},
 	"include-path": [
 		"./"
-	],
-	"require-dev": {
-		"silverorange/coding-standard": "^0.1.0"
-	},
-	"scripts": {
-		"post-install-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src",
-		"post-update-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src"
-	}
+	]
 }
