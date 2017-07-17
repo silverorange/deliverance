@@ -23,6 +23,20 @@
 			"email": "nick@silverorange.com"
 		}
 	],
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://composer",
+			"options": {
+				"ssl": {
+					"cafile": "/etc/nginx/tls.crt/composer.crt"
+				}
+			}
+		},
+		{
+			"packagist": false
+		}
+	],
 	"require": {
 		"php": ">=5.2.1",
 		"pear/mail": "^1.2.0",
@@ -31,9 +45,16 @@
 		"silverorange/site": "^4.11.0",
 		"silverorange/swat": "^2.7.0"
 	},
+	"require-dev": {
+		"silverorange/coding-standard": "^0.1.0"
+	},
 	"suggest": {
 		"silverorange/mailchimp_api": "Support for MailChimp mailing lists.",
 		"silverorange/admin": "Admin pages for managing newsletters."
+	},
+	"scripts": {
+		"post-install-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src",
+		"post-update-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src"
 	},
 	"autoload": {
 		"classmap": [ "Deliverance/" ]
