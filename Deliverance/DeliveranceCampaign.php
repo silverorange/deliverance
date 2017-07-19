@@ -137,7 +137,7 @@ class DeliveranceCampaign
 		 * As well, set Cache-Control to public, as this allows some browsers to
 		 * cache the images to disk while on https, which is a good win.
 		 */
-		$http_headers =  array(
+		$http_headers = array(
 			'Cache-Control' => 'public, max-age=315360000',
 		);
 
@@ -238,7 +238,7 @@ class DeliveranceCampaign
 		return sprintf(
 			'newsletter/resources/%s%s',
 			($this->instance instanceof SiteInstance) ?
-				$this->instance->shortname.'/':
+				$this->instance->shortname.'/' :
 				null,
 			$this->shortname
 		);
@@ -387,7 +387,7 @@ class DeliveranceCampaign
 		$key = $this->shortname;
 
 		if ($this->campaign_segment !== null) {
-			$key.=sprintf('_%s',
+			$key.= sprintf('_%s',
 				$this->campaign_segment->shortname);
 		}
 
@@ -493,7 +493,8 @@ class DeliveranceCampaign
 	// }}}
 	// {{{ protected function transform()
 
-	protected function transform($content, $format) {
+	protected function transform($content, $format)
+	{
 		switch ($format) {
 		case self::FORMAT_XHTML:
 			$document = $this->getDOMDocument($content);
@@ -722,7 +723,7 @@ class DeliveranceCampaign
 			'%s/../newsletter/%s%s',
 			$this->getSourceBaseDirectory(),
 			($this->instance instanceof SiteInstance) ?
-				$this->instance->shortname.'/':
+				$this->instance->shortname.'/' :
 				'',
 			$this->template
 		);
@@ -748,11 +749,11 @@ class DeliveranceCampaign
 		$filename = $this->getSourceDirectory().'/';
 
 		switch($format) {
-		case DeliveranceCampaign::FORMAT_XHTML:
+		case self::FORMAT_XHTML:
 			$filename.= $this->xhtml_template_filename;
 			break;
 
-		case DeliveranceCampaign::FORMAT_TEXT:
+		case self::FORMAT_TEXT:
 			$filename.= $this->text_template_filename;
 			break;
 		}

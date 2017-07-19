@@ -11,8 +11,7 @@ require_once 'Deliverance/DeliveranceCommandLineApplication.php';
  * @copyright 2010-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
-abstract class DeliveranceCampaignBuilder
-	extends DeliveranceCommandLineApplication
+abstract class DeliveranceCampaignBuilder extends DeliveranceCommandLineApplication
 {
 	// {{{ protected properties
 

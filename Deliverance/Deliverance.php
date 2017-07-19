@@ -99,7 +99,7 @@ class Deliverance
 	{
 		$path = '@DATA-DIR@/Deliverance/locale';
 
-		if (substr($path, 0 ,1) === '@') {
+		if (substr($path, 0, 1) === '@') {
 			$path = dirname(__FILE__).'/../locale';
 		}
 
