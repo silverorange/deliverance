@@ -9,7 +9,5 @@
 
 	<file>./Deliverance</file>
 
-	<exclude-pattern>*/layout/xhtml/*</exclude-pattern>
-
 	<rule ref="SilverorangeLegacy" />
 </ruleset>
