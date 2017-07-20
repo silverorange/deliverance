@@ -91,7 +91,7 @@ class DeliveranceNewsletterDetails extends AdminIndex
 			);
 
 			try {
- 				$this->newsletter->campaign_report_url =
+				$this->newsletter->campaign_report_url =
 					$list->getCampaignReportUrl($this->newsletter->campaign_id);
 
 				$this->newsletter->save();

@@ -97,7 +97,7 @@ abstract class DeliveranceList
 	public function handleSubscribeResponse($response)
 	{
 		switch ($response) {
-		case DeliveranceList::INVALID:
+		case self::INVALID:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Sorry, the email address you entered is not a valid '.
@@ -107,7 +107,7 @@ abstract class DeliveranceList
 			);
 			break;
 
-		case DeliveranceList::FAILURE:
+		case self::FAILURE:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Sorry, there was an issue subscribing you to the list.'
@@ -150,7 +150,7 @@ abstract class DeliveranceList
 	public function handleUnsubscribeResponse($response)
 	{
 		switch ($response) {
-		case DeliveranceList::NOT_FOUND:
+		case self::NOT_FOUND:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Thank you. Your email address was never subscribed to '.
@@ -165,7 +165,7 @@ abstract class DeliveranceList
 
 			break;
 
-		case DeliveranceList::NOT_SUBSCRIBED:
+		case self::NOT_SUBSCRIBED:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Thank you. Your email address has already been '.
@@ -180,7 +180,7 @@ abstract class DeliveranceList
 
 			break;
 
-		case DeliveranceList::FAILURE:
+		case self::FAILURE:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Sorry, there was an issue unsubscribing from the list.'
@@ -226,7 +226,7 @@ abstract class DeliveranceList
 	public function handleUpdateResponse($response)
 	{
 		switch ($response) {
-		case DeliveranceList::NOT_FOUND:
+		case self::NOT_FOUND:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Thank you. Your email address was never subscribed to '.
@@ -241,7 +241,7 @@ abstract class DeliveranceList
 
 			break;
 
-		case DeliveranceList::NOT_SUBSCRIBED:
+		case self::NOT_SUBSCRIBED:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Thank you. Your email address has already been '.
@@ -256,7 +256,7 @@ abstract class DeliveranceList
 
 			break;
 
-		case DeliveranceList::FAILURE:
+		case self::FAILURE:
 			$message = new SwatMessage(
 				Deliverance::_(
 					'Sorry, there was an issue with updating your information.'
@@ -383,7 +383,7 @@ abstract class DeliveranceList
 			throw $e;
 		}
 
-		return DeliveranceList::QUEUED;
+		return self::QUEUED;
 	}
 
 	// }}}
@@ -414,7 +414,7 @@ abstract class DeliveranceList
 			throw $e;
 		}
 
-		return DeliveranceList::QUEUED;
+		return self::QUEUED;
 	}
 
 	// }}}
@@ -463,7 +463,7 @@ abstract class DeliveranceList
 			throw $e;
 		}
 
-		return DeliveranceList::QUEUED;
+		return self::QUEUED;
 	}
 
 	// }}}
@@ -493,7 +493,7 @@ abstract class DeliveranceList
 			throw $e;
 		}
 
-		return DeliveranceList::QUEUED;
+		return self::QUEUED;
 	}
 
 	// }}}
@@ -548,7 +548,7 @@ abstract class DeliveranceList
 			throw $e;
 		}
 
-		return DeliveranceList::QUEUED;
+		return self::QUEUED;
 	}
 
 	// }}}
@@ -578,7 +578,7 @@ abstract class DeliveranceList
 			throw $e;
 		}
 
-		return DeliveranceList::QUEUED;
+		return self::QUEUED;
 	}
 
 	// }}}

@@ -283,7 +283,6 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 			$message = new SwatMessage($message_text, 'system-error');
 		}
 
-
 		if ($message !== null) {
 			$this->app->messages->add($message);
 		}

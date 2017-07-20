@@ -11,7 +11,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpCampaignBuilder extends
-	DeliveranceCampaignBuilder
+ DeliveranceCampaignBuilder
 {
 	// {{{ protected properties
 

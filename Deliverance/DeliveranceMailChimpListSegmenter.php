@@ -12,8 +12,7 @@ require_once 'Deliverance/DeliveranceMailChimpListMemberUpdater.php';
  * @todo      flag to force updates, so that we can completely resegment, update
  *            to respect instances.
  */
-class DeliveranceMailChimpListSegmenter
-	extends DeliveranceMailChimpListMemberUpdater
+class DeliveranceMailChimpListSegmenter extends DeliveranceMailChimpListMemberUpdater
 {
 	// {{{ class constants
 
@@ -168,7 +167,7 @@ class DeliveranceMailChimpListSegmenter
 			}
 
 			$this->debug(sprintf("%s%s Members: %s\n",
-				str_repeat(' ', 5-$result->rating), // for nice ws
+				str_repeat(' ', 5 - $result->rating), // for nice ws
 				str_repeat('★', $result->rating),
 				SwatString::numberFormat($result->count)
 				));

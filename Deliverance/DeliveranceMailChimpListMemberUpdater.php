@@ -27,8 +27,7 @@ require_once 'Deliverance/DeliveranceMailChimpList.php';
  *            updated. Update to fully support instances.
  */
 
-abstract class DeliveranceMailChimpListMemberUpdater
-	extends DeliveranceCommandLineApplication
+abstract class DeliveranceMailChimpListMemberUpdater extends DeliveranceCommandLineApplication
 {
 	// {{{ class constants
 
@@ -450,7 +449,7 @@ abstract class DeliveranceMailChimpListMemberUpdater
 
 		SwatDB::exec($this->db, $sql);
 
-		$this->results['updated_count']+= count($updates);
+		$this->results['updated_count'] += count($updates);
 	}
 
 	// }}}

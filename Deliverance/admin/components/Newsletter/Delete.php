@@ -116,7 +116,7 @@ class DeliveranceNewsletterDelete extends AdminDBDelete
 						$this->app->db->quote($newsletter->id, 'integer')
 					);
 
-					$delete_count+= SwatDB::exec($this->app->db, $sql);
+					$delete_count += SwatDB::exec($this->app->db, $sql);
 
 					$transaction->commit();
 				} catch (DeliveranceAPIConnectionException $e) {
