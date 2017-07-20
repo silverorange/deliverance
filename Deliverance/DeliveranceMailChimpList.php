@@ -1293,7 +1293,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			$url = $report['secure_url'];
 		} catch (DeliveranceException $e) {
-			if (!($e->getCode() == self::CAMPAIGN_STATS_NOT_AVAILABLE)) {
+			if ($e->getCode() !== self::CAMPAIGN_STATS_NOT_AVAILABLE) {
 				throw $e;
 			}
 		} catch (Exception $e) {
