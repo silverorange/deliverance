@@ -1,9 +1,5 @@
 <?php
 
-require_once 'Admin/pages/AdminDBEdit.php';
-require_once 'Deliverance/DeliveranceListFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
-
 /**
  * Newsletter schedule/send confirmation page
  *
@@ -117,7 +113,7 @@ class DeliveranceNewsletterSchedule extends AdminDBEdit
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/admin/components/Newsletter/schedule.xml';
+		return __DIR__.'/schedule.xml';
 	}
 
 	// }}}

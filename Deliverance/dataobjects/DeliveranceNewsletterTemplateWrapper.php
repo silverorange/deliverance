@@ -1,8 +1,5 @@
 <?php
 
-require_once 'SwatDB/SwatDBRecordsetWrapper.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletterTemplate.php';
-
 /**
  * A recordset wrapper class for DeliveranceNewsletterTemplate objects
  *

@@ -1,9 +1,5 @@
 <?php
 
-require_once 'Site/SiteAmazonCdnModule.php';
-require_once 'Deliverance/DeliveranceCampaign.php';
-require_once 'Deliverance/DeliveranceCommandLineApplication.php';
-
 /**
  * Builds a campaign from a provided shortname
  *

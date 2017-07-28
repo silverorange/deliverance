@@ -1,7 +1,5 @@
 <?php
 
-require_once 'Deliverance/exceptions/DeliveranceException.php';
-
 /**
  * Exception caused by Deliverance Campaign API calls that have connection
  * issues.

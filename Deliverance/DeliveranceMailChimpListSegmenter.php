@@ -1,8 +1,5 @@
 <?php
 
-require_once 'SwatDB/SwatDB.php';
-require_once 'Deliverance/DeliveranceMailChimpListMemberUpdater.php';
-
 /**
  * Manually segments a MailChimp list into a arbitrary number of groups.
  *

@@ -1,9 +1,5 @@
 <?php
 
-require_once 'Admin/pages/AdminEdit.php';
-require_once 'Deliverance/DeliveranceListFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
-
 /**
  * Page used to send a preview/test newsletter email
  *
@@ -45,7 +41,7 @@ class DeliveranceNewsletterPreview extends AdminEdit
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/admin/components/Newsletter/preview.xml';
+		return __DIR__.'/preview.xml';
 	}
 
 	// }}}

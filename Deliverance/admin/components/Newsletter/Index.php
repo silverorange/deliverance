@@ -1,11 +1,5 @@
 <?php
 
-require_once 'Admin/pages/AdminIndex.php';
-require_once 'SwatDB/SwatDB.php';
-require_once 'Swat/SwatDetailsStore.php';
-require_once 'Swat/SwatTableStore.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletterWrapper.php';
-
 /**
  * Page used to send a preview/test newsletter email
  *
@@ -34,7 +28,6 @@ class DeliveranceNewsletterIndex extends AdminIndex
 	}
 
 	// }}}
-
 
 	// process phase
 	// {{{ protected function processActions()

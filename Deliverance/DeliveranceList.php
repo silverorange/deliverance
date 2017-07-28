@@ -1,8 +1,5 @@
 <?php
 
-require_once 'Swat/SwatMessage.php';
-require_once 'SwatDB/SwatDB.php';
-
 /**
  * @package   Deliverance
  * @copyright 2009-2016 silverorange

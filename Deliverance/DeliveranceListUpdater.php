@@ -1,7 +1,5 @@
 <?php
 
-require_once 'Deliverance/DeliveranceCommandLineApplication.php';
-
 /**
  * Cron job application to update mailing list with new and queued subscriber
  * requests.

@@ -1,9 +1,5 @@
 <?php
 
-require_once 'Admin/pages/AdminDBEdit.php';
-require_once 'Deliverance/DeliveranceListFactory.php';
-require_once 'Deliverance/dataobjects/DeliveranceNewsletter.php';
-
 /**
  * Confirmation page for cancelling a scheduled newsletter.
  *
@@ -45,7 +41,7 @@ class DeliveranceNewsletterCancel extends AdminDBEdit
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/admin/components/Newsletter/cancel.xml';
+		return __DIR__.'/cancel.xml';
 	}
 
 	// }}}

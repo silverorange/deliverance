@@ -1,9 +1,5 @@
 <?php
 
-require_once 'Swat/SwatMessage.php';
-require_once 'Site/pages/SiteEditPage.php';
-require_once 'Deliverance/DeliveranceListFactory.php';
-
 /**
  * @package   Deliverance
  * @copyright 2009-2017 silverorange
@@ -23,7 +19,7 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 
 	protected function getUiXml()
 	{
-		return 'Deliverance/pages/signup.xml';
+		return __DIR__.'/signup.xml';
 	}
 
 	// }}}

@@ -1,8 +1,5 @@
 <?php
 
-require_once 'SwatDB/SwatDBDataObject.php';
-require_once 'Site/dataobjects/SiteInstance.php';
-
 /**
  * A dataobject representing a segment of subscribers to send a campaign to.
  *

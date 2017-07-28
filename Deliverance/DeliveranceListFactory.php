@@ -1,8 +1,5 @@
 <?php
 
-require_once 'Swat/SwatObject.php';
-require_once 'Swat/exceptions/SwatClassNotFoundException.php';
-
 /**
  * Factory for creating Deliverance Lists
  *
@@ -158,34 +155,6 @@ class DeliveranceListFactory extends SwatObject
 	 */
 	private static function loadListClass($list_class_name)
 	{
-		// try to load class definition for $list_class_name
-		if (!class_exists($list_class_name) &&
-			count(self::$search_paths) > 0) {
-			$include_paths = explode(':', get_include_path());
-			foreach (self::$search_paths as $search_path) {
-				// check if search path is relative
-				if ($search_path[0] == '/') {
-					$filename = sprintf('%s/%s.php',
-						$search_path, $list_class_name);
-
-					if (file_exists($filename)) {
-						require_once $filename;
-						break;
-					}
-				} else {
-					foreach ($include_paths as $include_path) {
-						$filename = sprintf('%s/%s/%s.php',
-							$include_path, $search_path, $list_class_name);
-
-						if (file_exists($filename)) {
-							require_once $filename;
-							break 2;
-						}
-					}
-				}
-			}
-		}
-
 		if (!class_exists($list_class_name)) {
 			throw new SwatClassNotFoundException(sprintf(
 				'List class "%s" does not exist and could not be found in '.

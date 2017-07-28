@@ -42,8 +42,8 @@
 		"pear/mail": "^1.2.0",
 		"pear/mail_mime": "^1.10.0",
 		"pear/net_smtp": "^1.6.3",
-		"silverorange/site": "^4.11.0",
-		"silverorange/swat": "^2.7.0"
+		"silverorange/site": "^5.0.0",
+		"silverorange/swat": "^3.0.0"
 	},
 	"require-dev": {
 		"silverorange/coding-standard": "^0.6.0"
@@ -59,8 +59,5 @@
 	},
 	"autoload": {
 		"classmap": [ "Deliverance/" ]
-	},
-	"include-path": [
-		"./"
-	]
+	}
 }

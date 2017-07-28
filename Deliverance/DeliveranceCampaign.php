@@ -1,9 +1,5 @@
 <?php
 
-require_once 'Swat/SwatString.php';
-require_once 'Site/SiteLayoutData.php';
-require_once 'Deliverance/DeliveranceList.php';
-
 /**
  * @package   Deliverance
  * @copyright 2009-2016 silverorange

@@ -1,8 +1,5 @@
 <?php
 
-require_once 'SwatDB/SwatDB.php';
-require_once 'Deliverance/pages/DeliveranceSignUpPage.php';
-
 /**
  * @package   Deliverance
  * @copyright 2009-2017 silverorange
