@@ -31,9 +31,11 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 	// }}}
 	// {{{ public function __construct()
 
-	public function __construct(SiteApplication $app, $shortname = null,
-		$directory = null)
-	{
+	public function __construct(
+		SiteApplication $app,
+		$shortname = null,
+		$directory = null
+	) {
 		parent::__construct($app, $shortname, $directory);
 		$this->type = self::CAMPAIGN_TYPE_REGULAR;
 	}

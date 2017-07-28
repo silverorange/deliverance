@@ -357,9 +357,12 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// subscriber methods
 	// {{{ public function subscribe()
 
-	public function subscribe($address, array $info = array(),
-		$send_welcome = true, array $array_map = array())
-	{
+	public function subscribe(
+		$address,
+		array $info = array(),
+		$send_welcome = true,
+		array $array_map = array()
+	) {
 		$result = false;
 		$queue_request = false;
 
@@ -431,9 +434,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// }}}
 	// {{{ public function batchSubscribe()
 
-	public function batchSubscribe(array $addresses, $send_welcome = false,
-		array $array_map = array())
-	{
+	public function batchSubscribe(
+		array $addresses,
+		$send_welcome = false,
+		array $array_map = array()
+	) {
 		$result = false;
 		$queue_request = false;
 
@@ -1091,9 +1096,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// campaign methods
 	// {{{ public function saveCampaign()
 
-	public function saveCampaign(DeliveranceCampaign $campaign,
-		$lookup_campaign_id = true)
-	{
+	public function saveCampaign(
+		DeliveranceCampaign $campaign,
+		$lookup_campaign_id = true
+	) {
 		// if the id is already set, don't bother looking it up.
 		if ($campaign->id == null && $lookup_campaign_id) {
 			$campaign->id = $this->getCampaignId($campaign);
@@ -1352,9 +1358,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// }}}
 	// {{{ public function sendCampaignTest()
 
-	public function sendCampaignTest(DeliveranceMailChimpCampaign $campaign,
-		array $test_emails)
-	{
+	public function sendCampaignTest(
+		DeliveranceMailChimpCampaign $campaign,
+		array $test_emails
+	) {
 		$parameters = array(
 			$campaign->id,
 			$test_emails,
@@ -1467,8 +1474,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// {{{ protected function updateCampaignSegmentOptions()
 
 	protected function updateCampaignSegmentOptions(
-		DeliveranceCampaign $campaign)
-	{
+		DeliveranceCampaign $campaign
+	) {
 		$segment_options = $this->getCampaignSegmentOptions($campaign);
 		if ($segment_options !== null) {
 			$parameters = array(
@@ -1491,8 +1498,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// {{{ protected function getCampaignOptions()
 
 	protected function getCampaignOptions(
-		DeliveranceMailChimpCampaign $campaign)
-	{
+		DeliveranceMailChimpCampaign $campaign
+	) {
 		$title = $campaign->getTitle();
 		if ($title == null) {
 			throw new DeliveranceCampaignException(
@@ -1551,8 +1558,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// {{{ protected function getCampaignSegmentOptions()
 
 	protected function getCampaignSegmentOptions(
-		DeliveranceMailChimpCampaign $campaign)
-	{
+		DeliveranceMailChimpCampaign $campaign
+	) {
 		$segment_options = $campaign->getSegmentOptions();
 
 		if ($segment_options != null) {
@@ -1569,8 +1576,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// {{{ protected function getCampaignContent()
 
 	protected function getCampaignContent(
-		DeliveranceMailChimpCampaign $campaign)
-	{
+		DeliveranceMailChimpCampaign $campaign
+	) {
 		$content = array(
 			'html' => $campaign->getContent(DeliveranceCampaign::FORMAT_XHTML),
 			'text' => $campaign->getContent(DeliveranceCampaign::FORMAT_TEXT),
@@ -1582,9 +1589,11 @@ class DeliveranceMailChimpList extends DeliveranceList
 	// }}}
 	// {{{ protected function getCampaignsChunk()
 
-	protected function getCampaignsChunk(array $filters = array(), $offset = 0,
-		$chunk_size = 0)
-	{
+	protected function getCampaignsChunk(
+		array $filters = array(),
+		$offset = 0,
+		$chunk_size = 0
+	) {
 		if ($chunk_size > 1000) {
 			throw new DeliveranceException(
 				'Campaign chunk size exceeds API limit');

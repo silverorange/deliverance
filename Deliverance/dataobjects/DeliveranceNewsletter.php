@@ -73,9 +73,10 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	// }}}
 	// {{{ public static function getDefaultList()
 
-	public static function getDefaultList(SiteApplication $app,
-		SiteInstance $instance = null)
-	{
+	public static function getDefaultList(
+		SiteApplication $app,
+		SiteInstance $instance = null
+	) {
 		$default_list = $app->config->mail_chimp->default_list;
 
 		if ($app->hasModule('SiteMultipleInstanceModule') &&
@@ -130,9 +131,10 @@ class DeliveranceNewsletter extends SwatDBDataObject
 	// }}}
 	// {{{ public function getCampaign()
 
-	public function getCampaign(SiteApplication $app,
-		$campaign_type = 'default')
-	{
+	public function getCampaign(
+		SiteApplication $app,
+		$campaign_type = 'default'
+	) {
 		// TODO: allow loading different types of campaigns based on segment.
 		$campaign = DeliveranceCampaignFactory::get($app, $campaign_type);
 
