@@ -82,14 +82,21 @@ abstract class DeliveranceList
 	// subscriber methods
 	// {{{ abstract public function subscribe()
 
-	abstract public function subscribe($address, array $info = array(),
-		$send_welcome = true, array $array_map = array());
+	abstract public function subscribe(
+		$address,
+		array $info = array(),
+		$send_welcome = true,
+		array $array_map = array()
+	);
 
 	// }}}
 	// {{{ abstract public function batchSubscribe()
 
-	abstract public function batchSubscribe(array $addresses,
-		$send_welcome = false, array $array_map = array());
+	abstract public function batchSubscribe(
+		array $addresses,
+		$send_welcome = false,
+		array $array_map = array()
+	);
 
 	// }}}
 	// {{{ public function handleSubscribeResponse()
@@ -211,14 +218,19 @@ abstract class DeliveranceList
 	// }}}
 	// {{{ abstract public function update()
 
-	abstract public function update($address, array $info,
-		array $array_map = array());
+	abstract public function update(
+		$address,
+		array $info,
+		array $array_map = array()
+	);
 
 	// }}}
 	// {{{ abstract public function batchUpdate()
 
-	abstract public function batchUpdate(array $addresses,
-		array $array_map = array());
+	abstract public function batchUpdate(
+		array $addresses,
+		array $array_map = array()
+	);
 
 	// }}}
 	// {{{ public function handleUpdateResponse()

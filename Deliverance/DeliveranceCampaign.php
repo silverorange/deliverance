@@ -110,9 +110,11 @@ class DeliveranceCampaign
 	 * @param directory $shortname optional directory for the campaign
 	 *                                       resources. Deprecated.
 	 */
-	public function __construct(SiteApplication $app, $shortname = null,
-		$directory = null)
-	{
+	public function __construct(
+		SiteApplication $app,
+		$shortname = null,
+		$directory = null
+	) {
 		$this->app  = $app;
 		$this->data = new SiteLayoutData();
 
@@ -126,9 +128,10 @@ class DeliveranceCampaign
 	// }}}
 	// {{{ public static function uploadResources()
 
-	public static function uploadResources(SiteApplication $app,
-		Campaign $campaign)
-	{
+	public static function uploadResources(
+		SiteApplication $app,
+		Campaign $campaign
+	) {
 		$resource_files = $campaign->getResources();
 
 		/*
@@ -150,9 +153,10 @@ class DeliveranceCampaign
 	// }}}
 	// {{{ public static function removeResources()
 
-	public static function removeResources(SiteApplication $app,
-		Campaign $campaign)
-	{
+	public static function removeResources(
+		SiteApplication $app,
+		Campaign $campaign
+	) {
 		$resource_files = $campaign->getResources();
 
 		// remove them from s3
@@ -344,8 +348,8 @@ class DeliveranceCampaign
 	// {{{ public function setCampaignSegement()
 
 	public function setCampaignSegment(
-		DeliveranceCampaignSegment $campaign_segment = null)
-	{
+		DeliveranceCampaignSegment $campaign_segment = null
+	) {
 		$this->campaign_segment = $campaign_segment;
 		if ($campaign_segment !== null) {
 			$this->setSegmentOptions(

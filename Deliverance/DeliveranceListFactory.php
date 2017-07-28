@@ -55,9 +55,11 @@ class DeliveranceListFactory extends SwatObject
 	 * @throws InvalidArgumentException if there is no list registered for the
 	 *                                  requested <i>$type</i>.
 	 */
-	public static function get(SiteApplication $app, $type = 'default',
-		$shortname = null)
-	{
+	public static function get(
+		SiteApplication $app,
+		$type = 'default',
+		$shortname = null
+	) {
 		if ($type === null) {
 			$type = 'default';
 		}

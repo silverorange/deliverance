@@ -97,8 +97,10 @@ abstract class DeliveranceListCampaignSegmentCacheUpdater extends DeliveranceCom
 	// }}}
 	// {{{ abstract protected function updateSegment()
 
-	abstract protected function updateSegment(DeliveranceList $list,
-		DeliveranceCampaignSegment $segment);
+	abstract protected function updateSegment(
+		DeliveranceList $list,
+		DeliveranceCampaignSegment $segment
+	);
 
 	// }}}
 }

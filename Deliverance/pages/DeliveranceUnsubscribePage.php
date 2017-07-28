@@ -209,13 +209,12 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	// }}}
 	// {{{ protected function handleUnsubscribeResponse()
 
-	protected function handleUnsubscribeResponse(DeliveranceList $list,
-		$response)
-	{
+	protected function handleUnsubscribeResponse(
+		DeliveranceList $list,
+		$response
+	) {
 		$message = $list->handleUnsubscribeResponse($response);
-
 		$this->handleMessage($message);
-
 	}
 
 	// }}}

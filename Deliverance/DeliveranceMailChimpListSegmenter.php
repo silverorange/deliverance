@@ -17,8 +17,6 @@ class DeliveranceMailChimpListSegmenter extends DeliveranceMailChimpListMemberUp
 	// {{{ class constants
 
 	/**
-	 *
-	 *
 	 * @var integer
 	 */
 	const ASCII_OFFSET = 65;   // to get us to A

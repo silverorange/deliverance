@@ -11,13 +11,14 @@ require_once 'Deliverance/dataobjects/DeliveranceCampaignSegmentWrapper.php';
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailChimpListCampaignSegmentCacheUpdater extends
- DeliveranceListCampaignSegmentCacheUpdater
+	DeliveranceListCampaignSegmentCacheUpdater
 {
 	// {{{ protected function updateSegment()
 
-	protected function updateSegment(DeliveranceList $list,
-		DeliveranceCampaignSegment $segment)
-	{
+	protected function updateSegment(
+		DeliveranceList $list,
+		DeliveranceCampaignSegment $segment
+	) {
 		if ($list->isAvailable()) {
 			$this->debug(sprintf(Deliverance::_('Updating ‘%s’... '),
 				$segment->title));
