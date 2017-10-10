@@ -173,7 +173,7 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 	// }}}
 	// {{{ protected function getMessageDisplay()
 
-	protected function getMessageDisplay()
+	protected function getMessageDisplay(SwatForm $form = null)
 	{
 		return $this->ui->getRoot()->getFirstDescendant(
 			'SwatMessageDisplay'
