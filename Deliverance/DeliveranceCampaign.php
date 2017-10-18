@@ -32,8 +32,8 @@ class DeliveranceCampaign
 	 */
 	protected $data;
 
-	protected $xhtml_template_filename = 'template-html.php';
-	protected $text_template_filename  = 'template-text.php';
+	protected $xhtml_template_class_suffix = 'HtmlTemplate';
+	protected $text_template_class_suffix = 'TextTemplate';
 
 	/**
 	 * @var string
@@ -461,18 +461,17 @@ class DeliveranceCampaign
 	/**
 	 * Gets the content of this mailing
 	 *
-	 * @param string $filename the filename of the template to use.
 	 * @param integer $format integer contstant of the output format to use.
 	 *
 	 * @return string the content.
 	 */
 	public final function getContent($format = self::FORMAT_XHTML)
 	{
-		$filename = $this->getTemplateFilename($format);
+		$template_class = $this->getTemplateClass($format);
 		$this->build($format);
 
 		ob_start();
-		$this->data->display($filename);
+		$this->data->display($template_class);
 		$content = ob_get_clean();
 		$content = $this->replaceMarkers($content, $format);
 		$content = $this->transform($content, $format);
@@ -601,7 +600,6 @@ class DeliveranceCampaign
 	}
 
 	// }}}
-
 	// {{{ protected function getBaseHref()
 
 	protected function getBaseHref()
@@ -742,23 +740,23 @@ class DeliveranceCampaign
 	}
 
 	// }}}
-	// {{{ protected function getTemplateFilename()
+	// {{{ protected function getTemplateClass()
 
-	protected function getTemplateFilename($format)
+	protected function getTemplateClass($format)
 	{
-		$filename = $this->getSourceDirectory().'/';
+		$class = ucfirst($this->template);
 
-		switch($format) {
+		switch ($format) {
 		case self::FORMAT_XHTML:
-			$filename.= $this->xhtml_template_filename;
+			$class.= $this->xhtml_template_class_suffix;
 			break;
 
 		case self::FORMAT_TEXT:
-			$filename.= $this->text_template_filename;
+			$class.= $this->text_template_class_suffix;
 			break;
 		}
 
-		return $filename;
+		return $class;
 	}
 
 	// }}}
