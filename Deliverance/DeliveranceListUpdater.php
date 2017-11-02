@@ -512,11 +512,13 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 
 	protected function getDefaultModuleList()
 	{
-		$list = parent::getDefaultModuleList();
-		$list['config']   = 'SiteCommandLineConfigModule';
-		$list['database'] = 'SiteDatabaseModule';
-
-		return $list;
+		return array_merge(
+			parent::getDefaultModuleList(),
+			[
+				'config' => SiteCommandLineConfigModule::class,
+				'database' => SiteDatabaseModule::class,
+			]
+		);
 	}
 
 	// }}}
