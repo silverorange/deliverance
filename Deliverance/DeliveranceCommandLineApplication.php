@@ -106,13 +106,14 @@ abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplicat
 
 	protected function getDefaultModuleList()
 	{
-		$list = parent::getDefaultModuleList();
-
-		$list['config']   = 'SiteCommandLineConfigModule';
-		$list['database'] = 'SiteDatabaseModule';
-		$list['instance'] = 'SiteMultipleInstanceModule';
-
-		return $list;
+		return array_merge(
+			parent::getDefaultModuleList(),
+			[
+				'config' => SiteCommandLineConfigModule::class,
+				'database' => SiteDatabaseModule::class,
+				'instance' => SiteMultipleInstanceModule::class,
+			]
+		);
 	}
 
 	// }}}

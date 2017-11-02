@@ -176,11 +176,12 @@ abstract class DeliveranceCampaignBuilder extends DeliveranceCommandLineApplicat
 
 	protected function getDefaultModuleList()
 	{
-		$list = parent::getDefaultModuleList();
-
-		$list['cdn'] = 'SiteMultipleInstanceModule';
-
-		return $list;
+		return array_merge(
+			parent::getDefaultModuleList(),
+			[
+				'cdn' => SiteMultipleInstanceModule::class,
+			]
+		);
 	}
 
 	// }}}
