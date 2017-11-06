@@ -241,7 +241,9 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	{
 		if ($this->canRelocate($form)) {
 			$this->addUnsubscribeMessage();
-			$this->app->relocate($this->getRelocateUri());
+			$this->app->relocate(
+				$this->getRelocateUri($form, $this->source.'/thankyou')
+			);
 		}
 	}
 
@@ -265,7 +267,7 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 	// }}}
 	// {{{ protected function getRelocateUri()
 
-	protected function getRelocateUri()
+	protected function getRelocateUri(SwatForm $form, $default_relocate)
 	{
 		return $this->source.'/thankyou';
 	}
