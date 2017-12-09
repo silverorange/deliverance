@@ -888,7 +888,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			}
 		}
 
-		if (strlen($since) > 0) {
+		if ($since != '') {
 			$url.= sprintf('&since=%s',
 				urlencode($since));
 		}
