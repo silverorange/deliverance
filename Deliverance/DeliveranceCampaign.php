@@ -702,7 +702,7 @@ class DeliveranceCampaign
 		if (count($vars)) {
 			$var_string = implode('&', $vars);
 
-			if (strpos($uri, '?') === false) {
+			if (mb_strpos($uri, '?') === false) {
 				$uri = $uri.'?'.$var_string;
 			} else {
 				$uri = $uri.'&'.$var_string;

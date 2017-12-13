@@ -122,7 +122,7 @@ class DeliveranceMailChimpListSegmenter extends DeliveranceMailChimpListMemberUp
 		$segment = $member_info['merges'][$this->merge];
 		$rating  = $member_info['member_rating'];
 
-		if (strlen($segment) == 0 ||
+		if ($segment == '' ||
 			$this->getNumericSegment($segment) > $this->number_of_segments) {
 			// reset last_segment when we've reached the limit.
 			if ($this->last_segment[$rating] == $this->number_of_segments) {

@@ -221,7 +221,7 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		parent::buildForm($form);
 
 		$email = SiteApplication::initVar('email');
-		if (strlen($email) > 0) {
+		if ($email != '') {
 			$this->ui->getWidget('email')->value = $email;
 		} elseif (!$form->isProcessed() && $this->app->session->isLoggedIn()) {
 			$this->ui->getWidget('email')->value =

@@ -108,7 +108,7 @@ class DeliveranceMailChimpCampaign extends DeliveranceCampaign
 
 	protected function isMailChimpUri($uri)
 	{
-		return (substr($uri, 0, 2) == '*|');
+		return (mb_substr($uri, 0, 2) === '*|');
 	}
 
 	// }}}

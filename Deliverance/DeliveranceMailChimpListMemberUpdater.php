@@ -199,7 +199,7 @@ abstract class DeliveranceMailChimpListMemberUpdater extends DeliveranceCommandL
 	{
 		$this->field = $field;
 		// note, this is lazy, but works 99% of the time.
-		$this->merge = strtoupper($field);
+		$this->merge = mb_strtoupper($field);
 	}
 
 	// }}}
