@@ -915,7 +915,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			} else {
 				// check to make sure the exploded line has a length, as the
 				// results return a blank line at the end that we can ignore.
-				if (strlen($member) > 0) {
+				if ($member != '') {
 					$member_array = json_decode($member, true);
 					$member_out_array = array();
 					foreach ($member_array as $key => $value) {
