@@ -38,8 +38,8 @@
 		"pear/mail": "^1.2.0",
 		"pear/mail_mime": "^1.10.0",
 		"pear/net_smtp": "^1.6.3",
-		"silverorange/site": "^6.0.0",
-		"silverorange/swat": "^3.0.0"
+		"silverorange/site": "^7.0.0",
+		"silverorange/swat": "^4.0.0"
 	},
 	"require-dev": {
 		"silverorange/coding-standard": "^1.0.0"
