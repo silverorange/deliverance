@@ -45,7 +45,7 @@
 		"silverorange/coding-standard": "^1.0.0"
 	},
 	"suggest": {
-		"silverorange/mailchimp_api": "Support for MailChimp mailing lists.",
+		"drewm/mailchimp-api": "Support for MailChimp mailing lists.",
 		"silverorange/admin": "Admin pages for managing newsletters."
 	},
 	"scripts": {

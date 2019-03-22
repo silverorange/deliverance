@@ -5,7 +5,7 @@
  * requests.
  *
  * @package   Deliverance
- * @copyright 2009-2016 silverorange
+ * @copyright 2009-2019 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
@@ -24,10 +24,6 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		$this->subscribe($list);
 		$this->debug(Deliverance::_('Done subscribing.')."\n\n");
 
-		$this->debug(Deliverance::_('Updating:')."\n--------------------\n");
-		$this->update($list);
-		$this->debug(Deliverance::_('Done updating.')."\n\n");
-
 		$this->debug(
 			Deliverance::_('Unsubscribing:')."\n--------------------\n");
 
@@ -43,30 +39,11 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 	protected function subscribe(DeliveranceList $list)
 	{
 		if ($list->isAvailable()) {
-			// broken into two methods since we sometimes have to use different
-			// api calls to send the welcome email.
-			$this->subscribeQueuedWithWelcome($list);
 			$this->subscribeQueued($list);
 		} else {
 			$this->debug(
 				Deliverance::_(
 					'Mailing list unavailable. No queued addresses subscribed.'
-				)."\n"
-			);
-		}
-	}
-
-	// }}}
-	// {{{ protected function update()
-
-	protected function update(DeliveranceList $list)
-	{
-		if ($list->isAvailable()) {
-			$this->updateQueued($list);
-		} else {
-			$this->debug(
-				Deliverance::_(
-					'Mailing list unavailable. No queued addresses updated.'
 				)."\n"
 			);
 		}
@@ -90,65 +67,11 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 	}
 
 	// }}}
-	// {{{ protected function subscribeQueuedWithWelcome()
-
-	protected function subscribeQueuedWithWelcome(DeliveranceList $list)
-	{
-		$with_welcome = true;
-		$addresses = $this->getQueuedSubscribes($with_welcome);
-
-		if (count($addresses) == 0) {
-			$this->debug(
-				Deliverance::_(
-					'No queued addresses with welcome message to subscribe.'
-				)."\n"
-			);
-			return;
-		}
-
-		$this->debug(
-			sprintf(
-				Deliverance::_(
-					'Subscribing %s queued addresses with welcome message.'
-				)."\n",
-				count($addresses)
-			)
-		);
-
-		if ($this->dry_run === false) {
-			$result = $list->batchSubscribe(
-				$addresses,
-				true,
-				$this->getArrayMap()
-			);
-
-			$clear_queued = $this->handleResult(
-				$result,
-				Deliverance::_(
-					'%s queued addresses with welcome message subscribed.'
-				)."\n"
-			);
-
-			// don't clean the queued subscribes if they have been re-queued.
-			if ($clear_queued === true) {
-				$this->clearQueuedSubscribes($addresses, $with_welcome);
-			}
-		}
-
-		$this->debug(
-			Deliverance::_(
-				'done subscribing queued addresses with welcome message.'
-			)."\n\n"
-		);
-	}
-
-	// }}}
 	// {{{ protected function subscribeQueued()
 
 	protected function subscribeQueued(DeliveranceList $list)
 	{
-		$with_welcome = false;
-		$addresses = $this->getQueuedSubscribes($with_welcome);
+		$addresses = $this->getQueuedSubscribes();
 
 		if (count($addresses) == 0) {
 			$this->debug(
@@ -167,72 +90,21 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 
 		if ($this->dry_run === false) {
-			$result = $list->batchSubscribe($addresses, false,
-				$this->getArrayMap());
+			$subscribed_ids = $list->batchSubscribe($addresses);
 
-			$clear_queued = $this->handleResult(
-				$result,
-				Deliverance::_('%s queued addresses subscribed.')."\n"
+			$this->debug(
+				sprintf(
+					Deliverance::_('%s queued addresses subscribed.')."\n",
+					count($subscribed_ids)
+				)
 			);
 
-			// don't clean the queued subscribes if they have been re-queued.
-			if ($clear_queued === true) {
-				$this->clearQueuedSubscribes($addresses, $with_welcome);
-			}
+			$this->clearQueuedSubscribes($subscribed_ids);
 		}
 
 		$this->debug(
 			Deliverance::_(
 				'done subscribing queued addresses.'
-			)."\n\n"
-		);
-	}
-
-	// }}}
-	// {{{ protected function updateQueued()
-
-	protected function updateQueued(DeliveranceList $list)
-	{
-		$list->setReplaceInterests(true);
-		$addresses = $this->getQueuedUpdates();
-
-		if (count($addresses) == 0) {
-			$this->debug(
-				Deliverance::_(
-					'No queued addresses to update.'
-				)."\n"
-			);
-			return;
-		}
-
-		$this->debug(
-			sprintf(
-				Deliverance::_(
-					'Updating %s queued addresses.'
-				)."\n",
-				count($addresses)
-			)
-		);
-
-		if ($this->dry_run === false) {
-			$result = $list->batchUpdate($addresses);
-
-			$clear_queued = $this->handleResult(
-				$result,
-				Deliverance::_(
-					'%s queued addresses updated.'
-				)."\n"
-			);
-
-			// don't clean the queued subscribes if they have been re-queued.
-			if ($clear_queued === true) {
-				$this->clearQueuedUpdates($addresses);
-			}
-		}
-
-		$this->debug(
-			Deliverance::_(
-				'done updating queued addresses.'
 			)."\n\n"
 		);
 	}
@@ -263,19 +135,16 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 
 		if ($this->dry_run === false) {
-			$result = $list->batchUnsubscribe($addresses);
+			$unsubscribed_ids = $list->batchUnsubscribe($addresses);
 
-			$clear_queued = $this->handleResult(
-				$result,
-				Deliverance::_(
-					'%s queued addresses unsubscribed.'
-				)."\n"
+			$this->debug(
+				sprintf(
+					Deliverance::_('%s queued addresses unsubscribed.')."\n",
+					count($unsubscribed_ids)
+				)
 			);
 
-			// don't clean the queued subscribes if they have been re-queued.
-			if ($clear_queued === true) {
-				$this->clearQueuedUnsubscribes($addresses);
-			}
+			$this->clearQueuedUnsubscribes($unsubscribed_ids);
 		}
 
 		$this->debug(
@@ -286,70 +155,14 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 	}
 
 	// }}}
-	// {{{ protected function handleResult()
-
-	protected function handleResult($result, $success_message)
-	{
-		$clear_queued = false;
-
-		if ($result === DeliveranceList::QUEUED) {
-			$this->debug(Deliverance::_('All requests queued.')."\n");
-		} elseif ($result === DeliveranceList::SUCCESS) {
-			$this->debug(Deliverance::_('All requests successful.')."\n");
-			$clear_queued = true;
-		} elseif (is_int($result) && $result > 0) {
-			$this->debug(sprintf($success_message, $result));
-		}
-
-		return $clear_queued;
-	}
-
-	// }}}
-	// {{{ protected function getArrayMap()
-
-	protected function getArrayMap()
-	{
-		return array();
-	}
-
-	// }}}
 	// {{{ protected function getQueuedSubscribes()
 
-	private function getQueuedSubscribes($with_welcome)
+	private function getQueuedSubscribes()
 	{
 		$addresses = array();
 
-		$sql = 'select email, info
+		$sql = 'select id, email, info
 			from MailingListSubscribeQueue
-			where send_welcome = %s and instance %s %s';
-
-		$sql = sprintf(
-			$sql,
-			$this->db->quote($with_welcome, 'boolean'),
-			SwatDB::equalityOperator($this->getInstanceId()),
-			$this->db->quote($this->getInstanceId(), 'integer')
-		);
-
-		$rows = SwatDB::query($this->db, $sql);
-		foreach ($rows as $row) {
-			$address          = unserialize($row->info);
-			$address['email'] = $row->email;
-
-			$addresses[] = $address;
-		}
-
-		return $addresses;
-	}
-
-	// }}}
-	// {{{ protected function getQueuedUpdates()
-
-	protected function getQueuedUpdates()
-	{
-		$addresses = array();
-
-		$sql = 'select email, info
-			from MailingListUpdateQueue
 			where instance %s %s';
 
 		$sql = sprintf(
@@ -361,6 +174,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
 			$address          = unserialize($row->info);
+			$address['id']    = $row->id;
 			$address['email'] = $row->email;
 
 			$addresses[] = $address;
@@ -376,7 +190,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 	{
 		$addresses = array();
 
-		$sql = 'select email
+		$sql = 'select id, email
 			from MailingListUnsubscribeQueue
 			where instance %s %s';
 
@@ -388,7 +202,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 
 		$rows = SwatDB::query($this->db, $sql);
 		foreach ($rows as $row) {
-			$addresses[] = $row->email;
+			$addresses[$row->id] = $row->email;
 		}
 
 		return $addresses;
@@ -397,15 +211,14 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 	// }}}
 	// {{{ protected function clearQueuedSubscribes()
 
-	protected function clearQueuedSubscribes(array $addresses, $with_welcome)
+	protected function clearQueuedSubscribes(array $ids)
 	{
 		$sql = 'delete from MailingListSubscribeQueue
-			where email in (%s) and send_welcome = %s and instance %s %s';
+			where id in (%s) and instance %s %s';
 
 		$sql = sprintf(
 			$sql,
-			$this->getQuotedEmailAddresses($addresses),
-			$this->db->quote($with_welcome, 'boolean'),
+			$this->getQuotedIds($ids),
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
@@ -418,35 +231,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 					'%s rows (%s addresses) cleared from the queue.'
 				)."\n",
 				$delete_count,
-				count($addresses)
-			)
-		);
-	}
-
-	// }}}
-	// {{{ protected function clearQueuedUpdates()
-
-	protected function clearQueuedUpdates(array $addresses)
-	{
-		$sql = 'delete from MailingListUpdateQueue
-			where email in (%s) and instance %s %s';
-
-		$sql = sprintf(
-			$sql,
-			$this->getQuotedEmailAddresses($addresses),
-			SwatDB::equalityOperator($this->getInstanceId()),
-			$this->db->quote($this->getInstanceId(), 'integer')
-		);
-
-		$delete_count = SwatDB::exec($this->db, $sql);
-
-		$this->debug(
-			sprintf(
-				Deliverance::_(
-					'%s rows (%s addresses) cleared from the queue.'
-				)."\n",
-				$delete_count,
-				count($addresses)
+				count($ids)
 			)
 		);
 	}
@@ -454,14 +239,14 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 	// }}}
 	// {{{ protected function clearQueuedUnsubscribes()
 
-	protected function clearQueuedUnsubscribes(array $addresses)
+	protected function clearQueuedUnsubscribes(array $ids)
 	{
 		$sql = 'delete from MailingListUnsubscribeQueue
-			where email in (%s) and instance %s %s';
+			where id in (%s) and instance %s %s';
 
 		$sql = sprintf(
 			$sql,
-			$this->getQuotedEmailAddresses($addresses),
+			$this->getQuotedIds($ids),
 			SwatDB::equalityOperator($this->getInstanceId()),
 			$this->db->quote($this->getInstanceId(), 'integer')
 		);
@@ -474,26 +259,23 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 					'%s rows (%s addresses) cleared from the queue.'
 				)."\n",
 				$delete_count,
-				count($addresses)
+				count($ids)
 			)
 		);
 	}
 
 	// }}}
-	// {{{ protected function getQuotedEmailAddresses()
+	// {{{ protected function getQuotedIds()
 
-	protected function getQuotedEmailAddresses(array $addresses)
+	protected function getQuotedIds(array $ids)
 	{
-		$quoted_address_array = array();
+		$quoted_id_array = array();
 
-		foreach ($addresses as $address) {
-			$quoted_address_array[] = $this->db->quote(
-				$address['email'],
-				'text'
-			);
+		foreach ($ids as $id) {
+			$quoted_id_array[] = $this->db->quote($id, 'integer');
 		}
 
-		return implode(',', $quoted_address_array);
+		return implode(',', $quoted_id_array);
 	}
 
 	// }}}

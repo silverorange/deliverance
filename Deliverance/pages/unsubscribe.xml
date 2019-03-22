@@ -10,12 +10,6 @@
 					<property name="required" type="boolean">true</property>
 				</widget>
 			</widget>
-			<widget class="SwatFormField" id="email_interests_field">
-				<property name="title" translatable="yes">Select the mailings from which you’d like to be unsubscribed</property>
-				<widget class="SwatCheckboxList" id="email_interests">
-					<property name="show_check_all" type="boolean">false</property>
-				</widget>
-			</widget>
 			<widget class="SwatFooterFormField" id="footer_field">
 				<property name="note" translatable="yes"><![CDATA[You can also easily
 					<a href="x">add your email address</a>

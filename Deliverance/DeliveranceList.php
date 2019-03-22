@@ -2,7 +2,7 @@
 
 /**
  * @package   Deliverance
- * @copyright 2009-2016 silverorange
+ * @copyright 2009-2019 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceList
@@ -79,20 +79,13 @@ abstract class DeliveranceList
 	// subscriber methods
 	// {{{ abstract public function subscribe()
 
-	abstract public function subscribe(
-		$address,
-		array $info = array(),
-		$send_welcome = true,
-		array $array_map = array()
-	);
+	abstract public function subscribe($address, array $info = array());
 
 	// }}}
 	// {{{ abstract public function batchSubscribe()
 
 	abstract public function batchSubscribe(
-		array $addresses,
-		$send_welcome = false,
-		array $array_map = array()
+		array $addresses
 	);
 
 	// }}}
@@ -213,86 +206,6 @@ abstract class DeliveranceList
 	}
 
 	// }}}
-	// {{{ abstract public function update()
-
-	abstract public function update(
-		$address,
-		array $info,
-		array $array_map = array()
-	);
-
-	// }}}
-	// {{{ abstract public function batchUpdate()
-
-	abstract public function batchUpdate(
-		array $addresses,
-		array $array_map = array()
-	);
-
-	// }}}
-	// {{{ public function handleUpdateResponse()
-
-	public function handleUpdateResponse($response)
-	{
-		switch ($response) {
-		case self::NOT_FOUND:
-			$message = new SwatMessage(
-				Deliverance::_(
-					'Thank you. Your email address was never subscribed to '.
-					'our newsletter.'
-				),
-				'notice'
-			);
-
-			$message->secondary_content = Deliverance::_(
-				'You will not receive any mailings to this address.'
-			);
-
-			break;
-
-		case self::NOT_SUBSCRIBED:
-			$message = new SwatMessage(
-				Deliverance::_(
-					'Thank you. Your email address has already been '.
-					'unsubscribed from our newsletter.'
-				),
-				'notice'
-			);
-
-			$message->secondary_content = Deliverance::_(
-				'You will not receive any mailings to this address.'
-			);
-
-			break;
-
-		case self::FAILURE:
-			$message = new SwatMessage(
-				Deliverance::_(
-					'Sorry, there was an issue with updating your information.'
-				),
-				'error'
-			);
-
-			$message->content_type = 'text/xml';
-			$message->secondary_content = sprintf(
-				Deliverance::_(
-					'This can usually be resolved by trying again later. If '.
-					'the issue persists, please <a href="%s">contact us</a>.'
-				),
-				$this->getContactUsLink()
-			);
-
-			$message->content_type = 'txt/xhtml';
-			break;
-
-		default:
-			$message = null;
-		}
-
-		return $message;
-	}
-
-	// }}}
 	// {{{ abstract public function isMember()
 
 	abstract public function isMember($address);
@@ -311,18 +224,6 @@ abstract class DeliveranceList
 	// {{{ abstract public function getDefaultSubscriberInfo()
 
 	abstract public function getDefaultSubscriberInfo();
-
-	// }}}
-
-	// campaign methods
-	// {{{ abstract public function saveCampaign()
-
-	abstract public function saveCampaign(DeliveranceCampaign $campaign);
-
-	// }}}
-	// {{{ abstract public function deleteCampaign()
-
-	abstract public function deleteCampaign(DeliveranceCampaign $campaign);
 
 	// }}}
 
@@ -495,91 +396,6 @@ abstract class DeliveranceList
 		try {
 			foreach ($addresses as $info) {
 				$this->queueUnsubscribe($info['email']);
-			}
-			$transaction->commit();
-		} catch (SwatDBException $e) {
-			$transaction->rollback();
-			throw $e;
-		}
-
-		return self::QUEUED;
-	}
-
-	// }}}
-	// {{{ public function queueUpdate()
-
-	/**
-	 * Enqueues a update subscription request for this list
-	 *
-	 * Duplicate rows are not added to the queue. This prevents the queue from
-	 * growing exponentially if list updates are unavailable for a long time.
-	 *
-	 * @param string $address
-	 * @param array  $info
-	 *
-	 * @return integer status code for a queued response.
-	 */
-	public function queueUpdate($address, array $info)
-	{
-		$info = serialize($info);
-
-		$transaction = new SwatDBTransaction($this->app->db);
-		try {
-
-			$sql = sprintf(
-				'select count(1) from MailingListUpdateQueue
-				where email = %s and info = %s and instance %s %s',
-				$this->app->db->quote($address, 'text'),
-				$this->app->db->quote($info, 'text'),
-				SwatDB::equalityOperator($this->app->getInstanceId()),
-				$this->app->db->quote($this->app->getInstanceId(), 'integer')
-			);
-
-			if (SwatDB::queryOne($this->app->db, $sql) === 0) {
-				$sql = sprintf(
-					'insert into MailingListUpdateQueue (
-						email, info, instance
-					) values (%s, %s, %s)',
-					$this->app->db->quote($address, 'text'),
-					$this->app->db->quote($info, 'text'),
-					$this->app->db->quote(
-						$this->app->getInstanceId(),
-						'integer'
-					)
-				);
-
-				SwatDB::exec($this->app->db, $sql);
-			}
-
-			$transaction->commit();
-		} catch (SwatDBException $e) {
-			$transaction->rollback();
-			throw $e;
-		}
-
-		return self::QUEUED;
-	}
-
-	// }}}
-	// {{{ public function queueBatchUpdate()
-
-	/**
-	 * Enqueues a batch of subscription update requests for this list
-	 *
-	 * No duplicate updates are added to the queue. This prevents the queue
-	 * from growing exponentially if list updates are unavailable for a long
-	 * time.
-	 *
-	 * @param array $addresses
-	 *
-	 * @return integer status code for a queued response.
-	 */
-	public function queueBatchUpdate(array $addresses)
-	{
-		$transaction = new SwatDBTransaction($this->app->db);
-		try {
-			foreach ($addresses as $info) {
-				$this->queueUpdate($info['email'], $info);
 			}
 			$transaction->commit();
 		} catch (SwatDBException $e) {
