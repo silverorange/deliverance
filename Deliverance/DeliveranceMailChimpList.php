@@ -1,7 +1,7 @@
 <?php
 
-use \DrewM\MailChimp\MailChimp;
-use \DrewM\MailChimp\Batch as MailChimpBatch;
+use DrewM\MailChimp\MailChimp;
+use DrewM\MailChimp\Batch as MailChimpBatch;
 
 /**
  * @package   Deliverance
@@ -644,9 +644,19 @@ class DeliveranceMailChimpList extends DeliveranceList
 				);
 			}
 
+			$error = json_decode($last_response['body']);
+			if (!is_object($error)) {
+				throw new DeliveranceException(
+					sprintf(
+						'Unable to decode JSON received from MailChimp. '.
+						'See the following response for more details: %s',
+						print_r($last_response, true)
+					)
+				);
+			}
+
 			// Server exceptions
 			if ($last_response['headers']['http_code'] >= 500) {
-				$error = json_decode($last_response['body']);
 				throw new DeliveranceMailChimpServerException(
 					sprintf('%s: %s', $error->title, $error->detail),
 					$error->status
@@ -655,7 +665,6 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 			// Client exceptions
 			if ($last_response['headers']['http_code'] >= 400) {
-				$error = json_decode($last_response['body']);
 				throw new DeliveranceMailChimpClientException(
 					sprintf('%s: %s', $error->title, $error->detail),
 					$error->status
