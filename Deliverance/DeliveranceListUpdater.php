@@ -220,7 +220,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 	// }}}
 	// {{{ protected function getQueuedSubscribes()
 
-	private function getQueuedSubscribes()
+	protected function getQueuedSubscribes()
 	{
 		$addresses = array();
 
@@ -249,7 +249,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 	// }}}
 	// {{{ protected function getQueuedUpdates()
 
-	private function getQueuedUpdates()
+	protected function getQueuedUpdates()
 	{
 		$addresses = array();
 
