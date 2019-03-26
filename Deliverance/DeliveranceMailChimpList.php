@@ -19,13 +19,21 @@ class DeliveranceMailChimpList extends DeliveranceList
 	/**
 	 * How many members to batch update at once.
 	 *
-	 * Must be kept low enough to not timeout. API docs say cap batch updates
-	 * between 5k-10k.
+	 * API docs say 500 pending requests. Not clear if that is 500
+	 * in a batch or 500 batches. Go with the small amount.
+	 *
+	 * @see https://developer.mailchimp.com/documentation/mailchimp/guides/how-to-use-batch-operations/
 	 *
 	 * @var integer
 	 */
 	const BATCH_SIZE = 500;
 
+	/**
+	 * The amount of time we wait (in seconds) between checking the completeness
+	 * of a batch request.
+	 *
+	 * @var integer
+	 */
 	const POLLING_INTERVAL = 10;
 
 	/**
@@ -151,8 +159,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			'email'      => 'EMAIL', // only used for batch subscribes
 			'first_name' => 'FNAME',
 			'last_name'  => 'LNAME',
-			'user_ip'    => 'OPTIN_IP',
-			'interests'  => 'INTERESTS',
+			'user_ip'    => 'OPTIN_IP'
 		);
 	}
 
@@ -168,6 +175,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 		if ($this->isAvailable()) {
 			$merges = $this->mergeInfo($info);
+			$interests = $this->interestInfo($info);
 
 			try {
 				$result = $this->callClientMethod(
@@ -182,6 +190,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 						'email_type' => $this->email_type,
 						'status' => 'subscribed',
 						'merge_fields' => $merges,
+						'interests' => $interests
 					]
 				);
 			} catch (DeliveranceMailChimpTimeoutException $e) {
@@ -225,6 +234,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 				$count++;
 
 				$merges = $this->mergeInfo($info);
+				$interests = $this->interestInfo($info);
 
 				$batch->put(
 					strval($info['id']),
@@ -238,6 +248,126 @@ class DeliveranceMailChimpList extends DeliveranceList
 						'email_type' => $this->email_type,
 						'status' => 'subscribed',
 						'merge_fields' => $merges,
+						'interests' => $interests
+					]
+				);
+
+				$full_batch = ($count % self::BATCH_SIZE === 0);
+				$last_entry = ($count === count($addresses));
+
+				if (($full_batch || $last_entry) && ($count > 0)) {
+					try {
+						$batch->execute();
+						$this->handleClientErrors();
+
+						do {
+							sleep(self::POLLING_INTERVAL);
+
+							$result = $batch->check_status();
+							$this->handleClientErrors();
+						} while ($result['status'] !== 'finished');
+
+						foreach ($batch->get_operations() as $operation) {
+							$success_ids[] = intval($operation['operation_id']);
+						}
+
+						$batch = new MailChimpBatch($this->client);
+					} catch (DeliveranceMailChimpTimeoutException $e) {
+						// If we catch an exception we process it and break from
+						// the loop. Any sucessfully processed IDs will be returned
+						// and the rest will stay in the queue.
+						break;
+					} catch (DeliveranceException $e) {
+						$e->processAndContinue();
+						break;
+					}
+				}
+			}
+		}
+
+		return $success_ids;
+	}
+
+	// }}}
+	// {{{ public function update()
+
+	public function update($address, array $info = array())
+	{
+		$result = false;
+		$queue_request = false;
+
+		if ($this->isAvailable()) {
+			$merges = $this->mergeInfo($info);
+			$interests = $this->interestInfo($info);
+
+			try {
+				$result = $this->callClientMethod(
+					'PATCH',
+					sprintf(
+						'lists/%s/members/%s',
+						$this->shortname,
+						$this->client->subscriberHash($address)
+					),
+					[
+						'email_address' => $address,
+						'merge_fields' => $merges,
+						'interests' => $interests
+					]
+				);
+			} catch (DeliveranceMailChimpTimeoutException $e) {
+				$queue_request = true;
+			} catch (DeliveranceMailChimpServerException $e) {
+				$queue_request = true;
+			} catch (DeliveranceMailChimpClientException $e) {
+				$result = DeliveranceList::INVALID;
+			} catch (Exception $e) {
+				throw new DeliveranceException($e);
+			}
+		} else {
+			$queue_request = true;
+		}
+
+		if ($queue_request && $this->app->hasModule('SiteDatabaseModule')) {
+			$result = $this->queueUpdate($address, $info);
+		}
+
+		if ($result === true) {
+			$result = self::SUCCESS;
+		} elseif ($result === false) {
+			$result = self::FAILURE;
+		}
+
+		return $result;
+	}
+
+	// }}}
+	// {{{ public function batchUpdate()
+
+	public function batchUpdate(array $addresses)
+	{
+		$success_ids = [];
+
+		if ($this->isAvailable()) {
+			$count = 0;
+
+			$batch = new MailChimpBatch($this->client);
+			foreach ($addresses as $info) {
+				$count++;
+
+				$merges = $this->mergeInfo($info);
+				$interests = $this->interestInfo($info);
+
+				$batch->patch(
+					strval($info['id']),
+					sprintf(
+						'lists/%s/members/%s',
+						$this->shortname,
+						$this->client->subscriberHash($info['email'])
+					),
+					[
+						'email_address' => $info['email'],
+						'merge_fields' => $merges,
+						'interests' => $interests
 					]
 				);
 
@@ -463,19 +593,28 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$merges = array();
 		foreach ($info as $id => $value) {
 			if (array_key_exists($id, $array_map) && $value != null) {
-				$merge_var = $array_map[$id];
-				// TODO: use new-style interest groups.
-				// interests can be passed in as an array, but MailChimp
-				// expects a comma delimited list.
-				if ($merge_var == 'INTERESTS' && is_array($value)) {
-					$value = implode(',', $value);
-				}
-
-				$merges[$merge_var] = $value;
+				$merges[$array_map[$id]] = $value;
 			}
 		}
 
 		return $merges;
+	}
+
+	// }}}
+	// {{{ protected function interestsInfo()
+
+	protected function interestInfo(array $info)
+	{
+		$interests = [];
+
+		$selected_interests = array_key_exists('interests', $info) ?
+			$info['interests'] : [];
+
+		foreach ($selected_interests as $interest) {
+			$interests[$interest] = true;
+		}
+
+		return $interests;
 	}
 
 	// }}}
