@@ -200,7 +200,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			} catch (DeliveranceMailChimpClientException $e) {
 				$e->processAndContinue();
 
-				$result = DeliveranceList::INVALID;
+				$result = DeliveranceList::FAILURE;
 			} catch (Exception $e) {
 				throw new DeliveranceException($e);
 			}
