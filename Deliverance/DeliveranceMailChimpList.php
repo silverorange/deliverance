@@ -198,6 +198,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 			} catch (DeliveranceMailChimpServerException $e) {
 				$queue_request = true;
 			} catch (DeliveranceMailChimpClientException $e) {
+				$e->processAndContinue();
+
 				$result = DeliveranceList::INVALID;
 			} catch (Exception $e) {
 				throw new DeliveranceException($e);
