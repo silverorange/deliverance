@@ -300,7 +300,7 @@ abstract class DeliveranceList
 	// {{{ public function queueUpdate()
 
 	/**
-	 * Enqueues a update subscription request for this list
+	 * Enqueues an update subscription request for this list
 	 *
 	 * Duplicate rows are not added to the queue. This prevents the queue from
 	 * growing exponentially if list updates are unavailable for a long time.
