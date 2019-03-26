@@ -784,7 +784,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 			}
 
 			$error = json_decode($last_response['body']);
-			if (!is_object($error)) {
+			if ($error === null) {
 				throw new DeliveranceException(
 					sprintf(
 						'Unable to decode JSON received from MailChimp. '.
