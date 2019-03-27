@@ -121,34 +121,11 @@ class Deliverance
 			// Deliverance Lists
 			// Timeouts, in seconds.
 			'deliverance.list_connection_timeout'        => 1,
-			'deliverance.list_admin_connection_timeout'  => 5,
 			'deliverance.list_script_connection_timeout' => 300,
 
-			// Deliverance Campaigns
-			'deliverance.campaign_from_name'    => null,
-			'deliverance.campaign_from_address' => null,
-			'deliverance.segment_include_addresses' => null,
-
-			// allow setting a custom cdn base for campaigns. As campaigns are
-			// cannot be edited once set, ideally use a CNAME for the CDN base
-			// to prevent breakage of older campaigns if the CDN store changes
-			// or moves. As campaigns are only served via http there is no
-			// drawback to using a CNAME.
-			'deliverance.campaign_cdn_base'     => null,
-
-			// Analytics tracking
-			'deliverance.automatic_analytics_tagging' => false,
-			'deliverance.analytics_utm_source'        => null,
-			'deliverance.analytics_utm_medium'        => 'email',
-			'deliverance.analytics_utm_campaign'      => '%s',
-
 			// mailchimp specific
-			'mail_chimp.double_opt_in'  => false,
 			'mail_chimp.api_key'        => null,
-			'mail_chimp.user_id'        => null,
 			'mail_chimp.default_list'   => null,
-			'mail_chimp.default_folder' => null,
-			'mail_chimp.preview_url'    => 'http://%s.campaign-archive.com/?u=%s&id=%s',
 			'mail_chimp.list_title'     => null,
 			'mail_chimp.source'         => null,
 		);

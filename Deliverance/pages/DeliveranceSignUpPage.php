@@ -7,14 +7,6 @@
  */
 abstract class DeliveranceSignUpPage extends SiteEditPage
 {
-	// {{{ protected properties
-
-	/**
-	 * @var boolean
-	 */
-	protected $send_welcome = true;
-
-	// }}}
 	// {{{ protected function getUiXml()
 
 	protected function getUiXml()
@@ -29,8 +21,7 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 
 	protected function save(SwatForm $form)
 	{
-		$list = $this->getList();
-		$this->subscribe($list);
+		$this->subscribe($this->getList());
 	}
 
 	// }}}
@@ -55,15 +46,9 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		$email = $this->getEmail();
 		$this->checkMember($list, $email);
 
-		$info      = $this->getSubscriberInfo($list);
-		$array_map = $this->getArrayMap();
+		$info = $this->getSubscriberInfo($list);
 
-		$response = $list->subscribe(
-			$email,
-			$info,
-			$this->send_welcome,
-			$array_map
-		);
+		$response = $list->subscribe($email, $info);
 
 		$this->handleSubscribeResponse($list, $response);
 
@@ -101,20 +86,11 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 	abstract protected function getSubscriberInfo(DeliveranceList $list);
 
 	// }}}
-	// {{{ protected function getArrayMap()
-
-	protected function getArrayMap()
-	{
-		return array();
-	}
-
-	// }}}
 	// {{{ protected function checkMember()
 
 	protected function checkMember(DeliveranceList $list, $email)
 	{
 		if ($list->isMember($email)) {
-			$this->send_welcome = false;
 			$message = $this->getExistingMemberMessage($list, $email);
 			if ($message != null) {
 				$this->addAppMessage($message);
