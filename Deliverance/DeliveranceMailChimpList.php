@@ -189,8 +189,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 						'email_address' => $address,
 						'email_type' => $this->email_type,
 						'status' => 'subscribed',
-						'merge_fields' => $merges,
-						'interests' => $interests
+						'merge_fields' => (object) $merges,
+						'interests' => (object) $interests
 					]
 				);
 			} catch (DeliveranceMailChimpTimeoutException $e) {
@@ -249,8 +249,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 						'email_address' => $info['email'],
 						'email_type' => $this->email_type,
 						'status' => 'subscribed',
-						'merge_fields' => $merges,
-						'interests' => $interests
+						'merge_fields' => (object) $merges,
+						'interests' => (object) $interests
 					]
 				);
 
@@ -312,8 +312,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 					),
 					[
 						'email_address' => $address,
-						'merge_fields' => $merges,
-						'interests' => $interests
+						'merge_fields' => (object) $merges,
+						'interests' => (object) $interests
 					]
 				);
 			} catch (DeliveranceMailChimpTimeoutException $e) {
@@ -368,8 +368,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 					),
 					[
 						'email_address' => $info['email'],
-						'merge_fields' => $merges,
-						'interests' => $interests
+						'merge_fields' => (object) $merges,
+						'interests' => (object) $interests
 					]
 				);
 
