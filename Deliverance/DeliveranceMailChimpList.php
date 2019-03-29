@@ -592,10 +592,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 	{
 		$array_map = $this->list_merge_array_map;
 
-		$merges = array();
+		$merges = new stdClass();
 		foreach ($info as $id => $value) {
 			if (array_key_exists($id, $array_map) && $value != null) {
-				$merges[$array_map[$id]] = $value;
+				$merges->{$array_map[$id]} = $value;
 			}
 		}
 
@@ -607,13 +607,13 @@ class DeliveranceMailChimpList extends DeliveranceList
 
 	protected function interestInfo(array $info)
 	{
-		$interests = [];
+		$interests = new stdClass();
 
 		$selected_interests = array_key_exists('interests', $info) ?
 			$info['interests'] : [];
 
 		foreach ($selected_interests as $interest) {
-			$interests[$interest] = true;
+			$interests->{$interest} = true;
 		}
 
 		return $interests;
