@@ -26,10 +26,8 @@
 	"repositories": [
 		{
 			"type": "composer",
-			"url": "https://composer.silverorange.com"
-		},
-		{
-			"packagist": false
+			"url": "https://composer.silverorange.com",
+			"only": ["silverorange/*"]
 		}
 	],
 	"require": {
@@ -38,8 +36,8 @@
 		"pear/mail": "^1.2.0",
 		"pear/mail_mime": "^1.10.0",
 		"pear/net_smtp": "^1.6.3",
-		"silverorange/site": "^9.0.0 || ^10.0.0",
-		"silverorange/swat": "^5.0.0"
+		"silverorange/site": "^9.0.0 || ^10.1.1",
+		"silverorange/swat": "^5.0.0 || ^6.0.0"
 	},
 	"require-dev": {
 		"silverorange/coding-standard": "^1.0.0"
