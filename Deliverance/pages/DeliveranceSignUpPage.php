@@ -51,11 +51,6 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		$response = $list->subscribe($email, $info);
 
 		$this->handleSubscribeResponse($list, $response);
-
-		if ($response === DeliveranceList::SUCCESS ||
-			$response === DeliveranceList::QUEUED) {
-			$this->sendNotification($list);
-		}
 	}
 
 	// }}}
@@ -162,29 +157,6 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 	protected function addAppMessage(SwatMessage $message)
 	{
 		$this->app->messages->add($message);
-	}
-
-	// }}}
-	// {{{ protected function sendNotification()
-
-	protected function sendNotification(DeliveranceList $list)
-	{
-		if (isset($this->app->notifier)) {
-			$info = $this->getSubscriberInfo($list);
-
-			$this->app->notifier->send(
-				'newsletter_signup',
-				array(
-					'site'      => $this->app->config->notifier->site,
-					'list'      => $list->getShortname(),
-					'interests' =>
-						(isset($info['interests']))
-							? $info['interests']
-							: array(),
-				)
-			);
-
-		}
 	}
 
 	// }}}
