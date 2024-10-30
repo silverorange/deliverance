@@ -1,0 +1,7 @@
+parameters:
+  phpVersion: 80200
+  level: 0
+  paths:
+    - Deliverance
+  editorUrl: '%%file%%:%%line%%'
+  editorUrlTitle: '%%file%%:%%line%%'
