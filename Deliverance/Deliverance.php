@@ -146,7 +146,6 @@ class Deliverance
 		self::setupGettext();
 
 		SwatUI::mapClassPrefixToPath('Deliverance', 'Deliverance');
-		SwatDBClassMap::addPath('Deliverance/dataobjects');
 
 		self::$is_initialized = true;
 	}
