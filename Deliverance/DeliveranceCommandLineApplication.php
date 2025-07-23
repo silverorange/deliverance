@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Base class for Deliverance commmand line apps.
+ * Base class for Deliverance command line apps.
  *
  * @copyright 2013-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
