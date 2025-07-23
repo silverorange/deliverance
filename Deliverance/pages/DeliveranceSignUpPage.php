@@ -46,8 +46,10 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
         $message = $list->handleSubscribeResponse($response);
         $message_display = $this->getMessageDisplay();
 
-        if ($message_display instanceof SwatMessageDisplay
-            && $message instanceof SwatMessage) {
+        if (
+            $message_display instanceof SwatMessageDisplay
+            && $message instanceof SwatMessage
+        ) {
             $message_display->add($message);
         }
     }
@@ -100,8 +102,10 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
         $can_relocate = true;
 
         $message_display = $this->getMessageDisplay();
-        if ($message_display instanceof SwatMessageDisplay
-            && $message_display->getMessageCount() > 0) {
+        if (
+            $message_display instanceof SwatMessageDisplay
+            && $message_display->getMessageCount() > 0
+        ) {
             $can_relocate = false;
         }
 

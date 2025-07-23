@@ -608,8 +608,10 @@ class DeliveranceMailChimpList extends DeliveranceList
             DeliveranceMailingListInterestWrapper::class
         );
 
-        if ($this->app->hasModule('SiteDatabaseModule')
-            && !($this->interests instanceof $class_name)) {
+        if (
+            $this->app->hasModule('SiteDatabaseModule')
+            && !($this->interests instanceof $class_name)
+        ) {
             $instance_id = $this->app->getInstanceId();
 
             $this->interests = SwatDB::query(
