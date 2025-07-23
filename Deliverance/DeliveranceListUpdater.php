@@ -10,7 +10,7 @@
  */
 abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 {
-	// {{{ protected function runInternal()
+
 
 	protected function runInternal()
 	{
@@ -37,8 +37,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		$this->debug(Deliverance::_('All Done.')."\n", true);
 	}
 
-	// }}}
-	// {{{ protected function subscribe()
+
+
 
 	protected function subscribe(DeliveranceList $list)
 	{
@@ -53,8 +53,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		}
 	}
 
-	// }}}
-	// {{{ protected function update()
+
+
 
 	protected function update(DeliveranceList $list)
 	{
@@ -69,8 +69,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		}
 	}
 
-	// }}}
-	// {{{ protected function unsubscribe()
+
+
 
 	protected function unsubscribe(DeliveranceList $list)
 	{
@@ -86,8 +86,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		}
 	}
 
-	// }}}
-	// {{{ protected function subscribeQueued()
+
+
 
 	protected function subscribeQueued(DeliveranceList $list)
 	{
@@ -129,8 +129,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 	}
 
-	// }}}
-	// {{{ protected function updateQueued()
+
+
 
 	protected function updateQueued(DeliveranceList $list)
 	{
@@ -172,8 +172,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 	}
 
-	// }}}
-	// {{{ protected function unsubscribeQueued()
+
+
 
 	protected function unsubscribeQueued(DeliveranceList $list)
 	{
@@ -217,8 +217,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 	}
 
-	// }}}
-	// {{{ protected function getQueuedSubscribes()
+
+
 
 	protected function getQueuedSubscribes()
 	{
@@ -246,8 +246,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		return $addresses;
 	}
 
-	// }}}
-	// {{{ protected function getQueuedUpdates()
+
+
 
 	protected function getQueuedUpdates()
 	{
@@ -275,8 +275,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		return $addresses;
 	}
 
-	// }}}
-	// {{{ protected function getQueuedUnsubscribes()
+
+
 
 	protected function getQueuedUnsubscribes()
 	{
@@ -300,8 +300,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		return $addresses;
 	}
 
-	// }}}
-	// {{{ protected function clearQueuedSubscribes()
+
+
 
 	protected function clearQueuedSubscribes(array $ids)
 	{
@@ -328,8 +328,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 	}
 
-	// }}}
-	// {{{ protected function clearQueuedSubscribes()
+
+
 
 	protected function clearQueuedUpdates(array $ids)
 	{
@@ -356,8 +356,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 	}
 
-	// }}}
-	// {{{ protected function clearQueuedUnsubscribes()
+
+
 
 	protected function clearQueuedUnsubscribes(array $ids)
 	{
@@ -384,8 +384,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 	}
 
-	// }}}
-	// {{{ protected function getQuotedIds()
+
+
 
 	protected function getQuotedIds(array $ids)
 	{
@@ -398,10 +398,10 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		return implode(',', $quoted_id_array);
 	}
 
-	// }}}
+
 
 	// boilerplate
-	// {{{ protected function addConfigDefinitions()
+
 
 	protected function addConfigDefinitions(SiteConfigModule $config)
 	{
@@ -409,8 +409,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		$config->addDefinitions(Deliverance::getConfigDefinitions());
 	}
 
-	// }}}
-	// {{{ protected function getDefaultModuleList()
+
+
 
 	protected function getDefaultModuleList()
 	{
@@ -423,7 +423,7 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
 		);
 	}
 
-	// }}}
+
 }
 
 ?>

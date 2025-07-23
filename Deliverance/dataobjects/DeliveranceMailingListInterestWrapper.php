@@ -10,7 +10,7 @@
  */
 class DeliveranceMailingListInterestWrapper extends SwatDBRecordsetWrapper
 {
-	// {{{ public function getShortnames()
+
 
 	public function getShortnames()
 	{
@@ -23,8 +23,8 @@ class DeliveranceMailingListInterestWrapper extends SwatDBRecordsetWrapper
 		return $shortnames;
 	}
 
-	// }}}
-	// {{{ public function getDefaultShortnames()
+
+
 
 	public function getDefaultShortnames()
 	{
@@ -39,8 +39,8 @@ class DeliveranceMailingListInterestWrapper extends SwatDBRecordsetWrapper
 		return $shortnames;
 	}
 
-	// }}}
-	// {{{ protected function init()
+
+
 
 	protected function init()
 	{
@@ -53,7 +53,7 @@ class DeliveranceMailingListInterestWrapper extends SwatDBRecordsetWrapper
 		$this->index_field = 'id';
 	}
 
-	// }}}
+
 }
 
 ?>

@@ -8,7 +8,7 @@
 class DeliveranceMailChimpSignUpPage extends DeliveranceSignUpPage
 {
 	// process phase
-	// {{{ protected getSubscriberInfo()
+
 
 	protected function getSubscriberInfo(DeliveranceList $list)
 	{
@@ -23,7 +23,7 @@ class DeliveranceMailChimpSignUpPage extends DeliveranceSignUpPage
 		return $info;
 	}
 
-	// }}}
+
 }
 
 ?>

@@ -17,7 +17,7 @@
  */
 class DeliveranceListFactory extends SwatObject
 {
-	// {{{ private static properties
+
 
 	/**
 	 * List of registered list classes indexed by the list type
@@ -33,8 +33,8 @@ class DeliveranceListFactory extends SwatObject
 	 */
 	private static $search_paths = array('Deliverance');
 
-	// }}}
-	// {{{ public static function get()
+
+
 
 	/**
 	 * Gets a list of the specified type
@@ -74,8 +74,8 @@ class DeliveranceListFactory extends SwatObject
 		return new $list_class_name($app, $shortname);
 	}
 
-	// }}}
-	// {{{ public static function registerList()
+
+
 
 	/**
 	 * Registers a list class with the factory
@@ -95,8 +95,8 @@ class DeliveranceListFactory extends SwatObject
 		self::$list_class_names_by_type[$type] = $list_class_name;
 	}
 
-	// }}}
-	// {{{ public static function addPath()
+
+
 
 	/**
 	 * Adds a search path for class-definition files
@@ -121,8 +121,8 @@ class DeliveranceListFactory extends SwatObject
 		}
 	}
 
-	// }}}
-	// {{{ public static function removePath()
+
+
 
 	/**
 	 * Removes a search path for list class-definition files
@@ -139,8 +139,8 @@ class DeliveranceListFactory extends SwatObject
 		}
 	}
 
-	// }}}
-	// {{{ private static function loadListClass()
+
+
 
 	/**
 	 * Loads a list class-definition if it is not defined
@@ -163,8 +163,8 @@ class DeliveranceListFactory extends SwatObject
 		}
 	}
 
-	// }}}
-	// {{{ private function __construct()
+
+
 
 	/**
 	 * This class contains only static methods and should not be instantiated
@@ -173,7 +173,7 @@ class DeliveranceListFactory extends SwatObject
 	{
 	}
 
-	// }}}
+
 }
 
 ?>

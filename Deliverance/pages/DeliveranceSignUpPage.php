@@ -7,33 +7,33 @@
  */
 abstract class DeliveranceSignUpPage extends SiteEditPage
 {
-	// {{{ protected function getUiXml()
+
 
 	protected function getUiXml()
 	{
 		return __DIR__.'/signup.xml';
 	}
 
-	// }}}
+
 
 	// process phase
-	// {{{ protected function save()
+
 
 	protected function save(SwatForm $form)
 	{
 		$this->subscribe($this->getList());
 	}
 
-	// }}}
-	// {{{ protected function getList()
+
+
 
 	protected function getList()
 	{
 		return DeliveranceListFactory::get($this->app, 'default');
 	}
 
-	// }}}
-	// {{{ protected function subscribe()
+
+
 
 	protected function subscribe(DeliveranceList $list)
 	{
@@ -53,8 +53,8 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		$this->handleSubscribeResponse($list, $response);
 	}
 
-	// }}}
-	// {{{ protected function handleSubscribeResponse()
+
+
 
 	protected function handleSubscribeResponse(DeliveranceList $list, $response)
 	{
@@ -67,21 +67,21 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		}
 	}
 
-	// }}}
-	// {{{ protected function getEmail()
+
+
 
 	protected function getEmail()
 	{
 		return $this->ui->getWidget('email')->value;
 	}
 
-	// }}}
-	// {{{ abstract protected function getSubscriberInfo();
+
+
 
 	abstract protected function getSubscriberInfo(DeliveranceList $list);
 
-	// }}}
-	// {{{ protected function checkMember()
+
+
 
 	protected function checkMember(DeliveranceList $list, $email)
 	{
@@ -93,8 +93,8 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		}
 	}
 
-	// }}}
-	// {{{ protected function getExistingMemberMessage()
+
+
 
 	protected function getExistingMemberMessage(DeliveranceList $list, $email)
 	{
@@ -115,8 +115,8 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		return $message;
 	}
 
-	// }}}
-	// {{{ protected function relocate()
+
+
 
 	protected function relocate(SwatForm $form)
 	{
@@ -125,8 +125,8 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		}
 	}
 
-	// }}}
-	// {{{ protected function canRelocate()
+
+
 
 	protected function canRelocate(SwatForm $form)
 	{
@@ -141,8 +141,8 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		return $can_relocate;
 	}
 
-	// }}}
-	// {{{ protected function getMessageDisplay()
+
+
 
 	protected function getMessageDisplay(SwatForm $form = null)
 	{
@@ -151,18 +151,18 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		);
 	}
 
-	// }}}
-	// {{{ protected function addAppMessage()
+
+
 
 	protected function addAppMessage(SwatMessage $message)
 	{
 		$this->app->messages->add($message);
 	}
 
-	// }}}
+
 
 	// build phase
-	// {{{ protected function buildForm()
+
 
 	protected function buildForm(SwatForm $form)
 	{
@@ -177,7 +177,7 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
 		}
 	}
 
-	// }}}
+
 }
 
 ?>

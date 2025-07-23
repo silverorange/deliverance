@@ -9,12 +9,12 @@
  */
 abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplication
 {
-	// {{{ protected properties
+
 
 	protected $dry_run = false;
 
-	// }}}
-	// {{{ public function __construct()
+
+
 
 	public function __construct($id, $filename, $title, $documentation)
 	{
@@ -37,8 +37,8 @@ abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplicat
 		$this->addCommandLineArgument($dry_run);
 	}
 
-	// }}}
-	// {{{ public function setInstance()
+
+
 
 	public function setInstance($shortname)
 	{
@@ -47,16 +47,16 @@ abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplicat
 		$this->config->init();
 	}
 
-	// }}}
-	// {{{ public function setDryRun()
+
+
 
 	public function setDryRun($dry_run)
 	{
 		$this->dry_run = (boolean)$dry_run;
 	}
 
-	// }}}
-	// {{{ public function run()
+
+
 
 	public function run()
 	{
@@ -67,8 +67,8 @@ abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplicat
 		$this->unlock();
 	}
 
-	// }}}
-	// {{{ protected function runInternal()
+
+
 
 	protected function runInternal()
 	{
@@ -77,8 +77,8 @@ abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplicat
 		// defined, so runInternal() cannot be abstract.
 	}
 
-	// }}}
-	// {{{ protected function getList()
+
+
 
 	protected function getList()
 	{
@@ -90,10 +90,10 @@ abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplicat
 		return $list;
 	}
 
-	// }}}
+
 
 	// boilerplate
-	// {{{ protected function addConfigDefinitions()
+
 
 	protected function addConfigDefinitions(SiteConfigModule $config)
 	{
@@ -101,8 +101,8 @@ abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplicat
 		$config->addDefinitions(Deliverance::getConfigDefinitions());
 	}
 
-	// }}}
-	// {{{ protected function getDefaultModuleList()
+
+
 
 	protected function getDefaultModuleList()
 	{
@@ -116,7 +116,7 @@ abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplicat
 		);
 	}
 
-	// }}}
+
 }
 
 ?>

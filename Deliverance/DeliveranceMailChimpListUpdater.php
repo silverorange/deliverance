@@ -10,7 +10,7 @@
  */
 class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 {
-	// {{{ protected function handleResult()
+
 
 	protected function handleResult($result, $success_message)
 	{
@@ -163,7 +163,7 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
 		return $clear_queued;
 	}
 
-	// }}}
+
 }
 
 ?>

@@ -8,7 +8,7 @@
 class DeliveranceMailChimpUnsubscribePage extends DeliveranceUnsubscribePage
 {
 	// process phase
-	// {{{ protected function removeInterests()
+
 
 	protected function removeInterests(DeliveranceList $list, array $interests)
 	{
@@ -16,8 +16,8 @@ class DeliveranceMailChimpUnsubscribePage extends DeliveranceUnsubscribePage
 		parent::removeInterests($list, $interests);
 	}
 
-	// }}}
-	// {{{ protected function getInterestInfo();
+
+
 
 	protected function getInterestInfo(array $interests_to_remove)
 	{
@@ -34,7 +34,7 @@ class DeliveranceMailChimpUnsubscribePage extends DeliveranceUnsubscribePage
 		return $info;
 	}
 
-	// }}}
+
 }
 
 ?>

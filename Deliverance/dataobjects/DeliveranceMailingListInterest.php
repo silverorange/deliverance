@@ -7,7 +7,7 @@
  */
 class DeliveranceMailingListInterest extends SwatDBDataObject
 {
-	// {{{ public properties
+
 
 	/**
 	 * Unique identifier
@@ -52,8 +52,8 @@ class DeliveranceMailingListInterest extends SwatDBDataObject
 	 */
 	public $is_default;
 
-	// }}}
-	// {{{ protected function init()
+
+
 
 	protected function init()
 	{
@@ -68,7 +68,7 @@ class DeliveranceMailingListInterest extends SwatDBDataObject
 		);
 	}
 
-	// }}}
+
 }
 
 ?>

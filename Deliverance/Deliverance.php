@@ -9,7 +9,7 @@
  */
 class Deliverance
 {
-	// {{{ constants
+
 
 	/**
 	 * The gettext domain for Deliverance
@@ -18,8 +18,8 @@ class Deliverance
 	 */
 	const GETTEXT_DOMAIN = 'deliverance';
 
-	// }}}
-	// {{{ private properties
+
+
 
 	/**
 	 * Whether or not this package is initialized
@@ -28,8 +28,8 @@ class Deliverance
 	 */
 	private static $is_initialized = false;
 
-	// }}}
-	// {{{ public static function _()
+
+
 
 	/**
 	 * Translates a phrase
@@ -45,8 +45,8 @@ class Deliverance
 		return self::gettext($message);
 	}
 
-	// }}}
-	// {{{ public static function gettext()
+
+
 
 	/**
 	 * Translates a phrase
@@ -63,8 +63,8 @@ class Deliverance
 		return dgettext(self::GETTEXT_DOMAIN, $message);
 	}
 
-	// }}}
-	// {{{ public static function ngettext()
+
+
 
 	/**
 	 * Translates a plural phrase
@@ -92,8 +92,8 @@ class Deliverance
 			$singular_message, $plural_message, $number);
 	}
 
-	// }}}
-	// {{{ public static function setupGettext()
+
+
 
 	public static function setupGettext()
 	{
@@ -101,8 +101,8 @@ class Deliverance
 		bind_textdomain_codeset(self::GETTEXT_DOMAIN, 'UTF-8');
 	}
 
-	// }}}
-	// {{{ public static function getConfigDefinitions()
+
+
 
 	/**
 	 * Gets configuration definitions used by the Deliverance package
@@ -131,8 +131,8 @@ class Deliverance
 		);
 	}
 
-	// }}}
-	// {{{ public static function init()
+
+
 
 	public static function init()
 	{
@@ -150,8 +150,8 @@ class Deliverance
 		self::$is_initialized = true;
 	}
 
-	// }}}
-	// {{{ private function __construct()
+
+
 
 	/**
 	 * Prevent instantiation of this static class
@@ -160,7 +160,7 @@ class Deliverance
 	{
 	}
 
-	// }}}
+
 }
 
 ?>

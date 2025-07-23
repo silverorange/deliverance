@@ -14,7 +14,7 @@ use DrewM\MailChimp\Batch as MailChimpBatch;
  */
 class DeliveranceMailChimpList extends DeliveranceList
 {
-	// {{{ class constants
+
 
 	/**
 	 * How many members to batch update at once.
@@ -46,8 +46,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 */
 	const EMAIL_TYPE_TEXT = 'text';
 
-	// }}}
-	// {{{ public properties
+
+
 
 	public $default_address = array(
 		'addr1' => 'null',
@@ -56,8 +56,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		'zip'   => 'null',
 		);
 
-	// }}}
-	// {{{ protected properties
+
+
 
 	protected $client;
 
@@ -84,8 +84,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 	 */
 	protected $interests;
 
-	// }}}
-	// {{{ public function __construct()
+
+
 
 	public function __construct(SiteApplication $app, $shortname = null)
 	{
@@ -105,24 +105,24 @@ class DeliveranceMailChimpList extends DeliveranceList
 		$this->initListMergeArrayMap();
 	}
 
-	// }}}
-	// {{{ public function setEmailType()
+
+
 
 	public function setEmailType($email_type)
 	{
 		$this->email_type = $email_type;
 	}
 
-	// }}}
-	// {{{ public function setTimeout()
+
+
 
 	public function setTimeout($timeout)
 	{
 		$this->client_timeout = intval($timeout);
 	}
 
-	// }}}
-	// {{{ public function isAvailable()
+
+
 
 	/**
 	 * Tests to make sure the service is available.
@@ -150,8 +150,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $available;
 	}
 
-	// }}}
-	// {{{ protected function initListMergeArrayMap()
+
+
 
 	protected function initListMergeArrayMap()
 	{
@@ -163,10 +163,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 		);
 	}
 
-	// }}}
+
 
 	// subscriber methods
-	// {{{ public function subscribe()
+
 
 	public function subscribe($address, array $info = array())
 	{
@@ -221,8 +221,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $result;
 	}
 
-	// }}}
-	// {{{ public function batchSubscribe()
+
+
 
 	public function batchSubscribe(array $addresses)
 	{
@@ -290,8 +290,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $success_ids;
 	}
 
-	// }}}
-	// {{{ public function update()
+
+
 
 	public function update($address, array $info = array())
 	{
@@ -342,8 +342,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $result;
 	}
 
-	// }}}
-	// {{{ public function batchUpdate()
+
+
 
 	public function batchUpdate(array $addresses)
 	{
@@ -409,8 +409,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $success_ids;
 	}
 
-	// }}}
-	// {{{ public function unsubscribe()
+
+
 
 	public function unsubscribe($address)
 	{
@@ -464,8 +464,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $result;
 	}
 
-	// }}}
-	// {{{ public function batchUnsubscribe()
+
+
 
 	public function batchUnsubscribe(array $addresses)
 	{
@@ -527,8 +527,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $success_ids;
 	}
 
-	// }}}
-	// {{{ public function isMember()
+
+
 
 	public function isMember($address)
 	{
@@ -536,16 +536,16 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $this->isSubscribedMember($this->getMemberInfo($address));
 	}
 
-	// }}}
-	// {{{ public function wasMember()
+
+
 
 	public function wasMember($address)
 	{
 		return $this->isUnsubscribedMember($this->getMemberInfo($address));
 	}
 
-	// }}}
-	// {{{ public function hasEverBeenMember()
+
+
 
 	public function hasEverBeenMember($address)
 	{
@@ -557,8 +557,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		);
 	}
 
-	// }}}
-	// {{{ public function getMemberInfo()
+
+
 
 	public function getMemberInfo($address)
 	{
@@ -585,8 +585,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $member_info;
 	}
 
-	// }}}
-	// {{{ protected function mergeInfo()
+
+
 
 	protected function mergeInfo(array $info)
 	{
@@ -602,8 +602,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $merges;
 	}
 
-	// }}}
-	// {{{ protected function interestsInfo()
+
+
 
 	protected function interestInfo(array $info)
 	{
@@ -626,8 +626,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $interests;
 	}
 
-	// }}}
-	// {{{ public function getDefaultAddress()
+
+
 
 	public function getDefaultAddress()
 	{
@@ -635,8 +635,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $this->default_address;
 	}
 
-	// }}}
-	// {{{ protected function isSubscribedMember()
+
+
 
 	protected function isSubscribedMember($member_info)
 	{
@@ -647,8 +647,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		);
 	}
 
-	// }}}
-	// {{{ protected function isUnsubscribedMember()
+
+
 
 	protected function isUnsubscribedMember($member_info)
 	{
@@ -659,10 +659,10 @@ class DeliveranceMailChimpList extends DeliveranceList
 		);
 	}
 
-	// }}}
+
 
 	// interest methods
-	// {{{ public function getDefaultSubscriberInfo()
+
 
 	public function getDefaultSubscriberInfo()
 	{
@@ -676,8 +676,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $info;
 	}
 
-	// }}}
-	// {{{ public function getInterests()
+
+
 
 	public function getInterests()
 	{
@@ -705,20 +705,20 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $this->interests;
 	}
 
-	// }}}
+
 
 	// list setup helper methods
-	// {{{ public function getApiKey()
+
 
 	public function getApiKey()
 	{
 		return $this->app->config->mail_chimp->api_key;
 	}
 
-	// }}}
+
 
 	// exception throwing and handling
-	// {{{ private function callClientMethod()
+
 
 	private function callClientMethod($verb, $method, array $args = array())
 	{
@@ -774,8 +774,8 @@ class DeliveranceMailChimpList extends DeliveranceList
 		return $result;
 	}
 
-	// }}}
-	// {{{ private function handleClientErrors()
+
+
 
 	private function handleClientErrors()
 	{
@@ -830,7 +830,7 @@ class DeliveranceMailChimpList extends DeliveranceList
 		}
 	}
 
-	// }}}
+
 }
 
 ?>

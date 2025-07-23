@@ -7,33 +7,33 @@
  */
 abstract class DeliveranceUnsubscribePage extends SiteEditPage
 {
-	// {{{ protected function getUiXml()
+
 
 	protected function getUiXml()
 	{
 		return __DIR__.'/unsubscribe.xml';
 	}
 
-	// }}}
+
 
 	// process phase
-	// {{{ protected function save()
+
 
 	protected function save(SwatForm $form)
 	{
 		$this->unsubscribe($this->getList());
 	}
 
-	// }}}
-	// {{{ protected function getList()
+
+
 
 	protected function getList()
 	{
 		return DeliveranceListFactory::get($this->app, 'default');
 	}
 
-	// }}}
-	// {{{ protected function unsubscribe()
+
+
 
 	protected function unsubscribe(DeliveranceList $list)
 	{
@@ -43,16 +43,16 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 		);
 	}
 
-	// }}}
-	// {{{ protected function getEmail()
+
+
 
 	protected function getEmail()
 	{
 		return $this->ui->getWidget('email')->value;
 	}
 
-	// }}}
-	// {{{ protected function handleUnsubscribeResponse()
+
+
 
 	protected function handleUnsubscribeResponse(
 		DeliveranceList $list,
@@ -61,8 +61,8 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 		$this->handleMessage($list->handleUnsubscribeResponse($response));
 	}
 
-	// }}}
-	// {{{ protected function handleMessage()
+
+
 
 	protected function handleMessage(SwatMessage $message = null)
 	{
@@ -71,8 +71,8 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 		}
 	}
 
-	// }}}
-	// {{{ protected function relocate()
+
+
 
 	protected function relocate(SwatForm $form)
 	{
@@ -84,8 +84,8 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 		}
 	}
 
-	// }}}
-	// {{{ protected function canRelocate()
+
+
 
 	protected function canRelocate(SwatForm $form)
 	{
@@ -93,26 +93,26 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 			0);
 	}
 
-	// }}}
-	// {{{ protected function addUnsubscribeMessage()
+
+
 
 	protected function addUnsubscribeMessage()
 	{
 		// TODO - add interest update messages.
 	}
 
-	// }}}
-	// {{{ protected function getRelocateUri()
+
+
 
 	protected function getRelocateUri(SwatForm $form, $default_relocate)
 	{
 		return $this->source.'/thankyou';
 	}
 
-	// }}}
+
 
 	// build phase
-	// {{{ protected function buildForm()
+
 
 	protected function buildForm(SwatForm $form)
 	{
@@ -127,7 +127,7 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 		}
 	}
 
-	// }}}
+
 }
 
 ?>

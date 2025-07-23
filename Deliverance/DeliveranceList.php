@@ -7,7 +7,7 @@
  */
 abstract class DeliveranceList
 {
-	// {{{ class constants
+
 
 	/**
 	 * Return Value when successfully subscribing or unsubscribing an email
@@ -54,14 +54,14 @@ abstract class DeliveranceList
 	 */
 	const INVALID = 6;
 
-	// }}}
-	// {{{ protected properties
+
+
 
 	protected $app;
 	protected $shortname;
 
-	// }}}
-	// {{{ public function __construct()
+
+
 
 	public function __construct(SiteApplication $app, $shortname = null)
 	{
@@ -69,27 +69,27 @@ abstract class DeliveranceList
 		$this->shortname = $shortname;
 	}
 
-	// }}}
-	// {{{ abstract public function isAvailable()
+
+
 
 	abstract public function isAvailable();
 
-	// }}}
+
 
 	// subscriber methods
-	// {{{ abstract public function subscribe()
+
 
 	abstract public function subscribe($address, array $info = array());
 
-	// }}}
-	// {{{ abstract public function batchSubscribe()
+
+
 
 	abstract public function batchSubscribe(
 		array $addresses
 	);
 
-	// }}}
-	// {{{ public function handleSubscribeResponse()
+
+
 
 	public function handleSubscribeResponse($response)
 	{
@@ -131,18 +131,18 @@ abstract class DeliveranceList
 		return $message;
 	}
 
-	// }}}
-	// {{{ abstract public function unsubscribe()
+
+
 
 	abstract public function unsubscribe($address);
 
-	// }}}
-	// {{{ abstract public function batchUnsubscribe()
+
+
 
 	abstract public function batchUnsubscribe(array $addresses);
 
-	// }}}
-	// {{{ public function handleUnsubscribeResponse()
+
+
 
 	public function handleUnsubscribeResponse($response)
 	{
@@ -205,30 +205,30 @@ abstract class DeliveranceList
 		return $message;
 	}
 
-	// }}}
-	// {{{ abstract public function isMember()
+
+
 
 	abstract public function isMember($address);
 
-	// }}}
-	// {{{ protected function getContactUsLink()
+
+
 
 	protected function getContactUsLink()
 	{
 		return 'about/contact';
 	}
 
-	// }}}
+
 
 	// interest methods
-	// {{{ abstract public function getDefaultSubscriberInfo()
+
 
 	abstract public function getDefaultSubscriberInfo();
 
-	// }}}
+
 
 	// queue methods
-	// {{{ public function queueSubscribe()
+
 
 	/**
 	 * Enqueues a subscribe request for this list
@@ -296,8 +296,8 @@ abstract class DeliveranceList
 		return self::QUEUED;
 	}
 
-	// }}}
-	// {{{ public function queueUpdate()
+
+
 
 	/**
 	 * Enqueues an update subscription request for this list
@@ -351,8 +351,8 @@ abstract class DeliveranceList
 		return self::QUEUED;
 	}
 
-	// }}}
-	// {{{ public function queueUnsubscribe()
+
+
 
 	/**
 	 * Enqueues an unsubscribe request for this list
@@ -400,15 +400,15 @@ abstract class DeliveranceList
 		return self::QUEUED;
 	}
 
-	// }}}
-	// {{{ public function getShortname()
+
+
 
 	public function getShortname()
 	{
 		return $this->shortname;
 	}
 
-	// }}}
+
 }
 
 ?>
