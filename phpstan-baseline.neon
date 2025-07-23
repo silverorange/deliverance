@@ -1,0 +1,46 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Access to undefined constant DeliveranceMailChimpList\\:\\:BOUNCED_ERROR_CODE\\.$#"
+			count: 1
+			path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+		-
+			message: "#^Access to undefined constant DeliveranceMailChimpList\\:\\:INVALID_ADDRESS_ERROR_CODE\\.$#"
+			count: 1
+			path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+		-
+			message: "#^Access to undefined constant DeliveranceMailChimpList\\:\\:NOT_FOUND_ERROR_CODE\\.$#"
+			count: 1
+			path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+		-
+			message: "#^Access to undefined constant DeliveranceMailChimpList\\:\\:NOT_SUBSCRIBED_ERROR_CODE\\.$#"
+			count: 1
+			path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+		-
+			message: "#^Access to undefined constant DeliveranceMailChimpList\\:\\:PREVIOUSLY_UNSUBSCRIBED_ERROR_CODE\\.$#"
+			count: 1
+			path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+		-
+			message: "#^Call to an undefined static method DeliveranceListUpdater\\:\\:handleResult\\(\\)\\.$#"
+			count: 1
+			path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+		-
+			message: "#^Call to an undefined method DeliveranceMailChimpUnsubscribePage\\:\\:getInterests\\(\\)\\.$#"
+			count: 1
+			path: Deliverance/pages/DeliveranceMailChimpUnsubscribePage.php
+
+		-
+			message: "#^Call to an undefined method DeliveranceMailChimpUnsubscribePage\\:\\:getNewInterests\\(\\)\\.$#"
+			count: 1
+			path: Deliverance/pages/DeliveranceMailChimpUnsubscribePage.php
+
+		-
+			message: "#^Call to an undefined static method DeliveranceUnsubscribePage\\:\\:removeInterests\\(\\)\\.$#"
+			count: 1
+			path: Deliverance/pages/DeliveranceMailChimpUnsubscribePage.php
