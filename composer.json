@@ -1,61 +1,70 @@
 {
-	"name": "silverorange/deliverance",
-	"description": "Mailing list framework.",
-	"type": "library",
-	"keywords": [ "mailchimp", "mailinglist", "email", "newsletter" ],
-	"homepage": "https://github.com/silverorange/deliverance",
-	"license": "LGPL-2.1",
-	"authors": [
-		{
-			"name": "Charles Waddell",
-			"email": "charles@silverorange.com"
-		},
-		{
-			"name": "Isaac Grant",
-			"email": "isaac@silverorange.com"
-		},
-		{
-			"name": "Michael Gauthier",
-			"email": "mike@silverorange.com"
-		},
-		{
-			"name": "Nick Burka",
-			"email": "nick@silverorange.com"
-		}
-	],
-	"repositories": [
-		{
-			"type": "composer",
-			"url": "https://composer.silverorange.com",
-			"only": ["silverorange/*"]
-		}
-	],
-	"require": {
-		"php": ">=7.2",
-		"ext-mbstring": "*",
-		"silverorange/site": "^13.0.0 || ^14.0.0 || ^15.0.0",
-		"silverorange/swat": "^5.0.0 || ^6.0.0 || ^7.0.0"
-	},
-	"require-dev": {
-		"friendsofphp/php-cs-fixer": "3.64.0",
-		"phpstan/phpstan": "^1.12"
-	},
-	"suggest": {
-		"drewm/mailchimp-api": "Support for MailChimp mailing lists.",
-		"silverorange/admin": "Admin pages for managing newsletters."
-	},
-	"scripts": {
-		"phpcs": "./vendor/bin/php-cs-fixer check -v",
-		"phpcs:ci": "./vendor/bin/php-cs-fixer check --config=.php-cs-fixer.php --no-interaction --show-progress=none --diff --using-cache=no -vvv",
-		"phpcs:write": "./vendor/bin/php-cs-fixer fix -v",
-		"phpstan": "./vendor/bin/phpstan analyze",
-		"phpstan:ci": "./vendor/bin/phpstan analyze -vvv --no-progress --memory-limit 2G",
-		"phpstan:baseline": "./vendor/bin/phpstan analyze --generate-baseline"
-	},
-	"autoload": {
-		"classmap": [ "Deliverance/" ]
-	},
-	"config": {
-		"sort-packages": true
-	}
+  "name": "silverorange/deliverance",
+  "description": "Mailing list framework.",
+  "type": "library",
+  "keywords": [
+    "mailchimp",
+    "mailinglist",
+    "email",
+    "newsletter"
+  ],
+  "homepage": "https://github.com/silverorange/deliverance",
+  "license": "LGPL-2.1",
+  "authors": [
+    {
+      "name": "Charles Waddell",
+      "email": "charles@silverorange.com"
+    },
+    {
+      "name": "Isaac Grant",
+      "email": "isaac@silverorange.com"
+    },
+    {
+      "name": "Michael Gauthier",
+      "email": "mike@silverorange.com"
+    },
+    {
+      "name": "Nick Burka",
+      "email": "nick@silverorange.com"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://composer.silverorange.com",
+      "only": [
+        "silverorange/*"
+      ]
+    }
+  ],
+  "require": {
+    "php": ">=7.2",
+    "ext-mbstring": "*",
+    "silverorange/site": "^13.0.0 || ^14.0.0 || ^15.0.0",
+    "silverorange/swat": "^5.0.0 || ^6.0.0 || ^7.0.0"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "3.64.0",
+    "phpstan/phpstan": "^1.12"
+  },
+  "suggest": {
+    "drewm/mailchimp-api": "Support for MailChimp mailing lists.",
+    "silverorange/admin": "Admin pages for managing newsletters."
+  },
+  "scripts": {
+    "phpcs": "./vendor/bin/php-cs-fixer check -v",
+    "phpcs:ci": "./vendor/bin/php-cs-fixer check --config=.php-cs-fixer.php --no-interaction --show-progress=none --diff --using-cache=no -vvv",
+    "phpcs:write": "./vendor/bin/php-cs-fixer fix -v",
+    "phpstan": "./vendor/bin/phpstan analyze",
+    "phpstan:ci": "./vendor/bin/phpstan analyze -vvv --no-progress --memory-limit 2G",
+    "phpstan:baseline": "./vendor/bin/phpstan analyze --generate-baseline"
+  },
+  "autoload": {
+    "classmap": [
+      "Deliverance/"
+    ]
+  },
+  "config": {
+    "sort-packages": true
+  }
 }
