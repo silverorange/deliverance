@@ -1,6 +1,16 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Instantiated class DrewM\\\\MailChimp\\\\Batch not found\\.$#"
+			count: 6
+			path: Deliverance/DeliveranceMailChimpList.php
+
+		-
+			message: "#^Instantiated class DrewM\\\\MailChimp\\\\MailChimp not found\\.$#"
+			count: 1
+			path: Deliverance/DeliveranceMailChimpList.php
+
+		-
 			message: "#^Access to undefined constant DeliveranceMailChimpList\\:\\:BOUNCED_ERROR_CODE\\.$#"
 			count: 1
 			path: Deliverance/DeliveranceMailChimpListUpdater.php
