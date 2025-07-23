@@ -605,7 +605,7 @@ class DeliveranceMailChimpList extends DeliveranceList
     public function getInterests()
     {
         $class_name = SwatDBClassMap::get(
-            'DeliveranceMailingListInterestWrapper'
+            DeliveranceMailingListInterestWrapper::class
         );
 
         if ($this->app->hasModule('SiteDatabaseModule')

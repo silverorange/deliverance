@@ -58,7 +58,7 @@ class DeliveranceMailingListInterest extends SwatDBDataObject
 
         $this->registerInternalProperty(
             'instance',
-            SwatDBClassMap::get('SiteInstance')
+            SwatDBClassMap::get(SiteInstance::class)
         );
     }
 }
