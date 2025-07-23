@@ -1,74 +1,64 @@
 <?php
 
 /**
- * @package   Delieverance
  * @copyright 2014-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 class DeliveranceMailingListInterest extends SwatDBDataObject
 {
+    /**
+     * Unique identifier.
+     *
+     * @var int
+     */
+    public $id;
 
+    /**
+     * @var string
+     */
+    public $shortname;
 
-	/**
-	 * Unique identifier
-	 *
-	 * @var integer
-	 */
-	public $id;
+    /**
+     * @var string
+     */
+    public $group_shortname;
 
-	/**
-	 * @var string
-	 */
-	public $shortname;
+    /**
+     * User visible title.
+     *
+     * @var string
+     */
+    public $title;
 
-	/**
-	 * @var string
-	 */
-	public $group_shortname;
+    /**
+     * Order of display.
+     *
+     * @var int
+     */
+    public $displayorder;
 
-	/**
-	 * User visible title
-	 *
-	 * @var string
-	 */
-	public $title;
+    /**
+     * @var bool
+     */
+    public $visible;
 
-	/**
-	 * Order of display
-	 *
-	 * @var integer
-	 */
-	public $displayorder;
+    /**
+     * Whether or not new subscribers should be added by default.
+     *
+     * @var bool
+     */
+    public $is_default;
 
-	/**
-	 * @var boolean
-	 */
-	public $visible;
+    protected function init()
+    {
+        parent::init();
 
-	/**
-	 * Whether or not new subscribers should be added by default
-	 *
-	 * @var boolean
-	 */
-	public $is_default;
+        $this->table = 'MailingListInterest';
+        $this->id_field = 'integer:id';
 
-
-
-
-	protected function init()
-	{
-		parent::init();
-
-		$this->table = 'MailingListInterest';
-		$this->id_field = 'integer:id';
-
-		$this->registerInternalProperty(
-			'instance',
-			SwatDBClassMap::get('SiteInstance')
-		);
-	}
-
-
+        $this->registerInternalProperty(
+            'instance',
+            SwatDBClassMap::get('SiteInstance')
+        );
+    }
 }
-
-?>
