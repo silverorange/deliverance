@@ -1,15 +1,10 @@
 <?php
 
 /**
- * Exception caused by Deliverance
+ * Exception caused by Deliverance.
  *
  * Example exception causes are API timeouts, etc.
  *
- * @package   Deliverance
  * @copyright 2011-2016 silverorange
  */
-class DeliveranceException extends SwatException
-{
-}
-
-?>
+class DeliveranceException extends SwatException {}

@@ -1,122 +1,97 @@
 <?php
 
 /**
- * Base class for Deliverance commmand line apps.
+ * Base class for Deliverance command line apps.
  *
- * @package   Deliverance
  * @copyright 2013-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
  */
 abstract class DeliveranceCommandLineApplication extends SiteCommandLineApplication
 {
-	// {{{ protected properties
+    protected $dry_run = false;
 
-	protected $dry_run = false;
+    public function __construct($id, $filename, $title, $documentation)
+    {
+        parent::__construct($id, $filename, $title, $documentation);
 
-	// }}}
-	// {{{ public function __construct()
+        $instance = new SiteCommandLineArgument(
+            ['-i', '--instance'],
+            'setInstance',
+            'Optional. Sets the site instance for which to ' .
+            'run this application.'
+        );
 
-	public function __construct($id, $filename, $title, $documentation)
-	{
-		parent::__construct($id, $filename, $title, $documentation);
+        $instance->addParameter(
+            'string',
+            'instance name must be specified.'
+        );
 
-		$instance = new SiteCommandLineArgument(array('-i', '--instance'),
-			'setInstance', 'Optional. Sets the site instance for which to '.
-			'run this application.');
+        $this->addCommandLineArgument($instance);
 
-		$instance->addParameter('string',
-			'instance name must be specified.');
+        $dry_run = new SiteCommandLineArgument(
+            ['--dry-run'],
+            'setDryRun',
+            Deliverance::_('No data is actually modified.')
+        );
 
-		$this->addCommandLineArgument($instance);
+        $this->addCommandLineArgument($dry_run);
+    }
 
-		$dry_run = new SiteCommandLineArgument(
-			array('--dry-run'),
-			'setDryRun',
-			Deliverance::_('No data is actually modified.'));
+    public function setInstance($shortname)
+    {
+        putenv(sprintf('instance=%s', $shortname));
+        $this->instance->init();
+        $this->config->init();
+    }
 
-		$this->addCommandLineArgument($dry_run);
-	}
+    public function setDryRun($dry_run)
+    {
+        $this->dry_run = (bool) $dry_run;
+    }
 
-	// }}}
-	// {{{ public function setInstance()
+    public function run()
+    {
+        parent::run();
 
-	public function setInstance($shortname)
-	{
-		putenv(sprintf('instance=%s', $shortname));
-		$this->instance->init();
-		$this->config->init();
-	}
+        $this->lock();
+        $this->runInternal();
+        $this->unlock();
+    }
 
-	// }}}
-	// {{{ public function setDryRun()
+    protected function runInternal()
+    {
+        // There are command-line applications that extend
+        // DeliveranceCommandLineApplication and don't have a run() method
+        // defined, so runInternal() cannot be abstract.
+    }
 
-	public function setDryRun($dry_run)
-	{
-		$this->dry_run = (boolean)$dry_run;
-	}
+    protected function getList()
+    {
+        $list = DeliveranceListFactory::get($this, 'default');
+        $list->setTimeout(
+            $this->config->deliverance->list_script_connection_timeout
+        );
 
-	// }}}
-	// {{{ public function run()
+        return $list;
+    }
 
-	public function run()
-	{
-		parent::run();
+    // boilerplate
 
-		$this->lock();
-		$this->runInternal();
-		$this->unlock();
-	}
+    protected function addConfigDefinitions(SiteConfigModule $config)
+    {
+        parent::addConfigDefinitions($config);
+        $config->addDefinitions(Deliverance::getConfigDefinitions());
+    }
 
-	// }}}
-	// {{{ protected function runInternal()
-
-	protected function runInternal()
-	{
-		// There are command-line applications that extend
-		// DeliveranceCommandLineApplication and don't have a run() method
-		// defined, so runInternal() cannot be abstract.
-	}
-
-	// }}}
-	// {{{ protected function getList()
-
-	protected function getList()
-	{
-		$list = DeliveranceListFactory::get($this, 'default');
-		$list->setTimeout(
-			$this->config->deliverance->list_script_connection_timeout
-		);
-
-		return $list;
-	}
-
-	// }}}
-
-	// boilerplate
-	// {{{ protected function addConfigDefinitions()
-
-	protected function addConfigDefinitions(SiteConfigModule $config)
-	{
-		parent::addConfigDefinitions($config);
-		$config->addDefinitions(Deliverance::getConfigDefinitions());
-	}
-
-	// }}}
-	// {{{ protected function getDefaultModuleList()
-
-	protected function getDefaultModuleList()
-	{
-		return array_merge(
-			parent::getDefaultModuleList(),
-			[
-				'config' => SiteCommandLineConfigModule::class,
-				'database' => SiteDatabaseModule::class,
-				'instance' => SiteMultipleInstanceModule::class,
-			]
-		);
-	}
-
-	// }}}
+    protected function getDefaultModuleList()
+    {
+        return array_merge(
+            parent::getDefaultModuleList(),
+            [
+                'config'   => SiteCommandLineConfigModule::class,
+                'database' => SiteDatabaseModule::class,
+                'instance' => SiteMultipleInstanceModule::class,
+            ]
+        );
+    }
 }
-
-?>

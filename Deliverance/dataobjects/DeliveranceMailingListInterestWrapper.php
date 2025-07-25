@@ -1,59 +1,47 @@
 <?php
 
 /**
- * A recordset wrapper class for DeliveranceMailingListInterest objects
+ * A recordset wrapper class for DeliveranceMailingListInterest objects.
  *
- * @package   Deliverance
  * @copyright 2014-2016 silverorange
  * @license   http://www.gnu.org/copyleft/lesser.html LGPL License 2.1
+ *
  * @see       DeliveranceMailingListInterest
  */
 class DeliveranceMailingListInterestWrapper extends SwatDBRecordsetWrapper
 {
-	// {{{ public function getShortnames()
+    public function getShortnames()
+    {
+        $shortnames = [];
 
-	public function getShortnames()
-	{
-		$shortnames = array();
+        foreach ($this as $interest) {
+            $shortnames[] = $interest->shortname;
+        }
 
-		foreach ($this as $interest) {
-			$shortnames[] = $interest->shortname;
-		}
+        return $shortnames;
+    }
 
-		return $shortnames;
-	}
+    public function getDefaultShortnames()
+    {
+        $shortnames = [];
 
-	// }}}
-	// {{{ public function getDefaultShortnames()
+        foreach ($this as $interest) {
+            if ($interest->is_default) {
+                $shortnames[] = $interest->shortname;
+            }
+        }
 
-	public function getDefaultShortnames()
-	{
-		$shortnames = array();
+        return $shortnames;
+    }
 
-		foreach ($this as $interest) {
-			if ($interest->is_default) {
-				$shortnames[] = $interest->shortname;
-			}
-		}
+    protected function init()
+    {
+        parent::init();
 
-		return $shortnames;
-	}
+        $this->row_wrapper_class = SwatDBClassMap::get(
+            DeliveranceMailingListInterest::class
+        );
 
-	// }}}
-	// {{{ protected function init()
-
-	protected function init()
-	{
-		parent::init();
-
-		$this->row_wrapper_class = SwatDBClassMap::get(
-			'DeliveranceMailingListInterest'
-		);
-
-		$this->index_field = 'id';
-	}
-
-	// }}}
+        $this->index_field = 'id';
+    }
 }
-
-?>
