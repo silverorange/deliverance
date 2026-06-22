@@ -25,16 +25,17 @@ pipeline {
             }
         }
 
+        stage('Check Formating') {
+            steps {
+                sh 'n -d exec engine pnpm format'
+            }
+        }
+
         stage('Check PHP Static Analysis') {
             steps {
                 sh 'composer run phpstan:ci'
             }
         }
 
-        stage('Check Formating') {
-            steps {
-                sh 'n -d exec engine pnpm prettier'
-            }
-        }
     }
 }
