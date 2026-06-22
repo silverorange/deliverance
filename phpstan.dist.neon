@@ -9,6 +9,18 @@ parameters:
   # @todo: these are known errors that will require some time to fix
   ignoreErrors:
     -
+      message: '#^Instantiated class DrewM\\MailChimp\\Batch not found\.$#'
+      identifier: class.notFound
+      count: 6
+      path: Deliverance/DeliveranceMailChimpList.php
+
+    -
+      message: '#^Instantiated class DrewM\\MailChimp\\MailChimp not found\.$#'
+      identifier: class.notFound
+      count: 1
+      path: Deliverance/DeliveranceMailChimpList.php
+
+    -
       message: '#^Access to undefined constant DeliveranceMailChimpList\:\:BOUNCED_ERROR_CODE\.$#'
       identifier: classConstant.notFound
       count: 1
