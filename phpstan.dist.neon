@@ -6,3 +6,58 @@ parameters:
   editorUrl: '%%file%%:%%line%%'
   editorUrlTitle: '%%file%%:%%line%%'
   errorFormat: table
+  # @todo: these are known errors that will require some time to fix
+  ignoreErrors:
+    -
+      message: '#^Access to undefined constant DeliveranceMailChimpList\:\:BOUNCED_ERROR_CODE\.$#'
+      identifier: classConstant.notFound
+      count: 1
+      path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+    -
+      message: '#^Access to undefined constant DeliveranceMailChimpList\:\:INVALID_ADDRESS_ERROR_CODE\.$#'
+      identifier: classConstant.notFound
+      count: 1
+      path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+    -
+      message: '#^Access to undefined constant DeliveranceMailChimpList\:\:NOT_FOUND_ERROR_CODE\.$#'
+      identifier: classConstant.notFound
+      count: 1
+      path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+    -
+      message: '#^Access to undefined constant DeliveranceMailChimpList\:\:NOT_SUBSCRIBED_ERROR_CODE\.$#'
+      identifier: classConstant.notFound
+      count: 1
+      path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+    -
+      message: '#^Access to undefined constant DeliveranceMailChimpList\:\:PREVIOUSLY_UNSUBSCRIBED_ERROR_CODE\.$#'
+      identifier: classConstant.notFound
+      count: 1
+      path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+    -
+      message: '#^Call to an undefined static method DeliveranceListUpdater\:\:handleResult\(\)\.$#'
+      identifier: staticMethod.notFound
+      count: 1
+      path: Deliverance/DeliveranceMailChimpListUpdater.php
+
+    -
+      message: '#^Call to an undefined method DeliveranceMailChimpUnsubscribePage\:\:getInterests\(\)\.$#'
+      identifier: method.notFound
+      count: 1
+      path: Deliverance/pages/DeliveranceMailChimpUnsubscribePage.php
+
+    -
+      message: '#^Call to an undefined method DeliveranceMailChimpUnsubscribePage\:\:getNewInterests\(\)\.$#'
+      identifier: method.notFound
+      count: 1
+      path: Deliverance/pages/DeliveranceMailChimpUnsubscribePage.php
+
+    -
+      message: '#^Call to an undefined static method DeliveranceUnsubscribePage\:\:removeInterests\(\)\.$#'
+      identifier: staticMethod.notFound
+      count: 1
+      path: Deliverance/pages/DeliveranceMailChimpUnsubscribePage.php
