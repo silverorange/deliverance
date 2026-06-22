@@ -549,11 +549,11 @@ class DeliveranceMailChimpList extends DeliveranceList
     {
         $interests = new stdClass();
 
-        $selected_interests = array_key_exists('interests', $info) ?
-            $info['interests'] : [];
+        $selected_interests = array_key_exists('interests', $info)
+            ? $info['interests'] : [];
 
-        $deactivated_interests = array_key_exists('deactivated_interests', $info) ?
-            $info['deactivated_interests'] : [];
+        $deactivated_interests = array_key_exists('deactivated_interests', $info)
+            ? $info['deactivated_interests'] : [];
 
         foreach ($deactivated_interests as $deactivated_interest) {
             $interests->{$deactivated_interest} = false;
@@ -705,8 +705,8 @@ class DeliveranceMailChimpList extends DeliveranceList
             if ($last_response['headers']['total_time'] > $this->client_timeout) {
                 throw new DeliveranceMailChimpTimeoutException(
                     sprintf(
-                        'The connection to the MailChimp ' .
-                        'API timed out after ‘%s’ seconds.',
+                        'The connection to the MailChimp '
+                        . 'API timed out after ‘%s’ seconds.',
                         $this->client_timeout
                     )
                 );
@@ -716,8 +716,8 @@ class DeliveranceMailChimpList extends DeliveranceList
             if ($error === null) {
                 throw new DeliveranceException(
                     sprintf(
-                        'Unable to decode JSON received from MailChimp. ' .
-                        'See the following response for more details: %s',
+                        'Unable to decode JSON received from MailChimp. '
+                        . 'See the following response for more details: %s',
                         print_r($last_response, true)
                     )
                 );
@@ -742,8 +742,8 @@ class DeliveranceMailChimpList extends DeliveranceList
             // Unknown exception - provide as much detail as possible.
             throw new DeliveranceException(
                 sprintf(
-                    'An unknown error occured when connecting to MailChimp. ' .
-                    'See the following response for more details: %s',
+                    'An unknown error occured when connecting to MailChimp. '
+                    . 'See the following response for more details: %s',
                     print_r($last_response, true)
                 )
             );

@@ -141,8 +141,8 @@ class DeliveranceListFactory extends SwatObject
     {
         if (!class_exists($list_class_name)) {
             throw new SwatClassNotFoundException(sprintf(
-                'List class "%s" does not exist and could not be found in ' .
-                'the search path.',
+                'List class "%s" does not exist and could not be found in '
+                . 'the search path.',
                 $list_class_name
             ), 0, $list_class_name);
         }

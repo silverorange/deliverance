@@ -76,15 +76,15 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
         // TODO: rewrite.
         $message = new SwatMessage(
             Deliverance::_(
-                'Thank you. Your email address was already subscribed to ' .
-                'our newsletter.'
+                'Thank you. Your email address was already subscribed to '
+                . 'our newsletter.'
             ),
             'notice'
         );
 
         $message->secondary_content = Deliverance::_(
-            'Your subscriber information has been updated, and you will ' .
-            'continue to receive mailings at this address.'
+            'Your subscriber information has been updated, and you will '
+            . 'continue to receive mailings at this address.'
         );
 
         return $message;
@@ -134,8 +134,8 @@ abstract class DeliveranceSignUpPage extends SiteEditPage
         if ($email != '') {
             $this->ui->getWidget('email')->value = $email;
         } elseif (!$form->isProcessed() && $this->app->session->isLoggedIn()) {
-            $this->ui->getWidget('email')->value =
-                $this->app->session->account->email;
+            $this->ui->getWidget('email')->value
+                = $this->app->session->account->email;
         }
     }
 }
