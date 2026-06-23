@@ -62,8 +62,8 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
 
     protected function canRelocate(SwatForm $form)
     {
-        return $this->ui->getWidget('message_display')->getMessageCount() ==
-            0;
+        return $this->ui->getWidget('message_display')->getMessageCount()
+            == 0;
     }
 
     protected function addUnsubscribeMessage()
@@ -86,8 +86,8 @@ abstract class DeliveranceUnsubscribePage extends SiteEditPage
         if ($email != '') {
             $this->ui->getWidget('email')->value = $email;
         } elseif (!$form->isProcessed() && $this->app->session->isLoggedIn()) {
-            $this->ui->getWidget('email')->value =
-                $this->app->session->account->email;
+            $this->ui->getWidget('email')->value
+                = $this->app->session->account->email;
         }
     }
 }

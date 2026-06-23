@@ -106,8 +106,8 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
                     $this->debug(
                         sprintf(
                             Deliverance::_(
-                                '%s addresses have previously subscribed, ' .
-                                'and cannot be resubscribed.'
+                                '%s addresses have previously subscribed, '
+                                . 'and cannot be resubscribed.'
                             ) . "\n",
                             $previously_unsubscribed_count
                         )
@@ -118,8 +118,8 @@ class DeliveranceMailChimpListUpdater extends DeliveranceListUpdater
                     $this->debug(
                         sprintf(
                             Deliverance::_(
-                                '%s addresses have bounced, and cannot be ' .
-                                'resubscribed.'
+                                '%s addresses have bounced, and cannot be '
+                                . 'resubscribed.'
                             ) . "\n",
                             $bounced_count
                         )

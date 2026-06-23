@@ -76,8 +76,8 @@ abstract class DeliveranceList
             case self::INVALID:
                 $message = new SwatMessage(
                     Deliverance::_(
-                        'Sorry, the email address you entered is not a valid ' .
-                        'email address.'
+                        'Sorry, the email address you entered is not a valid '
+                        . 'email address.'
                     ),
                     'error'
                 );
@@ -94,8 +94,8 @@ abstract class DeliveranceList
                 $message->content_type = 'text/xml';
                 $message->secondary_content = sprintf(
                     Deliverance::_(
-                        'This can usually be resolved by trying again later. If ' .
-                        'the issue persists please <a href="%s">contact us</a>.'
+                        'This can usually be resolved by trying again later. If '
+                        . 'the issue persists please <a href="%s">contact us</a>.'
                     ),
                     $this->getContactUsLink()
                 );
@@ -120,8 +120,8 @@ abstract class DeliveranceList
             case self::NOT_FOUND:
                 $message = new SwatMessage(
                     Deliverance::_(
-                        'Thank you. Your email address was never subscribed to ' .
-                        'our newsletter.'
+                        'Thank you. Your email address was never subscribed to '
+                        . 'our newsletter.'
                     ),
                     'notice'
                 );
@@ -135,8 +135,8 @@ abstract class DeliveranceList
             case self::NOT_SUBSCRIBED:
                 $message = new SwatMessage(
                     Deliverance::_(
-                        'Thank you. Your email address has already been ' .
-                        'unsubscribed from our newsletter.'
+                        'Thank you. Your email address has already been '
+                        . 'unsubscribed from our newsletter.'
                     ),
                     'notice'
                 );
@@ -158,9 +158,9 @@ abstract class DeliveranceList
                 $message->content_type = 'text/xml';
                 $message->secondary_content = sprintf(
                     Deliverance::_(
-                        'This can usually be resolved by trying again later. ' .
-                        'If the issue persists, please ' .
-                        '<a href="%s">contact us</a>.'
+                        'This can usually be resolved by trying again later. '
+                        . 'If the issue persists, please '
+                        . '<a href="%s">contact us</a>.'
                     ),
                     $this->getContactUsLink()
                 );

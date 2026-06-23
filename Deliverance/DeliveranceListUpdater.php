@@ -68,8 +68,8 @@ abstract class DeliveranceListUpdater extends DeliveranceCommandLineApplication
         } else {
             $this->debug(
                 Deliverance::_(
-                    'Mailing list unavailable. No queued addresses ' .
-                    'unsubscribed.'
+                    'Mailing list unavailable. No queued addresses '
+                    . 'unsubscribed.'
                 ) . "\n"
             );
         }
